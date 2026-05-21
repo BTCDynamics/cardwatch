@@ -1199,7 +1199,7 @@ def rapid_entry():
                 storage_location=clean_value(request.form.get("storage_location")),
                 collection_type=collection_type,
                 notes=request.form.get("notes"),
-                status=request.form.get("status") or "Holding"
+                status=request.form.get("status") or "Active"
             )
 
             db.session.add(new_card)
