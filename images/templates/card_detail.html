@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}{{ card.card_code }} - {{ card.player_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">{{ card.player_name }}</h1>
+        <p class="text-muted mb-0">{{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}</p>
+    </div>
+    <div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Back to Cards</a>
+        <a class="btn btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone Card</a>
+        {% if card.status != "Sold" %}
+            <a class="btn btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+        {% endif %}
+        <a class="btn btn-primary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit Card</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card page-card">
+            <div class="card-body text-center">
+                {% if card.image_filename %}
+                    <img class="card-thumb-lg" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} card image">
+                {% else %}
+                    <div class="cw-empty-image">No image uploaded</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card page-card mb-4">
+            <div class="section-heading ms-3">Card Info</div>
+            <div class="card-body">
+                <div class="row g-4 inventory-grid">
+                    <div class="col-md-4"><div class="detail-label">Sport</div><div class="detail-value">{{ card.sport or '—' }}</div></div>
+                    <div class="col-md-4"><div class="detail-label">Type</div><div class="detail-value">{{ card.card_type or '—' }}</div></div>
+                    <div class="col-md-4"><div class="detail-label">Year</div><div class="detail-value">{{ card.year or '—' }}</div></div>
+                    <div class="col-md-4"><div class="detail-label">Brand</div><div class="detail-value">{{ card.brand or '—' }}</div></div>
+                    <div class="col-md-4"><div class="detail-label">Set</div><div class="detail-value">{{ card.set_name or '—' }}</div></div>
+                    <div class="col-md-4"><div class="detail-label">Card #</div><div class="detail-value">{{ card.card_number or '—' }}</div></div>
+                    <div class="col-md-6"><div class="detail-label">Variation</div><div class="detail-value">{{ card.variation or '—' }}</div></div>
+                    <div class="col-md-3"><div class="detail-label">Hall of Famer</div><div class="detail-value">{% if card.is_hof %}<span class="badge badge-hof">Yes</span>{% else %}No{% endif %}</div></div>
+                    <div class="col-md-3"><div class="detail-label">Rookie Card</div><div class="detail-value">{% if card.is_rookie %}<span class="badge badge-rc">Yes</span>{% else %}No{% endif %}</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card page-card mb-4">
+            <div class="section-heading ms-3">Grading</div>
+            <div class="card-body">
+                {% if card.card_type == "Graded" %}
+                    <div class="row g-4 inventory-grid">
+                        <div class="col-md-4"><div class="detail-label">Company</div><div class="detail-value">{{ card.grading_company or '—' }}</div></div>
+                        <div class="col-md-4"><div class="detail-label">Official Grade</div><div class="detail-value">{{ card.actual_grade or '—' }}</div></div>
+                        <div class="col-md-4"><div class="detail-label">Cert #</div><div class="detail-value">{{ card.cert_number or '—' }}</div></div>
+                    </div>
+                {% else %}
+                    <div class="row g-4 inventory-grid">
+                        <div class="col-md-4"><div class="detail-label">Raw Grade Estimate</div><div class="detail-value">{{ card.grade_estimate or '—' }}</div></div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card page-card">
+            <div class="section-heading ms-3">Inventory</div>
+            <div class="card-body">
+                <div class="row g-4 inventory-grid mb-3">
+
+                    <div class="col-md-3">
+                        <div class="detail-label">Collection Type</div>
+                        <div class="detail-value">
+                            {% if card.collection_type == "Personal Collection" %}
+                                <span class="badge bg-primary">PC</span>
+                            {% elif card.collection_type == "Inventory" %}
+                                <span class="badge bg-success">Inventory</span>
+                            {% elif card.collection_type == "Trade Bait" %}
+                                <span class="badge bg-warning text-dark">Trade</span>
+                            {% elif card.collection_type == "Grading Queue" %}
+                                <span class="badge bg-info text-dark">Grade</span>
+                            {% else %}
+                                {{ card.collection_type or "Inventory" }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-3"><div class="detail-label">Quantity</div><div class="detail-value">{{ card.quantity or 1 }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Status</div><div class="detail-value">{% if card.status %}<span class="status-badge status-{{ card.status|replace(' ', '-') }}">{{ card.status }}</span>{% else %}—{% endif %}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Purchase Price</div><div class="detail-value">${{ "%.2f"|format(card.purchase_price or 0) }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Estimated Value</div><div class="detail-value">${{ "%.2f"|format(card.estimated_value or 0) }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Asking Price</div><div class="detail-value">${{ "%.2f"|format(card.asking_price or 0) }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Sold Price</div><div class="detail-value">${{ "%.2f"|format(card.sold_price or 0) }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Profit</div><div class="detail-value {% if (card.sold_price or 0) - (card.purchase_price or 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {% if card.sold_price %}
+                            ${{ "%.2f"|format((card.sold_price or 0) - (card.purchase_price or 0)) }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Purchase Date</div><div class="detail-value">{{ card.purchase_date or '—' }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Sold Date</div><div class="detail-value">{{ card.sold_date or '—' }}</div></div>
+
+                    <div class="col-md-3"><div class="detail-label">Sales Platform</div><div class="detail-value">{{ card.sales_platform or '—' }}</div></div>
+
+                    <div class="col-md-6"><div class="detail-label">Storage Location</div><div class="detail-value">{% if card.storage_location %}<a class="storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>{% else %}—{% endif %}</div></div>
+
+                    <div class="col-12"><div class="detail-label">Notes</div><div class="detail-value">{{ card.notes or '—' }}</div></div>
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}">
+                        <button class="btn btn-outline-success" type="submit">+1 Duplicate</button>
+                    </form>
+
+                    {% if card.status != "Sold" %}
+                        <a class="btn btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+                    {% endif %}
+
+                    <form method="POST" action="{{ url_for('delete_card', card_id=card.id) }}" onsubmit="return confirm('Delete this card?');">
+                        <button class="btn btn-outline-danger" type="submit">Delete Card</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

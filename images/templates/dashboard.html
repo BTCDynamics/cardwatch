@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}CardWatch Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">Collection Dashboard</h1>
+        <p class="text-muted mb-0">Clear snapshot of dealer inventory, personal collection, grading queue, and realized sales.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
+        <a class="btn btn-primary position-relative" href="{{ url_for('add_card') }}">Add Card</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">View Inventory</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card page-card dashboard-stat-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-success mb-3">Dealer Inventory</span>
+                <div class="display-6 fw-bold text-white">{{ dealer_inventory_cards or 0 }}</div>
+                <div class="small text-white-50">Inventory cards not sold</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card page-card dashboard-stat-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-primary mb-3">Available to Sell</span>
+                <div class="display-6 fw-bold text-white">{{ available_to_sell_cards or 0 }}</div>
+                <div class="small text-white-50">Inventory + Active status</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card page-card dashboard-stat-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-warning mb-3">Personal Collection</span>
+                <div class="display-6 fw-bold text-white">{{ pc_cards or 0 }}</div>
+                <div class="small text-white-50">PC cards not sold</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card page-card dashboard-stat-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-info mb-3">Grading Queue</span>
+                <div class="display-6 fw-bold text-white">{{ grading_queue_cards or 0 }}</div>
+                <div class="small text-white-50">Cards waiting for grading</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Total Inventory Cost</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(dealer_inventory_cost or 0) }}</div>
+                <p class="text-muted mb-0 small">Purchase cost for unsold Inventory cards.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Total Inventory Est. Value</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(dealer_inventory_value or 0) }}</div>
+                <p class="text-muted mb-0 small">Estimated value of unsold Inventory cards.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Total Inventory Gain / Loss</div>
+                <div class="display-6 fw-bold {% if dealer_unrealized_gain_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ "%.2f"|format(dealer_unrealized_gain_loss or 0) }}
+                </div>
+                <p class="text-muted mb-0 small">Total inventory estimated value minus total inventory cost.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">PC Total Cost</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(pc_total_cost or 0) }}</div>
+                <p class="text-muted mb-0 small">Total purchase cost of Personal Collection cards.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">PC Estimated Value</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(pc_estimated_value or 0) }}</div>
+                <p class="text-muted mb-0 small">Estimated value of Personal Collection cards.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">PC Est. Profit / Loss</div>
+                <div class="display-6 fw-bold {% if pc_estimated_profit_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ "%.2f"|format(pc_estimated_profit_loss or 0) }}
+                </div>
+                <p class="text-muted mb-0 small">PC estimated value minus PC total cost.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Total Sales</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(total_sold_price or 0) }}</div>
+                <p class="text-muted mb-0 small">Sold price total for cards marked Sold.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Realized Profit / Loss</div>
+                <div class="display-6 fw-bold {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ "%.2f"|format(total_profit or 0) }}
+                </div>
+                <p class="text-muted mb-0 small">Total sales minus sold-card cost basis.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card page-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Sold Cards</div>
+                <div class="display-6 fw-bold">{{ sold_cards or 0 }}</div>
+                <p class="text-muted mb-0 small">Quantity of cards marked Sold.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card page-card h-100">
+            <div class="card-header fw-bold">Card Categories</div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6"><div class="p-3 category-tile"><div class="text-muted">Hall of Fame</div><div class="h3 mb-0">{{ hof_cards }}</div></div></div>
+                    <div class="col-6"><div class="p-3 category-tile"><div class="text-muted">Rookie Cards</div><div class="h3 mb-0">{{ rookie_cards }}</div></div></div>
+                    <div class="col-6"><div class="p-3 category-tile"><div class="text-muted">Raw Cards</div><div class="h3 mb-0">{{ raw_cards }}</div></div></div>
+                    <div class="col-6"><div class="p-3 category-tile"><div class="text-muted">Graded Cards</div><div class="h3 mb-0">{{ graded_cards }}</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card page-card h-100">
+            <div class="card-header fw-bold">Workflow Snapshot</div>
+            <div class="card-body">
+                <p><strong>Inventory Holding:</strong> {{ inventory_holding_cards or 0 }}</p>
+                <p><strong>Trade Bait:</strong> {{ trade_bait_cards or 0 }}</p>
+                <p><strong>Grading Queue:</strong> {{ grading_queue_cards or 0 }}</p>
+                <hr>
+                <p class="text-muted mb-0">Collection Type tells why you own the card. Status tells whether it is Holding, Active, or Sold.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

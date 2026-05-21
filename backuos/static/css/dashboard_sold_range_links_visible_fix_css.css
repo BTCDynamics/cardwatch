@@ -1,0 +1,36 @@
+
+/* Dashboard sold range quick links */
+.dashboard-range-links {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: .28rem;
+    justify-content: flex-end;
+    position: relative;
+    z-index: 2;
+}
+
+.dashboard-range-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.1rem;
+    padding: .22rem .46rem;
+    border-radius: 999px;
+    color: #1e3a8a !important;
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+    font-size: .72rem;
+    font-weight: 900;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+.dashboard-range-links a:hover {
+    color: #ffffff !important;
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.dashboard-range-links-card {
+    cursor: default;
+}

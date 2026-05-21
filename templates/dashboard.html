@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}CardWatch Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">Collection Dashboard</h1>
+        <p class="text-muted mb-0">Current operational snapshot: active/available inventory, today's sales, fulfillment, personal collection, and grading queue.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
+        <a class="btn btn-primary position-relative" href="{{ url_for('add_card') }}">Add Card</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">View Inventory</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Active', collection_type='Inventory') }}">
+        <div class="card page-card dashboard-stat-card dashboard-click-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-success mb-3">Inventory (Active / Available)</span>
+                <div class="display-6 fw-bold text-white">{{ dealer_inventory_cards or 0 }}</div>
+                <div class="small text-white-50">Inventory cards currently Active</div>
+            </div>
+        </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Active') }}">
+        <div class="card page-card dashboard-stat-card dashboard-click-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-primary mb-3">Available Today</span>
+                <div class="display-6 fw-bold text-white">{{ available_to_sell_cards or 0 }}</div>
+                <div class="small text-white-50">Active inventory ready to sell</div>
+            </div>
+        </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', collection_type='Grading Queue') }}">
+        <div class="card page-card dashboard-stat-card dashboard-click-card h-100">
+            <div class="card-body">
+                <span class="btn btn-sm btn-info mb-3">Grading Queue</span>
+                <div class="display-6 fw-bold text-white">{{ grading_queue_cards or 0 }}</div>
+                <div class="small text-white-50">Cards waiting for grading</div>
+            </div>
+        </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Active', collection_type='Inventory') }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Inventory Cost (Active / Available)</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(dealer_inventory_cost or 0) }}</div>
+                <p class="text-muted mb-0 small">Purchase cost tied up in currently Active Inventory cards.</p>
+            </div>
+        </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Active', collection_type='Inventory') }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Inventory Est. Value (Active / Available)</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(dealer_inventory_value or 0) }}</div>
+                <p class="text-muted mb-0 small">Estimated value of currently Active Inventory cards.</p>
+            </div>
+        </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Active', collection_type='Inventory') }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Inventory P/L (Active / Available)</div>
+                <div class="display-6 fw-bold {% if dealer_unrealized_gain_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ "%.2f"|format(dealer_unrealized_gain_loss or 0) }}
+                </div>
+                <p class="text-muted mb-0 small">Estimated value minus cost for currently Active Inventory cards.</p>
+            </div>
+        </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_date=today) }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Today's Sales</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(total_sold_price or 0) }}</div>
+                <p class="text-muted mb-0 small">Sold price total for cards sold today.</p>
+            </div>
+        </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_date=today) }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">Today's Realized Profit / Loss</div>
+                <div class="display-6 fw-bold {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ "%.2f"|format(total_profit or 0) }}
+                </div>
+                <p class="text-muted mb-0 small">Today's sales minus today's sold-card cost basis.</p>
+            </div>
+        </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                    <div class="cw-section-label mb-0">Cards Sold Today</div>
+                    <div class="dashboard-range-links">
+                        <a href="{{ url_for('cards', status='Sold', sold_range='today') }}">Today
+                        <a href="{{ url_for('cards', status='Sold', sold_range='3d') }}">3D</a>
+                        <a href="{{ url_for('cards', status='Sold', sold_range='7d') }}">7D</a>
+                        <a href="{{ url_for('cards', status='Sold', sold_range='30d') }}">30D</a>
+                    </div>
+                </div>
+                <div class="display-6 fw-bold">{{ sold_cards or 0 }}</div>
+                <p class="text-muted mb-0 small">Quantity of cards marked Sold today.</p>
+            </div>
+        </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 dashboard-bottom-row">
+    <div class="col-lg-4">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span>Recent Sales</span>
+                <span class="badge text-bg-dark">Last 3 Days</span>
+            </div>
+
+            <div class="card-body">
+                {% if recent_sales %}
+                    <div class="recent-sales-list">
+                        {% for card in recent_sales %}
+                            {% set sale_total = (card.sold_price or 0) * (card.quantity or 1) %}
+                            {% set cost_total = (card.purchase_price or 0) * (card.quantity or 1) %}
+                            {% set profit_total = sale_total - cost_total %}
+                            {% set profit_percent = (profit_total / cost_total * 100) if cost_total else 0 %}
+
+                            <a class="recent-sale-row" href="{{ url_for('card_detail', card_id=card.id) }}">
+                                <div class="recent-sale-thumb-wrap">
+                                    {% if card.image_filename %}
+                                        <img class="recent-sale-thumb" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} card image">
+                                    {% else %}
+                                        <div class="recent-sale-placeholder">No Image</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="recent-sale-main">
+                                    <div class="recent-sale-player">{{ card.player_name }}</div>
+                                    <div class="recent-sale-meta">
+                                        {{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}
+                                    </div>
+                                    <div class="recent-sale-date">Sold {{ card.sold_date or '—' }}</div>
+                                </div>
+
+                                <div class="recent-sale-numbers">
+                                    <div><span>Cost</span> ${{ "%.2f"|format(cost_total) }}</div>
+                                    <div><span>Sold</span> ${{ "%.2f"|format(sale_total) }}</div>
+                                    <div class="{% if profit_total >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        <span>P/L</span> ${{ "%.2f"|format(profit_total) }}
+                                    </div>
+                                    <div class="{% if profit_total >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        <span>%</span> {{ "%.1f"|format(profit_percent) }}%
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <h5 class="mb-2">No recent sales yet.</h5>
+                        <p class="mb-0 small">Cards sold today or over the last 3 days will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="col-lg-4">
+        <div class="card page-card dashboard-brand-card h-100">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <div class="dashboard-brand-logo">CW</div>
+
+                <h2 class="dashboard-brand-title mb-2">CardWatch</h2>
+
+                <div class="dashboard-brand-subtitle mb-3">Dealer Command Center</div>
+
+                <div class="dashboard-brand-divider"></div>
+
+                <div class="dashboard-brand-tagline">Inventory • Deals • Fulfillment</div>
+
+                <div class="dashboard-brand-date mt-4">{{ today }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card page-card h-100">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span>Action Needed</span>
+                {% if open_workflow_tasks and open_workflow_tasks > 0 %}
+                    <span class="badge text-bg-danger">{{ open_workflow_tasks }} open</span>
+                {% else %}
+                    <span class="badge text-bg-success">Clear</span>
+                {% endif %}
+            </div>
+
+            <div class="card-body">
+                <div class="workflow-action-list">
+
+                    <a class="workflow-action-row workflow-warning" href="{{ url_for('fulfillment_queue', status='Needs Pulling') }}">
+                        <div>
+                            <div class="workflow-action-title">Needs Pulling</div>
+                            <div class="workflow-action-subtitle">Sold cards still sitting in storage.</div>
+                        </div>
+                        <span class="workflow-action-count">{{ fulfillment_queue_cards or 0 }}</span>
+                    </a>
+
+                    <a class="workflow-action-row workflow-info" href="{{ url_for('fulfillment_queue', status='Pulled') }}">
+                        <div>
+                            <div class="workflow-action-title">Pulled, Not Shipped</div>
+                            <div class="workflow-action-subtitle">Cards pulled from storage but not shipped/delivered.</div>
+                        </div>
+                        <span class="workflow-action-count">{{ pulled_not_shipped_cards or 0 }}</span>
+                    </a>
+
+                    <a class="workflow-action-row workflow-primary" href="{{ url_for('fulfillment_queue', status='Shipped') }}">
+                        <div>
+                            <div class="workflow-action-title">Shipped, Not Delivered</div>
+                            <div class="workflow-action-subtitle">Cards marked shipped but not delivered/completed.</div>
+                        </div>
+                        <span class="workflow-action-count">{{ shipped_not_delivered_cards or 0 }}</span>
+                    </a>
+
+                    <a class="workflow-action-row workflow-neutral" href="{{ url_for('cards', collection_type='Grading Queue') }}">
+                        <div>
+                            <div class="workflow-action-title">Grading Queue</div>
+                            <div class="workflow-action-subtitle">Cards waiting on grading workflow.</div>
+                        </div>
+                        <span class="workflow-action-count">{{ grading_queue_cards or 0 }}</span>
+                    </a>
+
+                    <a class="workflow-action-row workflow-warning" href="{{ url_for('cards', status='Active', collection_type='Inventory', storage='__missing__') }}">
+                        <div>
+                            <div class="workflow-action-title">Missing Storage Location</div>
+                            <div class="workflow-action-subtitle">Active inventory cards that still need a box, binder, or showcase location.</div>
+                        </div>
+                        <span class="workflow-action-count">{{ missing_storage_cards or 0 }}</span>
+                    </a>
+
+                    <div class="workflow-action-row workflow-muted">
+                        <div>
+                            <div class="workflow-action-title">Inventory Holding</div>
+                            <div class="workflow-action-subtitle">Inventory not currently Active / Available.</div>
+                        </div>
+                        <span class="workflow-action-count">{{ inventory_holding_cards or 0 }}</span>
+                    </div>
+
+                </div>
+
+                <hr>
+                <p class="text-muted mb-0 small">
+                    This panel shows operational tasks that may need attention today.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

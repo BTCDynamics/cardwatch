@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Add Card{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">{% if clone_source %}Clone Card{% else %}Add Card{% endif %}</h1>
+        <p class="text-muted mb-0">{% if clone_source %}Start from an existing card and save it as a new inventory record.{% else %}Create a new inventory record.{% endif %}</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Back to Cards</a>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="card page-card cw-form-compact">
+    <div class="card-body">
+        {% if clone_source %}
+        <input type="hidden" name="force_new" value="1">
+        <div class="alert alert-info mb-3">
+            Cloning <strong>{{ clone_source.card_code }}</strong>. A new card code will be generated when saved. Image is not copied automatically.
+        </div>
+        {% endif %}
+
+        <p class="text-muted"><strong>Card Code:</strong> Auto-generated when saved</p>
+
+        <div class="cw-section-label mb-2">Card Identity</div>
+        <div class="row g-3 align-items-end cw-form-row cw-row-a flex-nowrap overflow-auto">
+            <div class="col-md-auto cw-field-player">
+                <label class="form-label">Player Name</label>
+                <input class="form-control" type="text" name="player_name" required value="{{ clone_source.player_name if clone_source else '' }}">
+            </div>
+
+            <div class="col-md-auto cw-field-select-sm">
+                <label class="form-label">Sport</label>
+                <select class="form-select" name="sport">
+                    {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
+                        <option value="{{ sport }}" {% if clone_source and clone_source.sport == sport %}selected{% endif %}>{{ sport }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-auto cw-field-select-xs">
+                <label class="form-label">Card Type</label>
+                <select class="form-select" name="card_type">
+                    <option value="Raw" {% if clone_source and clone_source.card_type == "Raw" %}selected{% endif %}>Raw</option>
+                    <option value="Graded" {% if clone_source and clone_source.card_type == "Graded" %}selected{% endif %}>Graded</option>
+                </select>
+            </div>
+
+            <div class="col-md-auto cw-field-md">
+                <label class="form-label">Brand</label>
+                <input class="form-control" type="text" name="brand" placeholder="Topps" value="{{ clone_source.brand if clone_source else '' }}">
+            </div>
+
+            <div class="col-md-auto cw-field-xs">
+                <label class="form-label">Year</label>
+                <input class="form-control cw-input-xs" type="number" name="year" value="{{ clone_source.year if clone_source and clone_source.year else '' }}">
+            </div>
+
+            <div class="col-md-auto cw-field-sm">
+                <label class="form-label">Card #</label>
+                <input class="form-control cw-input-sm" type="text" name="card_number" value="{{ clone_source.card_number if clone_source else '' }}">
+            </div>
+
+            <div class="col-md-auto">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_hof" id="is_hof" {% if clone_source and clone_source.is_hof %}checked{% endif %}>
+                    <label class="form-check-label" for="is_hof">Hall of Famer</label>
+                </div>
+            </div>
+
+            <div class="col-md-auto">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_rookie" id="is_rookie" {% if clone_source and clone_source.is_rookie %}checked{% endif %}>
+                    <label class="form-check-label" for="is_rookie">Rookie Card</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-b">
+            <div class="col-12 col-md-auto cw-field-lg">
+                <label class="form-label">Set Name</label>
+                <input class="form-control" type="text" name="set_name" value="{{ clone_source.set_name if clone_source else '' }}">
+            </div>
+
+            <div class="col-7 col-md-auto cw-field-md">
+                <label class="form-label">Variation</label>
+                <input class="form-control" type="text" name="variation" value="{{ clone_source.variation if clone_source else '' }}">
+            </div>
+
+            <div class="col-12 col-md-auto cw-field-file">
+                <label class="form-label">Card Image</label>
+                <input class="form-control" type="file" name="card_image" accept="image/*">
+            </div>
+        </div>
+
+        <hr>
+
+        <div id="raw-heading" class="cw-section-label mb-2">Raw Card Info</div>
+        <div id="raw-fields" class="row g-3 cw-form-row cw-grade-row">
+            <div class="col-6 col-md-auto cw-field-sm">
+                <label class="form-label">Grade Estimate</label>
+                <input class="form-control cw-input-sm" type="text" name="grade_estimate" placeholder="PSA 8" value="{{ clone_source.grade_estimate if clone_source else '' }}">
+            </div>
+        </div>
+
+        <div id="graded-heading" class="cw-section-label mt-3 mb-2">Graded Card Info</div>
+        <div id="graded-fields" class="row g-3 cw-form-row cw-grade-row">
+            <div class="col-12 col-md-auto cw-field-md">
+                <label class="form-label">Grading Company</label>
+                <input class="form-control" type="text" name="grading_company" placeholder="PSA, SGC, BGS, CGC" value="{{ clone_source.grading_company if clone_source else '' }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-sm">
+                <label class="form-label">Actual Grade</label>
+                <input class="form-control cw-input-sm" type="text" name="actual_grade" placeholder="PSA 8" value="{{ clone_source.actual_grade if clone_source else '' }}">
+            </div>
+            <div class="col-12 col-md-auto cw-field-md">
+                <label class="form-label">Cert Number</label>
+                <input class="form-control" type="text" name="cert_number" value="">
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="cw-section-label mb-2">Inventory</div>
+        <div class="row g-3 align-items-end cw-form-row cw-row-a">
+            <div class="col-6 col-md-auto cw-field-select-md">
+                <label class="form-label">Collection Type</label>
+                <select class="form-select" name="collection_type">
+                    <option value="Inventory" {% if not clone_source or clone_source.collection_type == "Inventory" %}selected{% endif %}>Inventory</option>
+                    <option value="Personal Collection" {% if clone_source and clone_source.collection_type == "Personal Collection" %}selected{% endif %}>Personal Collection</option>
+                    <option value="Trade Bait" {% if clone_source and clone_source.collection_type == "Trade Bait" %}selected{% endif %}>Trade Bait</option>
+                    <option value="Grading Queue" {% if clone_source and clone_source.collection_type == "Grading Queue" %}selected{% endif %}>Grading Queue</option>
+                </select>
+            </div>
+            <div class="col-5 col-md-auto cw-field-xs">
+                <label class="form-label">Quantity</label>
+                <input class="form-control cw-input-xs" type="number" name="quantity" min="1" value="1">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Purchase Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="purchase_price" value="{{ clone_source.purchase_price if clone_source and clone_source.purchase_price else '' }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Estimated Value</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="estimated_value" value="{{ clone_source.estimated_value if clone_source and clone_source.estimated_value else '' }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Asking Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="asking_price" value="{{ clone_source.asking_price if clone_source and clone_source.asking_price else '' }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-date">
+                <label class="form-label">Purchase Date</label>
+                <input class="form-control" type="date" name="purchase_date" value="{{ clone_source.purchase_date if clone_source else '' }}">
+            </div>
+            <div class="col-12">
+                <div class="alert alert-info mb-0 small">
+                    New cards are saved as <strong>Active</strong> by default. Use <strong>Quick Sell</strong> or the <strong>Deal Cart</strong> when a card sells.
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-b">
+            <div class="col-12 col-md-auto cw-field-storage">
+                <label class="form-label">Storage Location</label>
+                <input class="form-control" type="text" name="storage_location" placeholder="Binder-1 / Page-3 / Pocket-2" value="{{ clone_source.storage_location if clone_source else '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" name="notes" rows="4">{{ clone_source.notes if clone_source else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">{% if clone_source %}Save Cloned Card{% else %}Save Card{% endif %}</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Cancel</a>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleCardTypeFields() {
+    const cardType = document.querySelector('[name="card_type"]').value;
+    const showRaw = cardType === "Raw";
+    const showGraded = cardType === "Graded";
+
+    document.getElementById("raw-heading").style.display = showRaw ? "block" : "none";
+    document.getElementById("raw-fields").style.display = showRaw ? "flex" : "none";
+
+    document.getElementById("graded-heading").style.display = showGraded ? "block" : "none";
+    document.getElementById("graded-fields").style.display = showGraded ? "flex" : "none";
+}
+document.querySelector('[name="card_type"]').addEventListener("change", toggleCardTypeFields);
+toggleCardTypeFields();
+
+</script>
+{% endblock %}

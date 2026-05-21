@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Card Inventory{% endblock %}
+
+{% block content %}
+{% set current_view = request.args.get('view', 'table') %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">Card Inventory</h1>
+        <p class="text-muted mb-0">Search, filter, and manage your collection.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
+        <a class="btn btn-primary" href="{{ url_for('add_card') }}">Add Card</a>
+    </div>
+</div>
+
+<div class="card page-card mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <h5 class="mb-0 fw-bold">Search Player Inventory</h5>
+
+            <div class="btn-group btn-group-sm" role="group" aria-label="Inventory view toggle">
+                <a
+                    class="btn {% if current_view != 'gallery' %}btn-dark{% else %}btn-outline-dark{% endif %}"
+                    href="{{ url_for('cards', q=search_query, sport=sport_filter, status=status_filter, rookie=rookie_filter, hof=hof_filter, card_type=card_type_filter, actual_grade=actual_grade_filter, grade_estimate=grade_estimate_filter, year=year_filter, brand=brand_filter, storage=storage_filter, variation=variation_filter, min_price=min_price, max_price=max_price, view='table') }}"
+                >
+                    Table View
+                </a>
+                <a
+                    class="btn {% if current_view == 'gallery' %}btn-dark{% else %}btn-outline-dark{% endif %}"
+                    href="{{ url_for('cards', q=search_query, sport=sport_filter, status=status_filter, rookie=rookie_filter, hof=hof_filter, card_type=card_type_filter, actual_grade=actual_grade_filter, grade_estimate=grade_estimate_filter, year=year_filter, brand=brand_filter, storage=storage_filter, variation=variation_filter, min_price=min_price, max_price=max_price, view='gallery') }}"
+                >
+                    Gallery View
+                </a>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ url_for('cards') }}" class="row g-2">
+            <input type="hidden" name="view" value="{{ current_view }}">
+
+            <div class="col-md-4">
+                <input class="form-control" type="text" name="q" placeholder="Player Name ..." value="{{ search_query or '' }}">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="sport">
+                    <option value="">All Sports</option>
+                    {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
+                        <option value="{{ sport }}" {% if sport_filter == sport %}selected{% endif %}>{{ sport }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="status">
+                    <option value="">All Statuses</option>
+                    {% for status in ["Holding", "Active", "Sold"] %}
+                        <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="card_type">
+                    <option value="">All Types</option>
+                    <option value="Raw" {% if card_type_filter == "Raw" %}selected{% endif %}>Raw</option>
+                    <option value="Graded" {% if card_type_filter == "Graded" %}selected{% endif %}>Graded</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="rookie">
+                    <option value="">All Rookie Status</option>
+                    <option value="yes" {% if rookie_filter == "yes" %}selected{% endif %}>Rookies Only</option>
+                    <option value="no" {% if rookie_filter == "no" %}selected{% endif %}>Non-Rookies</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="hof">
+                    <option value="">All HOF Status</option>
+                    <option value="yes" {% if hof_filter == "yes" %}selected{% endif %}>HOF Only</option>
+                    <option value="no" {% if hof_filter == "no" %}selected{% endif %}>Non-HOF</option>
+                </select>
+            </div>
+            <div class="col-md-2"><input class="form-control" type="text" name="actual_grade" placeholder="Official Grade" value="{{ actual_grade_filter or '' }}"></div>
+            <div class="col-md-2"><input class="form-control" type="text" name="grade_estimate" placeholder="Raw Estimate" value="{{ grade_estimate_filter or '' }}"></div>
+            <div class="col-md-2"><input class="form-control" type="number" name="year" placeholder="Year" value="{{ year_filter or '' }}"></div>
+            <div class="col-md-2"><input class="form-control" type="text" name="brand" placeholder="Brand" value="{{ brand_filter or '' }}"></div>
+            <div class="col-md-2">
+                <select class="form-select" name="storage">
+                    <option value="">All Storage</option>
+                    {% for location in storage_locations %}
+                        <option value="{{ location }}" {% if storage_filter == location %}selected{% endif %}>{{ location }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2"><input class="form-control" type="text" name="variation" placeholder="Variation" value="{{ variation_filter or '' }}"></div>
+            <div class="col-md-1"><input class="form-control" type="number" step="0.01" name="min_price" placeholder="Min" value="{{ min_price or '' }}"></div>
+            <div class="col-md-1"><input class="form-control" type="number" step="0.01" name="max_price" placeholder="Max" value="{{ max_price or '' }}"></div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-dark" type="submit">Apply Filters</button>
+                <a class="btn btn-outline-secondary" href="{{ url_for('cards', view=current_view) }}">Clear</a>
+            </div>
+        </form>
+
+        {% if storage_filter %}
+            <div class="mt-3">
+                <span class="small text-muted me-2">Storage filter:</span>
+                <a class="storage-pill" href="{{ url_for('cards', storage=storage_filter, view=current_view) }}">{{ storage_filter }}</a>
+                <a class="btn btn-sm btn-outline-secondary ms-2" href="{{ url_for('cards', view=current_view) }}">Clear Storage</a>
+            </div>
+        {% endif %}
+
+        <div class="deal-cart-bar mt-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <strong>Deal Cart:</strong>
+                <span class="badge text-bg-dark">{{ deal_cart_count or 0 }}</span>
+                <span class="text-muted small">card(s) selected across searches</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-sm btn-outline-dark" href="{{ url_for('deal_cart') }}">View Deal Cart</a>
+                {% if deal_cart_count %}
+                    <form method="POST" action="{{ url_for('clear_deal_cart') }}" class="d-inline">
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Clear Cart</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_view == 'gallery' %}
+    <div class="row g-4">
+        {% for card in cards %}
+            <div class="col-sm-6 col-md-4 col-xl-3">
+                <div class="card page-card gallery-card h-100 {% if card.status == 'Sold' %}sold-gallery-card{% endif %}">
+                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="gallery-image-link">
+                        {% if card.image_filename %}
+                            <img class="gallery-card-img" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} card image">
+                        {% else %}
+                            <div class="gallery-placeholder">No Image</div>
+                        {% endif %}
+                    </a>
+
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <div class="fw-bold gallery-player d-flex align-items-center gap-2">
+                                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none">{{ card.player_name }}</a>
+                                    {% if card.id in (deal_cart_ids|default([])) %}<span class="badge text-bg-warning">IN DEAL CART</span>{% endif %}
+                                    {% if card.status == "Sold" %}<span class="badge text-bg-danger">SOLD</span>{% endif %}
+                                </div>
+                                <div class="small text-muted">
+                                    {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}
+                                </div>
+                            </div>
+                            <span class="badge {% if card.card_type == 'Graded' %}text-bg-success{% else %}text-bg-dark{% endif %}">{{ card.card_type }}</span>
+                        </div>
+
+                        <div class="mb-2">
+                            {% if card.variation %}<span class="badge text-bg-light border">{{ card.variation }}</span>{% endif %}
+                            {% if card.is_rookie %}<span class="badge badge-rc">RC</span>{% endif %}
+                            {% if card.is_hof %}<span class="badge badge-hof">HOF</span>{% endif %}
+                        </div>
+
+                        <div class="gallery-meta small mb-3">
+                            <div><strong>Code:</strong> {{ card.card_code }}</div>
+                            <div><strong>Grade:</strong>
+                                {% if card.card_type == "Graded" %}
+                                    {{ card.grading_company }} {{ card.actual_grade }}
+                                {% elif card.card_type == "Raw" %}
+                                    Estimate {{ card.grade_estimate or '—' }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                            <div><strong>Qty:</strong> {{ card.quantity or 1 }}</div>
+                            <div><strong>Cost:</strong> ${{ "%.2f"|format(card.purchase_price or 0) }}</div>
+                            <div><strong>Est. Value:</strong> ${{ "%.2f"|format(card.estimated_value or 0) }}</div>
+                            <div><strong>Ask:</strong> ${{ "%.2f"|format(card.asking_price or 0) }}</div>
+                            <div><strong>Sold:</strong> {% if card.sold_price %}${{ "%.2f"|format(card.sold_price or 0) }}{% else %}—{% endif %}</div>
+                            <div><strong>Profit:</strong>
+                                {% if card.sold_price %}
+                                    <span class="{% if (card.sold_price or 0) - (card.purchase_price or 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        ${{ "%.2f"|format((card.sold_price or 0) - (card.purchase_price or 0)) }}
+                                    </span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                            <div><strong>Sold Date:</strong> {{ card.sold_date or '—' }}</div>
+                            <div><strong>Platform:</strong> {{ card.sales_platform or '—' }}</div>
+                            <div><strong>Status:</strong> {% if card.status %}<span class="status-badge status-{{ card.status|replace(' ', '-') }}">{{ card.status }}</span>{% else %}—{% endif %}</div>
+                            <div><strong>Storage:</strong>
+                                {% if card.storage_location %}
+                                    <a class="storage-pill storage-pill-sm" href="{{ url_for('cards', storage=card.storage_location, view=current_view) }}">{{ card.storage_location }}</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mt-auto d-flex flex-wrap gap-2">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('card_detail', card_id=card.id) }}">View</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit</a>
+                            {% if card.status == "Active" %}
+                                <a class="btn btn-sm btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+                            {% endif %}
+                            <a class="btn btn-sm btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
+                            <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}" class="d-inline">
+                                <button class="btn btn-sm btn-outline-success" type="submit">+1</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="card page-card">
+                    <div class="card-body text-center text-muted py-5">No cards found.</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <form id="deal-cart-add-form" method="POST" action="{{ url_for('add_to_deal_cart') }}"></form>
+    <div class="d-flex flex-wrap justify-content-end gap-2 mb-2">
+        <button class="btn btn-dark" type="submit" form="deal-cart-add-form">Add Selected to Deal Cart</button>
+        <a class="btn btn-purple" href="{{ url_for('deal_cart') }}">Sell Deal Cart as Lot</a>
+    </div>
+
+    <div class="card page-card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Select</th>
+                        <th>Image</th>
+                        <th>Card</th>
+                        <th>Type</th>
+                        <th>Official Grade</th>
+                        <th>Raw Estimate</th>
+                        <th>Qty</th>
+                        <th>Cost</th>
+                        <th>Est. Value</th>
+                        <th>Ask</th>
+                        <th>Sold</th>
+                        <th>Profit</th>
+                        <th>Platform</th>
+                        <th>Status</th>
+                        <th>Collection</th>
+                        <th>Storage</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card in cards %}
+                        <tr class="inventory-row {% if card.status == 'Sold' %}sold-inventory-row{% endif %}">
+                            <td>
+                                {% if card.status == "Active" %}
+                                    <input class="form-check-input" type="checkbox" name="card_ids" value="{{ card.id }}" form="deal-cart-add-form">
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if card.image_filename %}
+                                    <img class="card-thumb" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} card image">
+                                {% else %}
+                                    <div class="placeholder-thumb">No Image</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-bold d-flex align-items-center gap-2">
+                                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none">{{ card.player_name }}</a>
+                                    {% if card.id in (deal_cart_ids|default([])) %}<span class="badge text-bg-warning">IN DEAL CART</span>{% endif %}
+                                    {% if card.status == "Sold" %}<span class="badge text-bg-danger">SOLD</span>{% endif %}
+                                </div>
+                                <div class="small text-muted">{{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}</div>
+                                {% if card.variation %}<span class="badge text-bg-light border">{{ card.variation }}</span>{% endif %}
+                                {% if card.is_rookie %}<span class="badge badge-rc">RC</span>{% endif %}
+                                {% if card.is_hof %}<span class="badge badge-hof">HOF</span>{% endif %}
+                            </td>
+                            <td><span class="badge {% if card.card_type == 'Graded' %}text-bg-success{% else %}text-bg-dark{% endif %}">{{ card.card_type }}</span></td>
+                            <td>
+                                {% if card.card_type == "Graded" %}
+                                    {{ card.grading_company }} {{ card.actual_grade }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if card.card_type == "Raw" %}
+                                    {{ card.grade_estimate or '—' }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ card.quantity or 1 }}</td>
+                            <td>${{ "%.2f"|format(card.purchase_price or 0) }}</td>
+                            <td>${{ "%.2f"|format(card.estimated_value or 0) }}</td>
+                            <td>${{ "%.2f"|format(card.asking_price or 0) }}</td>
+                            <td>{% if card.sold_price %}${{ "%.2f"|format(card.sold_price or 0) }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                            <td>
+                                {% if card.sold_price %}
+                                    <span class="{% if (card.sold_price or 0) - (card.purchase_price or 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        ${{ "%.2f"|format((card.sold_price or 0) - (card.purchase_price or 0)) }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ card.sales_platform or '—' }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('update_card_status', card_id=card.id) }}">
+                                    <select class="form-select form-select-sm" name="status" onchange="this.form.submit()">
+                                        {% for status in ["Holding", "Active", "Sold"] %}
+                                            <option value="{{ status }}" {% if card.status == status %}selected{% endif %}>{{ status }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                {% if card.collection_type == "Personal Collection" %}
+                                    <span class="badge bg-primary">PC</span>
+                                {% elif card.collection_type == "Inventory" %}
+                                    <span class="badge bg-success">Inventory</span>
+                                {% elif card.collection_type == "Trade Bait" %}
+                                    <span class="badge bg-warning text-dark">Trade</span>
+                                {% elif card.collection_type == "Grading Queue" %}
+                                    <span class="badge bg-info text-dark">Grade</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if card.storage_location %}
+                                    <a class="storage-pill storage-pill-sm" href="{{ url_for('cards', storage=card.storage_location, view=current_view) }}">{{ card.storage_location }}</a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a class="btn btn-outline-primary" href="{{ url_for('card_detail', card_id=card.id) }}">View</a>
+                                    <a class="btn btn-outline-secondary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit</a>
+                                    {% if card.status == "Active" %}
+                                        <a class="btn btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+                                    {% endif %}
+                                    <a class="btn btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
+                                </div>
+                                <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}" class="d-inline">
+                                    <button class="btn btn-sm btn-outline-success" type="submit">+1</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="17" class="text-center text-muted py-5">No cards found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

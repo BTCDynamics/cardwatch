@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ card.card_code }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">Edit Card</h1>
+        <p class="text-muted mb-0">{{ card.card_code }} · {{ card.player_name }}</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('card_detail', card_id=card.id) }}">Back to Detail</a>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="card page-card cw-form-compact">
+    <div class="card-body">
+        <div class="cw-section-label mb-2">Card Identity</div>
+        <div class="row g-3 align-items-end cw-form-row cw-row-a">
+            <div class="col-6 col-md-auto cw-field-code">
+                <label class="form-label">Card Code</label>
+                <input class="form-control" type="text" name="card_code" required value="{{ card.card_code }}">
+            </div>
+            <div class="col-12 col-md-auto cw-field-player">
+                <label class="form-label">Player Name</label>
+                <input class="form-control" type="text" name="player_name" required value="{{ card.player_name }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-select-sm">
+                <label class="form-label">Sport</label>
+                <select class="form-select" name="sport">
+                    {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
+                        <option value="{{ sport }}" {% if card.sport == sport %}selected{% endif %}>{{ sport }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-auto cw-field-select-xs">
+                <label class="form-label">Card Type</label>
+                <select class="form-select" name="card_type">
+                    <option value="Raw" {% if card.card_type == "Raw" %}selected{% endif %}>Raw</option>
+                    <option value="Graded" {% if card.card_type == "Graded" %}selected{% endif %}>Graded</option>
+                </select>
+            </div>
+            <div class="col-5 col-md-auto cw-field-xs">
+                <label class="form-label">Year</label>
+                <input class="form-control cw-input-xs" type="number" name="year" value="{{ card.year or '' }}">
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-b">
+            <div class="col-7 col-md-auto cw-field-md">
+                <label class="form-label">Brand</label>
+                <input class="form-control" type="text" name="brand" value="{{ card.brand or '' }}">
+            </div>
+            <div class="col-12 col-md-auto cw-field-lg">
+                <label class="form-label">Set Name</label>
+                <input class="form-control" type="text" name="set_name" value="{{ card.set_name or '' }}">
+            </div>
+            <div class="col-5 col-md-auto cw-field-sm">
+                <label class="form-label">Card #</label>
+                <input class="form-control cw-input-sm" type="text" name="card_number" value="{{ card.card_number or '' }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-md">
+                <label class="form-label">Variation</label>
+                <input class="form-control" type="text" name="variation" value="{{ card.variation or '' }}">
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-c">
+            <div class="col-12 col-md-auto cw-field-file">
+                <label class="form-label">Replace Card Image</label>
+                <input class="form-control" type="file" name="card_image" accept="image/*">
+                {% if card.image_filename %}
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" name="remove_image" id="remove_image">
+                        <label class="form-check-label" for="remove_image">Remove current image</label>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-auto">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="is_hof" id="is_hof" {% if card.is_hof %}checked{% endif %}>
+                    <label class="form-check-label" for="is_hof">Hall of Famer</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="is_rookie" id="is_rookie" {% if card.is_rookie %}checked{% endif %}>
+                    <label class="form-check-label" for="is_rookie">Rookie Card</label>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div id="raw-heading" class="cw-section-label mb-2">Raw Card Info</div>
+        <div id="raw-fields" class="row g-3 cw-form-row cw-grade-row">
+            <div class="col-6 col-md-auto cw-field-sm">
+                <label class="form-label">Grade Estimate</label>
+                <input class="form-control cw-input-sm" type="text" name="grade_estimate" value="{{ card.grade_estimate or '' }}">
+            </div>
+        </div>
+
+        <div id="graded-heading" class="cw-section-label mt-3 mb-2">Graded Card Info</div>
+        <div id="graded-fields" class="row g-3 cw-form-row cw-grade-row">
+            <div class="col-12 col-md-auto cw-field-md">
+                <label class="form-label">Grading Company</label>
+                <input class="form-control" type="text" name="grading_company" value="{{ card.grading_company or '' }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-sm">
+                <label class="form-label">Actual Grade</label>
+                <input class="form-control cw-input-sm" type="text" name="actual_grade" value="{{ card.actual_grade or '' }}">
+            </div>
+            <div class="col-12 col-md-auto cw-field-md">
+                <label class="form-label">Cert Number</label>
+                <input class="form-control" type="text" name="cert_number" value="{{ card.cert_number or '' }}">
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="cw-section-label mb-2">Inventory</div>
+        <div class="row g-3 align-items-end cw-form-row cw-row-a">
+
+            <div class="col-6 col-md-auto cw-field-select-md">
+                <label class="form-label">Collection Type</label>
+                <select class="form-select" name="collection_type">
+
+                    <option value="Inventory"
+                        {% if card.collection_type == "Inventory" %}selected{% endif %}>
+                        Inventory
+                    </option>
+
+                    <option value="Personal Collection"
+                        {% if card.collection_type == "Personal Collection" %}selected{% endif %}>
+                        Personal Collection
+                    </option>
+
+                    <option value="Trade Bait"
+                        {% if card.collection_type == "Trade Bait" %}selected{% endif %}>
+                        Trade Bait
+                    </option>
+
+                    <option value="Grading Queue"
+                        {% if card.collection_type == "Grading Queue" %}selected{% endif %}>
+                        Grading Queue
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="col-5 col-md-auto cw-field-xs">
+                <label class="form-label">Quantity</label>
+                <input class="form-control cw-input-xs" type="number" name="quantity" min="1" value="{{ card.quantity or 1 }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Purchase Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="purchase_price" value="{{ card.purchase_price or '' }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Estimated Value</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="estimated_value" value="{{ card.estimated_value or '' }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Asking Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="asking_price" value="{{ card.asking_price or '' }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-date">
+                <label class="form-label">Purchase Date</label>
+                <input class="form-control" type="date" name="purchase_date" value="{{ card.purchase_date or '' }}">
+            </div>
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Sold Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="sold_price" value="{{ card.sold_price or '' }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-date">
+                <label class="form-label">Sold Date</label>
+                <input class="form-control" type="date" name="sold_date" value="{{ card.sold_date or '' }}">
+            </div>
+            <div class="col-6 col-md-auto cw-field-select-md">
+                <label class="form-label">Sales Platform</label>
+                <select class="form-select" name="sales_platform">
+                    {% for platform in ["", "eBay", "Whatnot", "Facebook", "Card Show", "COMC", "Direct Sale", "Trade", "Other"] %}
+                        <option value="{{ platform }}" {% if card.sales_platform == platform %}selected{% endif %}>{{ platform or "Select Platform" }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-auto cw-field-select-md">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status">
+                    {% for status in ["Holding", "Active", "Sold"] %}
+                        <option value="{{ status }}" {% if card.status == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-b">
+            <div class="col-12 col-md-auto cw-field-storage">
+                <label class="form-label">Storage Location</label>
+                <input class="form-control" type="text" name="storage_location" value="{{ card.storage_location or '' }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" name="notes" rows="4">{{ card.notes or '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Save Changes</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('card_detail', card_id=card.id) }}">Cancel</a>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleCardTypeFields() {
+    const cardType = document.querySelector('[name="card_type"]').value;
+    const showRaw = cardType === "Raw";
+    const showGraded = cardType === "Graded";
+
+    document.getElementById("raw-heading").style.display = showRaw ? "block" : "none";
+    document.getElementById("raw-fields").style.display = showRaw ? "flex" : "none";
+
+    document.getElementById("graded-heading").style.display = showGraded ? "block" : "none";
+    document.getElementById("graded-fields").style.display = showGraded ? "flex" : "none";
+}
+document.querySelector('[name="card_type"]').addEventListener("change", toggleCardTypeFields);
+toggleCardTypeFields();
+</script>
+{% endblock %}
