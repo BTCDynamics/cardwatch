@@ -3,6 +3,18 @@
 {% block title %}Fulfillment Queue{% endblock %}
 
 {% block content %}
+<style>
+/* Fix unreadable Needs Pulling stat card text */
+.fulfillment-stat-card .detail-label,
+.fulfillment-stat-card .detail-value {
+    color: #ffffff !important;
+}
+
+.fulfillment-stat-card {
+    background: linear-gradient(145deg, #f59e0b, #d97706) !important;
+    border-color: #fbbf24 !important;
+}
+</style>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
     <div>
         <h1 class="h2 mb-1">Fulfillment Queue</h1>
