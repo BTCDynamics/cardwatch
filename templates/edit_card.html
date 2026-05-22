@@ -244,5 +244,23 @@ function toggleCardTypeFields() {
 }
 document.querySelector('[name="card_type"]').addEventListener("change", toggleCardTypeFields);
 toggleCardTypeFields();
+
+function syncStatusWithCollectionType() {
+    const collectionTypeField = document.querySelector('[name="collection_type"]');
+    const statusField = document.querySelector('[name="status"]');
+
+    if (!collectionTypeField || !statusField) {
+        return;
+    }
+
+    if (collectionTypeField.value === "Personal Collection") {
+        statusField.value = "Holding";
+    }
+}
+
+const collectionTypeField = document.querySelector('[name="collection_type"]');
+if (collectionTypeField) {
+    collectionTypeField.addEventListener("change", syncStatusWithCollectionType);
+}
 </script>
 {% endblock %}
