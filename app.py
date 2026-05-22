@@ -1282,10 +1282,11 @@ def add_card():
         existing_card = existing_query.first()
 
         if existing_card and not force_new_card:
-            old_quantity = existing_card.quantity or 1
+    old_quantity = existing_card.quantity or 1
 
-            existing_card.quantity = old_quantity + quantity_to_add
-            existing_card.collection_type = collection_type
+    existing_card.quantity = old_quantity + quantity_to_add
+    existing_card.collection_type = collection_type
+    existing_card.status = "Active"
 
             if uploaded_image:
                 if existing_card.image_filename:
@@ -1344,7 +1345,7 @@ def add_card():
             collection_type=collection_type,
             image_filename=uploaded_image,
             notes=request.form.get("notes"),
-            status=request.form.get("status") or "Holding"
+            status=request.form.get("status") or "Active"
         )
 
         db.session.add(new_card)
