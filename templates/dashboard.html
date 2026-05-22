@@ -135,7 +135,7 @@
         <a class="dashboard-card-link" href="{{ url_for('cards', purchase_date=today) }}">
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
-                <div class="cw-section-label mb-1">Cards Bought Today</div>
+                <div class="cw-section-label mb-1">Cards Bought Today (not functional)</div>
                 <div class="display-6 fw-bold">{{ cards_bought_today or 0 }}</div>
                 <p class="text-muted mb-0 small">
                     ${{ "%.2f"|format(cost_bought_today or 0) }} added to inventory cost.
