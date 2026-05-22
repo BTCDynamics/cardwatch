@@ -380,6 +380,25 @@ def dashboard():
     pulled_not_shipped_cards = sum((card.quantity or 1) for card in pulled_not_shipped_queue)
     shipped_not_delivered_cards = sum((card.quantity or 1) for card in shipped_not_delivered_queue)
     delivered_cards = sum((card.quantity or 1) for card in delivered_queue)
+
+    missing_storage_cards = sum(
+        (card.quantity or 1)
+        for card in dealer_inventory_active_available
+        if not card.storage_location
+    )
+
+    sales_7d_cards = sum(
+        (card.quantity or 1)
+        for card in sold_cards_all_time
+        if card.sold_date and card.sold_date >= (date.today() - timedelta(days=6)).isoformat()
+    )
+
+    sales_7d_total = sum(
+        ((card.sold_price or 0) * (card.quantity or 1))
+        for card in sold_cards_all_time
+        if card.sold_date and card.sold_date >= (date.today() - timedelta(days=6)).isoformat()
+    )
+
     open_workflow_tasks = (
         fulfillment_queue_cards
         + pulled_not_shipped_cards
@@ -521,6 +540,9 @@ def dashboard():
         pulled_not_shipped_cards=pulled_not_shipped_cards,
         shipped_not_delivered_cards=shipped_not_delivered_cards,
         delivered_cards=delivered_cards,
+        missing_storage_cards=missing_storage_cards,
+        sales_7d_cards=sales_7d_cards,
+        sales_7d_total=sales_7d_total,
         open_workflow_tasks=open_workflow_tasks,
         dealer_inventory_cost=dealer_inventory_cost,
         dealer_inventory_value=dealer_inventory_value,
@@ -1251,6 +1273,7 @@ def add_card():
 
         card_type = request.form.get("card_type") or "Raw"
         collection_type = request.form.get("collection_type") or "Inventory"
+        card_status = "Holding" if collection_type == "Personal Collection" else "Active"
 
         player_name = clean_value(request.form["player_name"])
         sport = request.form.get("sport")
@@ -1301,7 +1324,7 @@ def add_card():
 
             existing_card.quantity = old_quantity + quantity_to_add
             existing_card.collection_type = collection_type
-            existing_card.status = "Active"
+            existing_card.status = card_status
 
             if uploaded_image:
                 if existing_card.image_filename:
@@ -1360,7 +1383,7 @@ def add_card():
             collection_type=collection_type,
             image_filename=uploaded_image,
             notes=request.form.get("notes"),
-            status=request.form.get("status") or "Active"
+            status=card_status
         )
 
         db.session.add(new_card)
