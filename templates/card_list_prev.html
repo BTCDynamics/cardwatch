@@ -10,10 +10,6 @@
         <h1 class="h2 mb-1">Card Inventory</h1>
         <p class="text-muted mb-0">Search, filter, and manage your collection.</p>
     </div>
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
-        <a class="btn btn-primary" href="{{ url_for('add_card') }}">Add Card</a>
-    </div>
 </div>
 
 <div class="card page-card mb-4">
@@ -104,16 +100,34 @@
         {% if storage_filter %}
             <div class="mt-3">
                 <span class="small text-muted me-2">Storage filter:</span>
-                <a class="storage-pill" href="{{ url_for('cards', storage=storage_filter, view=current_view) }}">{{ storage_filter }}</a>
+                {% if storage_filter == '__missing__' %}
+                    <span class="badge text-bg-warning">Missing Location</span>
+                {% else %}
+                    <a class="storage-pill" href="{{ url_for('cards', storage=storage_filter, view=current_view) }}">{{ storage_filter }}</a>
+                {% endif %}
                 <a class="btn btn-sm btn-outline-secondary ms-2" href="{{ url_for('cards', view=current_view) }}">Clear Storage</a>
             </div>
         {% endif %}
 
         <div class="deal-cart-bar mt-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
-            <div>
-                <strong>Deal Cart:</strong>
-                <span class="badge text-bg-dark">{{ deal_cart_count or 0 }}</span>
-                <span class="text-muted small">card(s) selected across searches</span>
+            <div class="d-flex flex-wrap align-items-center gap-3">
+                <div>
+                    <strong>Active Inventory:</strong>
+                    <span class="badge text-bg-success">{{ active_inventory_count or 0 }}</span>
+                    <span class="text-muted small">card(s) available</span>
+                </div>
+
+                <div>
+                    <strong>Missing Location:</strong>
+                    <a class="badge text-bg-warning text-decoration-none" href="{{ url_for('cards', status='Active', collection_type='Inventory', storage='__missing__', view=current_view) }}">{{ missing_storage_count or 0 }}</a>
+                    <span class="text-muted small">active inventory card(s)</span>
+                </div>
+
+                <div>
+                    <strong>Deal Cart:</strong>
+                    <span class="badge text-bg-dark">{{ deal_cart_count or 0 }}</span>
+                    <span class="text-muted small">card(s) selected across searches</span>
+                </div>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-sm btn-outline-dark" href="{{ url_for('deal_cart') }}">View Deal Cart</a>
@@ -144,7 +158,7 @@
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
                             <div>
                                 <div class="fw-bold gallery-player d-flex align-items-center gap-2">
-                                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none">{{ card.player_name }}</a>
+                                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none text-dark">{{ card.player_name }}</a>
                                     {% if card.id in (deal_cart_ids|default([])) %}<span class="badge text-bg-warning">IN DEAL CART</span>{% endif %}
                                     {% if card.status == "Sold" %}<span class="badge text-bg-danger">SOLD</span>{% endif %}
                                 </div>
@@ -202,7 +216,7 @@
                             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('card_detail', card_id=card.id) }}">View</a>
                             <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit</a>
                             {% if card.status == "Active" %}
-                                <a class="btn btn-sm btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+                                <a class="btn btn-sm btn-primary" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
                             {% endif %}
                             <a class="btn btn-sm btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
                             <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}" class="d-inline">
@@ -222,9 +236,15 @@
     </div>
 {% else %}
     <form id="deal-cart-add-form" method="POST" action="{{ url_for('add_to_deal_cart') }}"></form>
-    <div class="d-flex flex-wrap justify-content-end gap-2 mb-2">
-        <button class="btn btn-dark" type="submit" form="deal-cart-add-form">Add Selected to Deal Cart</button>
-        <a class="btn btn-purple" href="{{ url_for('deal_cart') }}">Sell Deal Cart as Lot</a>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-dark" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
+            <a class="btn btn-primary" href="{{ url_for('add_card') }}">Add Card</a>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-dark" type="submit" form="deal-cart-add-form">Add Selected to Deal Cart</button>
+            <a class="btn btn-purple" href="{{ url_for('deal_cart') }}">Sell Deal Cart as Lot</a>
+        </div>
     </div>
 
     <div class="card page-card">
@@ -270,7 +290,7 @@
                             </td>
                             <td>
                                 <div class="fw-bold d-flex align-items-center gap-2">
-                                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none">{{ card.player_name }}</a>
+                                    <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none text-dark">{{ card.player_name }}</a>
                                     {% if card.id in (deal_cart_ids|default([])) %}<span class="badge text-bg-warning">IN DEAL CART</span>{% endif %}
                                     {% if card.status == "Sold" %}<span class="badge text-bg-danger">SOLD</span>{% endif %}
                                 </div>
@@ -344,7 +364,7 @@
                                     <a class="btn btn-outline-primary" href="{{ url_for('card_detail', card_id=card.id) }}">View</a>
                                     <a class="btn btn-outline-secondary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit</a>
                                     {% if card.status == "Active" %}
-                                        <a class="btn btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+                                        <a class="btn btn-primary" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
                                     {% endif %}
                                     <a class="btn btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
                                 </div>

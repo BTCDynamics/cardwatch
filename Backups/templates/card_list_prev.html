@@ -10,10 +10,6 @@
         <h1 class="h2 mb-1">Card Inventory</h1>
         <p class="text-muted mb-0">Search, filter, and manage your collection.</p>
     </div>
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
-        <a class="btn btn-primary" href="{{ url_for('add_card') }}">Add Card</a>
-    </div>
 </div>
 
 <div class="card page-card mb-4">
@@ -240,9 +236,15 @@
     </div>
 {% else %}
     <form id="deal-cart-add-form" method="POST" action="{{ url_for('add_to_deal_cart') }}"></form>
-    <div class="d-flex flex-wrap justify-content-end gap-2 mb-2">
-        <button class="btn btn-dark" type="submit" form="deal-cart-add-form">Add Selected to Deal Cart</button>
-        <a class="btn btn-danger" href="{{ url_for('deal_cart') }}">Sell Deal Cart as Lot</a>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-dark" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
+            <a class="btn btn-primary" href="{{ url_for('add_card') }}">Add Card</a>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-dark" type="submit" form="deal-cart-add-form">Add Selected to Deal Cart</button>
+            <a class="btn btn-purple" href="{{ url_for('deal_cart') }}">Sell Deal Cart as Lot</a>
+        </div>
     </div>
 
     <div class="card page-card">
@@ -351,17 +353,11 @@
                             </td>
 
                             <td>
-                                <form method="POST" action="{{ url_for('update_card_storage', card_id=card.id) }}" class="quick-storage-form">
-                                    <div class="input-group input-group-sm quick-storage-group">
-                                        <input class="form-control quick-storage-input" type="text" name="storage_location" value="{{ card.storage_location or '' }}" placeholder="Add location">
-                                        <button class="btn btn-outline-secondary" type="submit">Save</button>
-                                    </div>
-                                    {% if card.storage_location %}
-                                        <a class="storage-pill storage-pill-sm mt-1" href="{{ url_for('cards', storage=card.storage_location, view=current_view) }}">{{ card.storage_location }}</a>
-                                    {% else %}
-                                        <span class="badge text-bg-warning mt-1">Missing Location</span>
-                                    {% endif %}
-                                </form>
+                                {% if card.storage_location %}
+                                    <a class="storage-pill storage-pill-sm" href="{{ url_for('cards', storage=card.storage_location, view=current_view) }}">{{ card.storage_location }}</a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
                             </td>
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">

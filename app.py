@@ -265,7 +265,31 @@ def get_deal_cart_quantity():
 @app.route("/")
 def dashboard():
     today = date.today().isoformat()
-    recent_sales_start_date = (date.today() - timedelta(days=2)).isoformat()
+
+    recent_sales_range = request.args.get("recent_sales_range", "3d")
+
+    recent_sales_range_days = {
+        "today": 0,
+        "3d": 2,
+        "7d": 6,
+        "30d": 29,
+    }
+
+    recent_sales_range_labels = {
+        "today": "Today",
+        "3d": "Last 3 Days",
+        "7d": "Last 7 Days",
+        "30d": "Last 30 Days",
+    }
+
+    if recent_sales_range not in recent_sales_range_days:
+        recent_sales_range = "3d"
+
+    recent_sales_start_date = (
+        date.today() - timedelta(days=recent_sales_range_days[recent_sales_range])
+    ).isoformat()
+
+    recent_sales_label = recent_sales_range_labels[recent_sales_range]
 
     cards = Card.query.all()
 
@@ -322,13 +346,6 @@ def dashboard():
         if card.collection_type == "Trade Bait"
     ]
 
-    active_inventory_missing_storage = [
-        card for card in active_cards
-        if card.collection_type == "Inventory"
-        and card.status == "Active"
-        and not card.storage_location
-    ]
-
     fulfillment_queue = [
         card for card in sold_cards_all_time
         if getattr(card, "fulfillment_status", None) in ["Needs Pulling", "In Storage"]
@@ -359,7 +376,6 @@ def dashboard():
     pc_cards = sum((card.quantity or 1) for card in personal_collection)
     grading_queue_cards = sum((card.quantity or 1) for card in grading_queue)
     trade_bait_cards = sum((card.quantity or 1) for card in trade_bait)
-    missing_storage_cards = sum((card.quantity or 1) for card in active_inventory_missing_storage)
     fulfillment_queue_cards = sum((card.quantity or 1) for card in fulfillment_queue)
     pulled_not_shipped_cards = sum((card.quantity or 1) for card in pulled_not_shipped_queue)
     shipped_not_delivered_cards = sum((card.quantity or 1) for card in shipped_not_delivered_queue)
@@ -370,7 +386,6 @@ def dashboard():
         + shipped_not_delivered_cards
         + grading_queue_cards
         + inventory_holding_cards
-        + missing_storage_cards
     )
 
     dealer_inventory_cost = 0
@@ -501,7 +516,6 @@ def dashboard():
         pc_cards=pc_cards,
         grading_queue_cards=grading_queue_cards,
         trade_bait_cards=trade_bait_cards,
-        missing_storage_cards=missing_storage_cards,
         inventory_holding_cards=inventory_holding_cards,
         fulfillment_queue_cards=fulfillment_queue_cards,
         pulled_not_shipped_cards=pulled_not_shipped_cards,
@@ -533,6 +547,8 @@ def dashboard():
         today_sales_margin_percent=today_sales_margin_percent,
         recent_sales=recent_sales,
         recent_sales_start_date=recent_sales_start_date,
+        recent_sales_range=recent_sales_range,
+        recent_sales_label=recent_sales_label,
         deal_cart_count=get_deal_cart_quantity()
     )
 
@@ -1063,7 +1079,6 @@ def delete_card(card_id):
     return redirect(url_for("cards"))
 
 
-
 @app.route("/cards/<int:card_id>/update-storage", methods=["POST"])
 def update_card_storage(card_id):
     card = Card.query.get_or_404(card_id)
@@ -1220,7 +1235,7 @@ def rapid_entry():
             "card_type": card_type or "Raw",
             "storage_location": request.form.get("storage_location") or "",
             "collection_type": collection_type or "Inventory",
-            "status": request.form.get("status") or "Holding",
+            "status": request.form.get("status") or "Active",
             "purchase_date": request.form.get("purchase_date") or ""
         }
 
@@ -1282,11 +1297,11 @@ def add_card():
         existing_card = existing_query.first()
 
         if existing_card and not force_new_card:
-    old_quantity = existing_card.quantity or 1
+            old_quantity = existing_card.quantity or 1
 
-    existing_card.quantity = old_quantity + quantity_to_add
-    existing_card.collection_type = collection_type
-    existing_card.status = "Active"
+            existing_card.quantity = old_quantity + quantity_to_add
+            existing_card.collection_type = collection_type
+            existing_card.status = "Active"
 
             if uploaded_image:
                 if existing_card.image_filename:

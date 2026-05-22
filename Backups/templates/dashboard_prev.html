@@ -173,6 +173,20 @@
                                         {{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}
                                     </div>
                                     <div class="recent-sale-date">Sold {{ card.sold_date or '—' }}</div>
+
+                                    <div class="mt-1">
+                                        {% if card.fulfillment_status == "Needs Pulling" %}
+                                            <span class="badge text-bg-warning">Needs Pulling</span>
+                                        {% elif card.fulfillment_status == "Pulled" %}
+                                            <span class="badge text-bg-dark">Pulled</span>
+                                        {% elif card.fulfillment_status == "Shipped" %}
+                                            <span class="badge text-bg-primary">Shipped</span>
+                                        {% elif card.fulfillment_status in ["Delivered", "Completed"] %}
+                                            <span class="badge text-bg-success">{{ card.fulfillment_status }}</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">{{ card.fulfillment_status or '—' }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
 
                                 <div class="recent-sale-numbers">

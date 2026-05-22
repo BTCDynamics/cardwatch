@@ -322,13 +322,6 @@ def dashboard():
         if card.collection_type == "Trade Bait"
     ]
 
-    active_inventory_missing_storage = [
-        card for card in active_cards
-        if card.collection_type == "Inventory"
-        and card.status == "Active"
-        and not card.storage_location
-    ]
-
     fulfillment_queue = [
         card for card in sold_cards_all_time
         if getattr(card, "fulfillment_status", None) in ["Needs Pulling", "In Storage"]
@@ -359,7 +352,6 @@ def dashboard():
     pc_cards = sum((card.quantity or 1) for card in personal_collection)
     grading_queue_cards = sum((card.quantity or 1) for card in grading_queue)
     trade_bait_cards = sum((card.quantity or 1) for card in trade_bait)
-    missing_storage_cards = sum((card.quantity or 1) for card in active_inventory_missing_storage)
     fulfillment_queue_cards = sum((card.quantity or 1) for card in fulfillment_queue)
     pulled_not_shipped_cards = sum((card.quantity or 1) for card in pulled_not_shipped_queue)
     shipped_not_delivered_cards = sum((card.quantity or 1) for card in shipped_not_delivered_queue)
@@ -370,7 +362,6 @@ def dashboard():
         + shipped_not_delivered_cards
         + grading_queue_cards
         + inventory_holding_cards
-        + missing_storage_cards
     )
 
     dealer_inventory_cost = 0
@@ -501,7 +492,6 @@ def dashboard():
         pc_cards=pc_cards,
         grading_queue_cards=grading_queue_cards,
         trade_bait_cards=trade_bait_cards,
-        missing_storage_cards=missing_storage_cards,
         inventory_holding_cards=inventory_holding_cards,
         fulfillment_queue_cards=fulfillment_queue_cards,
         pulled_not_shipped_cards=pulled_not_shipped_cards,
@@ -1063,7 +1053,6 @@ def delete_card(card_id):
     return redirect(url_for("cards"))
 
 
-
 @app.route("/cards/<int:card_id>/update-storage", methods=["POST"])
 def update_card_storage(card_id):
     card = Card.query.get_or_404(card_id)
@@ -1199,7 +1188,7 @@ def rapid_entry():
                 storage_location=clean_value(request.form.get("storage_location")),
                 collection_type=collection_type,
                 notes=request.form.get("notes"),
-                status=request.form.get("status") or "Holding"
+                status=request.form.get("status") or "Active"
             )
 
             db.session.add(new_card)
@@ -1220,7 +1209,7 @@ def rapid_entry():
             "card_type": card_type or "Raw",
             "storage_location": request.form.get("storage_location") or "",
             "collection_type": collection_type or "Inventory",
-            "status": request.form.get("status") or "Holding",
+            "status": request.form.get("status") or "Active",
             "purchase_date": request.form.get("purchase_date") or ""
         }
 
@@ -1286,6 +1275,7 @@ def add_card():
 
             existing_card.quantity = old_quantity + quantity_to_add
             existing_card.collection_type = collection_type
+            existing_card.status = "Active"
 
             if uploaded_image:
                 if existing_card.image_filename:
@@ -1344,7 +1334,7 @@ def add_card():
             collection_type=collection_type,
             image_filename=uploaded_image,
             notes=request.form.get("notes"),
-            status=request.form.get("status") or "Holding"
+            status=request.form.get("status") or "Active"
         )
 
         db.session.add(new_card)

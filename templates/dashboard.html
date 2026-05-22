@@ -144,9 +144,17 @@
 <div class="row g-3 dashboard-bottom-row">
     <div class="col-lg-4">
         <div class="card page-card dashboard-click-card h-100">
-            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+            <div class="card-header fw-bold d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span>Recent Sales</span>
-                <span class="badge text-bg-dark">Last 3 Days</span>
+
+                <div class="dashboard-range-links">
+                    <a class="{% if recent_sales_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='today') }}">Today</a>
+                    <a class="{% if recent_sales_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='3d') }}">3D</a>
+                    <a class="{% if recent_sales_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='7d') }}">7D</a>
+                    <a class="{% if recent_sales_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='30d') }}">30D</a>
+                </div>
+
+                <span class="badge text-bg-dark">{{ recent_sales_label or 'Last 3 Days' }}</span>
             </div>
 
             <div class="card-body">
@@ -173,6 +181,20 @@
                                         {{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}
                                     </div>
                                     <div class="recent-sale-date">Sold {{ card.sold_date or '—' }}</div>
+
+                                    <div class="mt-1">
+                                        {% if card.fulfillment_status == "Needs Pulling" %}
+                                            <span class="badge text-bg-warning">Needs Pulling</span>
+                                        {% elif card.fulfillment_status == "Pulled" %}
+                                            <span class="badge text-bg-dark">Pulled</span>
+                                        {% elif card.fulfillment_status == "Shipped" %}
+                                            <span class="badge text-bg-primary">Shipped</span>
+                                        {% elif card.fulfillment_status in ["Delivered", "Completed"] %}
+                                            <span class="badge text-bg-success">{{ card.fulfillment_status }}</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">{{ card.fulfillment_status or '—' }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
 
                                 <div class="recent-sale-numbers">
@@ -191,7 +213,7 @@
                 {% else %}
                     <div class="text-center text-muted py-4">
                         <h5 class="mb-2">No recent sales yet.</h5>
-                        <p class="mb-0 small">Cards sold today or over the last 3 days will appear here.</p>
+                        <p class="mb-0 small">Cards sold in the selected time frame will appear here.</p>
                     </div>
                 {% endif %}
             </div>

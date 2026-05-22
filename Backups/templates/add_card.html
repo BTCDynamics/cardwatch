@@ -152,35 +152,10 @@
                 <label class="form-label">Purchase Date</label>
                 <input class="form-control" type="date" name="purchase_date" value="{{ clone_source.purchase_date if clone_source else '' }}">
             </div>
-            <div class="col-7 col-md-auto cw-field-sm">
-                <label class="form-label">Sold Price</label>
-                <input class="form-control cw-input-sm" type="number" step="0.01" name="sold_price" value="">
-            </div>
-            <div class="col-6 col-md-auto cw-field-date">
-                <label class="form-label">Sold Date</label>
-                <input class="form-control" type="date" name="sold_date" value="">
-            </div>
-            <div class="col-6 col-md-auto cw-field-select-md">
-                <label class="form-label">Sales Platform</label>
-                <select class="form-select" name="sales_platform">
-                    <option value="">Select Platform</option>
-                    <option value="eBay">eBay</option>
-                    <option value="Whatnot">Whatnot</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="Card Show">Card Show</option>
-                    <option value="COMC">COMC</option>
-                    <option value="Direct Sale">Direct Sale</option>
-                    <option value="Trade">Trade</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="col-6 col-md-auto cw-field-select-md">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status">
-                    <option value="Holding" {% if clone_source and clone_source.status == "Holding" %}selected{% endif %}>Holding</option>
-                    <option value="Active" {% if not clone_source or clone_source.status == "Active" %}selected{% endif %}>Active</option>
-                    <option value="Sold" {% if clone_source and clone_source.status == "Sold" %}selected{% endif %}>Sold</option>
-                </select>
+            <div class="col-12">
+                <div class="alert alert-info mb-0 small">
+                    New cards are saved as <strong>Active</strong> by default. Use <strong>Quick Sell</strong> or the <strong>Deal Cart</strong> when a card sells.
+                </div>
             </div>
         </div>
 
@@ -219,25 +194,5 @@ function toggleCardTypeFields() {
 document.querySelector('[name="card_type"]').addEventListener("change", toggleCardTypeFields);
 toggleCardTypeFields();
 
-function applyDefaultStatusForCollectionType() {
-    const collectionTypeField = document.querySelector('[name="collection_type"]');
-    const statusField = document.querySelector('[name="status"]');
-
-    if (!collectionTypeField || !statusField) {
-        return;
-    }
-
-    if (collectionTypeField.value === "Inventory") {
-        statusField.value = "Active";
-    }
-
-    if (collectionTypeField.value === "Personal Collection") {
-        statusField.value = "Holding";
-    }
-}
-
-document
-    .querySelector('[name="collection_type"]')
-    .addEventListener("change", applyDefaultStatusForCollectionType);
 </script>
 {% endblock %}

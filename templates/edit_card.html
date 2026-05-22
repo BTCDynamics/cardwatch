@@ -14,16 +14,15 @@
 <form method="POST" enctype="multipart/form-data" class="card page-card cw-form-compact">
     <div class="card-body">
         <div class="cw-section-label mb-2">Card Identity</div>
-        <div class="row g-3 align-items-end cw-form-row cw-row-a">
-            <div class="col-6 col-md-auto cw-field-code">
-                <label class="form-label">Card Code</label>
-                <input class="form-control" type="text" name="card_code" required value="{{ card.card_code }}">
-            </div>
-            <div class="col-12 col-md-auto cw-field-player">
+        <input type="hidden" name="card_code" value="{{ card.card_code }}">
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-a flex-nowrap overflow-auto">
+            <div class="col-md-auto cw-field-player">
                 <label class="form-label">Player Name</label>
                 <input class="form-control" type="text" name="player_name" required value="{{ card.player_name }}">
             </div>
-            <div class="col-6 col-md-auto cw-field-select-sm">
+
+            <div class="col-md-auto cw-field-select-sm">
                 <label class="form-label">Sport</label>
                 <select class="form-select" name="sport">
                     {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
@@ -31,39 +30,56 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-6 col-md-auto cw-field-select-xs">
+
+            <div class="col-md-auto cw-field-select-xs">
                 <label class="form-label">Card Type</label>
                 <select class="form-select" name="card_type">
                     <option value="Raw" {% if card.card_type == "Raw" %}selected{% endif %}>Raw</option>
                     <option value="Graded" {% if card.card_type == "Graded" %}selected{% endif %}>Graded</option>
                 </select>
             </div>
-            <div class="col-5 col-md-auto cw-field-xs">
+
+            <div class="col-md-auto cw-field-md">
+                <label class="form-label">Brand</label>
+                <input class="form-control" type="text" name="brand" value="{{ card.brand or '' }}">
+            </div>
+
+            <div class="col-md-auto cw-field-xs">
                 <label class="form-label">Year</label>
                 <input class="form-control cw-input-xs" type="number" name="year" value="{{ card.year or '' }}">
+            </div>
+
+            <div class="col-md-auto cw-field-sm">
+                <label class="form-label">Card #</label>
+                <input class="form-control cw-input-sm" type="text" name="card_number" value="{{ card.card_number or '' }}">
+            </div>
+
+            <div class="col-md-auto">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_hof" id="is_hof" {% if card.is_hof %}checked{% endif %}>
+                    <label class="form-check-label" for="is_hof">Hall of Famer</label>
+                </div>
+            </div>
+
+            <div class="col-md-auto">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_rookie" id="is_rookie" {% if card.is_rookie %}checked{% endif %}>
+                    <label class="form-check-label" for="is_rookie">Rookie Card</label>
+                </div>
             </div>
         </div>
 
         <div class="row g-3 align-items-end cw-form-row cw-row-b">
-            <div class="col-7 col-md-auto cw-field-md">
-                <label class="form-label">Brand</label>
-                <input class="form-control" type="text" name="brand" value="{{ card.brand or '' }}">
-            </div>
             <div class="col-12 col-md-auto cw-field-lg">
                 <label class="form-label">Set Name</label>
                 <input class="form-control" type="text" name="set_name" value="{{ card.set_name or '' }}">
             </div>
-            <div class="col-5 col-md-auto cw-field-sm">
-                <label class="form-label">Card #</label>
-                <input class="form-control cw-input-sm" type="text" name="card_number" value="{{ card.card_number or '' }}">
-            </div>
+
             <div class="col-7 col-md-auto cw-field-md">
                 <label class="form-label">Variation</label>
                 <input class="form-control" type="text" name="variation" value="{{ card.variation or '' }}">
             </div>
-        </div>
 
-        <div class="row g-3 align-items-end cw-form-row cw-row-c">
             <div class="col-12 col-md-auto cw-field-file">
                 <label class="form-label">Replace Card Image</label>
                 <input class="form-control" type="file" name="card_image" accept="image/*">
@@ -73,18 +89,6 @@
                         <label class="form-check-label" for="remove_image">Remove current image</label>
                     </div>
                 {% endif %}
-            </div>
-            <div class="col-auto">
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" name="is_hof" id="is_hof" {% if card.is_hof %}checked{% endif %}>
-                    <label class="form-check-label" for="is_hof">Hall of Famer</label>
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" name="is_rookie" id="is_rookie" {% if card.is_rookie %}checked{% endif %}>
-                    <label class="form-check-label" for="is_rookie">Rookie Card</label>
-                </div>
             </div>
         </div>
 
