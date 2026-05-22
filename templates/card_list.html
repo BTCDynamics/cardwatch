@@ -3,6 +3,22 @@
 {% block title %}Card Inventory{% endblock %}
 
 {% block content %}
+<style>
+/* Card Inventory page: make Clone buttons visible on dark theme */
+.clone-btn {
+    color: #ffffff !important;
+    background-color: #4f46e5 !important;
+    border-color: #818cf8 !important;
+    font-weight: 700 !important;
+}
+
+.clone-btn:hover,
+.clone-btn:focus {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #a5b4fc !important;
+}
+</style>
 {% set current_view = request.args.get('view', 'table') %}
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
@@ -222,7 +238,7 @@
                             {% if card.status == "Active" %}
                                 <a class="btn btn-sm btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
                             {% endif %}
-                            <a class="btn btn-sm btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
+                            <a class="btn btn-sm clone-btn" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
                             <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}" class="d-inline">
                                 <button class="btn btn-sm btn-outline-success" type="submit">+1</button>
                             </form>
@@ -370,7 +386,7 @@
                                     {% if card.status == "Active" %}
                                         <a class="btn btn-danger" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
                                     {% endif %}
-                                    <a class="btn btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
+                                    <a class="btn clone-btn" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
                                 </div>
                                 <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}" class="d-inline">
                                     <button class="btn btn-sm btn-outline-success" type="submit">+1</button>
