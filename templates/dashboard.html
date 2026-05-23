@@ -3,6 +3,16 @@
 {% block title %}CardWatch Dashboard{% endblock %}
 
 {% block content %}
+<style>
+/* Action Needed count bubbles: turn red when there is work to do */
+.workflow-count-alert {
+    color: #ffffff !important;
+    background: #dc2626 !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 .35rem .9rem rgba(220, 38, 38, .28);
+}
+</style>
+
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
     <div>
         <h1 class="h2 mb-1">Inventory Dashboard</h1>
@@ -264,7 +274,7 @@
                             <div class="workflow-action-title">Needs Pulling</div>
                             <div class="workflow-action-subtitle">Sold cards still sitting in storage.</div>
                         </div>
-                        <span class="workflow-action-count">{{ fulfillment_queue_cards or 0 }}</span>
+                        <span class="workflow-action-count {% if fulfillment_queue_cards and fulfillment_queue_cards > 0 %}workflow-count-alert{% endif %}">{{ fulfillment_queue_cards or 0 }}</span>
                     </a>
 
                     <a class="workflow-action-row workflow-info" href="{{ url_for('fulfillment_queue', status='Pulled') }}">
@@ -272,7 +282,7 @@
                             <div class="workflow-action-title">Pulled, Not Shipped</div>
                             <div class="workflow-action-subtitle">Cards pulled from storage but not shipped/delivered.</div>
                         </div>
-                        <span class="workflow-action-count">{{ pulled_not_shipped_cards or 0 }}</span>
+                        <span class="workflow-action-count {% if pulled_not_shipped_cards and pulled_not_shipped_cards > 0 %}workflow-count-alert{% endif %}">{{ pulled_not_shipped_cards or 0 }}</span>
                     </a>
 
                     <a class="workflow-action-row workflow-primary" href="{{ url_for('fulfillment_queue', status='Shipped') }}">
@@ -280,7 +290,7 @@
                             <div class="workflow-action-title">Shipped, Not Delivered</div>
                             <div class="workflow-action-subtitle">Cards marked shipped but not delivered/completed.</div>
                         </div>
-                        <span class="workflow-action-count">{{ shipped_not_delivered_cards or 0 }}</span>
+                        <span class="workflow-action-count {% if shipped_not_delivered_cards and shipped_not_delivered_cards > 0 %}workflow-count-alert{% endif %}">{{ shipped_not_delivered_cards or 0 }}</span>
                     </a>
 
                     <a class="workflow-action-row workflow-neutral" href="{{ url_for('cards', collection_type='Grading Queue') }}">
@@ -288,7 +298,7 @@
                             <div class="workflow-action-title">Grading Queue</div>
                             <div class="workflow-action-subtitle">Cards waiting on grading workflow.</div>
                         </div>
-                        <span class="workflow-action-count">{{ grading_queue_cards or 0 }}</span>
+                        <span class="workflow-action-count {% if grading_queue_cards and grading_queue_cards > 0 %}workflow-count-alert{% endif %}">{{ grading_queue_cards or 0 }}</span>
                     </a>
 
                     <a class="workflow-action-row workflow-yellow" href="{{ url_for('cards', status='Active', collection_type='Inventory', storage='__missing__') }}">
@@ -296,7 +306,7 @@
                             <div class="workflow-action-title">Missing Storage Location</div>
                             <div class="workflow-action-subtitle">Active inventory cards that still need a box, binder, or showcase location.</div>
                         </div>
-                        <span class="workflow-action-count">{{ missing_storage_cards or 0 }}</span>
+                        <span class="workflow-action-count {% if missing_storage_cards and missing_storage_cards > 0 %}workflow-count-alert{% endif %}">{{ missing_storage_cards or 0 }}</span>
                     </a>
 
                     <div class="workflow-action-row workflow-muted">
@@ -304,7 +314,7 @@
                             <div class="workflow-action-title">Inventory Holding</div>
                             <div class="workflow-action-subtitle">Inventory not currently Active / Available.</div>
                         </div>
-                        <span class="workflow-action-count">{{ inventory_holding_cards or 0 }}</span>
+                        <span class="workflow-action-count {% if inventory_holding_cards and inventory_holding_cards > 0 %}workflow-count-alert{% endif %}">{{ inventory_holding_cards or 0 }}</span>
                     </div>
 
                 </div>
