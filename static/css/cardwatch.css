@@ -1544,6 +1544,26 @@ textarea.form-control {
     border-color: rgba(148,163,184,.22) !important;
 }
 
+
+/* Fix Table / Gallery view toggle visibility */
+.btn-outline-dark {
+    color: #e5e7eb !important;
+    border-color: #6b7280 !important;
+}
+
+.btn-outline-dark:hover,
+.btn-outline-dark:focus {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #a5b4fc !important;
+}
+
+.btn-dark {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #374151 !important;
+}
+
 /* Mobile keeps the darker panel style */
 @media (max-width: 768px) {
     body {
