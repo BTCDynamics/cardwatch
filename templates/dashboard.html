@@ -48,7 +48,7 @@
         <a class="dashboard-card-link" href="{{ url_for('cards', status='Active', collection_type='Inventory') }}">
             <div class="card page-card dashboard-stat-card dashboard-click-card h-100">
                 <div class="card-body">
-                    <span class="btn btn-sm btn-info mb-3">Inventory Est. Value</span>
+                    <span class="btn btn-sm btn-info mb-3">Comp Value</span>
                     <div class="display-6 fw-bold text-white">${{ "%.0f"|format(dealer_inventory_value or 0) }}</div>
                     <div class="small text-white-50">Estimated market value of active inventory</div>
                 </div>
