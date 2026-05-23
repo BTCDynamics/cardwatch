@@ -538,7 +538,9 @@ def dashboard():
     # Bought-card activity for the selected dashboard range
     bought_range_cards = [
         card for card in active_cards
-        if parse_card_date(card.purchase_date)
+        if card.collection_type == "Inventory"
+        and card.status == "Active"
+        and parse_card_date(card.purchase_date)
         and parse_card_date(card.purchase_date) >= recent_sales_start_date_value
     ]
 
