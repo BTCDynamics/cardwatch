@@ -1,5 +1,5 @@
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from uuid import uuid4
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -98,6 +98,28 @@ def clean_value(value):
     if value:
         return value.strip()
     return None
+
+
+
+def parse_card_date(value):
+    """Convert saved card date strings into a date object for reliable range filtering."""
+    if not value:
+        return None
+
+    value = str(value).strip()
+
+    for date_format in ("%Y-%m-%d", "%m/%d/%Y", "%-m/%-d/%Y"):
+        try:
+            return datetime.strptime(value, date_format).date()
+        except ValueError:
+            continue
+
+    # Windows does not support %-m / %-d, so try a manual fallback.
+    try:
+        month, day, year = value.split("/")
+        return date(int(year), int(month), int(day))
+    except (ValueError, TypeError):
+        return None
 
 
 def generate_card_code():
@@ -264,7 +286,8 @@ def get_deal_cart_quantity():
 
 @app.route("/")
 def dashboard():
-    today = date.today().isoformat()
+    today_value = date.today()
+    today = today_value.isoformat()
 
     recent_sales_range = request.args.get("recent_sales_range", "3d")
 
@@ -285,9 +308,10 @@ def dashboard():
     if recent_sales_range not in recent_sales_range_days:
         recent_sales_range = "3d"
 
-    recent_sales_start_date = (
-        date.today() - timedelta(days=recent_sales_range_days[recent_sales_range])
-    ).isoformat()
+    recent_sales_start_date_value = (
+        today_value - timedelta(days=recent_sales_range_days[recent_sales_range])
+    )
+    recent_sales_start_date = recent_sales_start_date_value.isoformat()
 
     recent_sales_label = recent_sales_range_labels[recent_sales_range]
 
@@ -305,17 +329,18 @@ def dashboard():
 
     sold_cards_today = [
         card for card in sold_cards_all_time
-        if card.sold_date == today
+        if parse_card_date(card.sold_date) == today_value
     ]
 
     recent_sales = [
         card for card in sold_cards_all_time
-        if card.sold_date and card.sold_date >= recent_sales_start_date
+        if parse_card_date(card.sold_date)
+        and parse_card_date(card.sold_date) >= recent_sales_start_date_value
     ]
 
     recent_sales = sorted(
         recent_sales,
-        key=lambda card: (card.sold_date or "", card.id or 0),
+        key=lambda card: (parse_card_date(card.sold_date) or date.min, card.id or 0),
         reverse=True
     )[:12]
 
@@ -387,16 +412,20 @@ def dashboard():
         if not card.storage_location
     )
 
+    sales_7d_start_date_value = today_value - timedelta(days=6)
+
     sales_7d_cards = sum(
         (card.quantity or 1)
         for card in sold_cards_all_time
-        if card.sold_date and card.sold_date >= (date.today() - timedelta(days=6)).isoformat()
+        if parse_card_date(card.sold_date)
+        and parse_card_date(card.sold_date) >= sales_7d_start_date_value
     )
 
     sales_7d_total = sum(
         ((card.sold_price or 0) * (card.quantity or 1))
         for card in sold_cards_all_time
-        if card.sold_date and card.sold_date >= (date.today() - timedelta(days=6)).isoformat()
+        if parse_card_date(card.sold_date)
+        and parse_card_date(card.sold_date) >= sales_7d_start_date_value
     )
 
     open_workflow_tasks = (
