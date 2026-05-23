@@ -383,7 +383,7 @@ def dashboard():
 
     missing_storage_cards = sum(
         (card.quantity or 1)
-        for card in dealer_inventory_active_available
+        for card in active_cards
         if not card.storage_location
     )
 
