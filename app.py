@@ -327,16 +327,18 @@ def dashboard():
         if card.status == "Sold"
     ]
 
+    sales_range_cards = [
+        card for card in sold_cards_all_time
+        if parse_card_date(card.sold_date)
+        and parse_card_date(card.sold_date) >= recent_sales_start_date_value
+    ]
+
     sold_cards_today = [
         card for card in sold_cards_all_time
         if parse_card_date(card.sold_date) == today_value
     ]
 
-    recent_sales = [
-        card for card in sold_cards_all_time
-        if parse_card_date(card.sold_date)
-        and parse_card_date(card.sold_date) >= recent_sales_start_date_value
-    ]
+    recent_sales = list(sales_range_cards)
 
     recent_sales = sorted(
         recent_sales,
@@ -502,35 +504,43 @@ def dashboard():
         else 0
     )
 
-    today_sold_price = 0
-    today_sold_cost = 0
-    today_profit = 0
+    selected_range_sold_price = 0
+    selected_range_sold_cost = 0
+    selected_range_profit = 0
 
-    for card in sold_cards_today:
+    for card in sales_range_cards:
         quantity = card.quantity or 1
         sold_price = card.sold_price or 0
         purchase_cost = card.purchase_price or 0
 
-        today_sold_price += sold_price * quantity
-        today_sold_cost += purchase_cost * quantity
-        today_profit += (sold_price * quantity) - (purchase_cost * quantity)
+        selected_range_sold_price += sold_price * quantity
+        selected_range_sold_cost += purchase_cost * quantity
+        selected_range_profit += (sold_price * quantity) - (purchase_cost * quantity)
 
-    today_sold_cards = sum(
+    selected_range_sold_cards = sum(
         (card.quantity or 1)
-        for card in sold_cards_today
+        for card in sales_range_cards
     )
 
-    today_profit_percent = (
-        (today_profit / today_sold_cost) * 100
-        if today_sold_cost
+    selected_range_profit_percent = (
+        (selected_range_profit / selected_range_sold_cost) * 100
+        if selected_range_sold_cost
         else 0
     )
 
-    today_sales_margin_percent = (
-        (today_profit / today_sold_price) * 100
-        if today_sold_price
+    selected_range_sales_margin_percent = (
+        (selected_range_profit / selected_range_sold_price) * 100
+        if selected_range_sold_price
         else 0
     )
+
+    # Keep the original template variable names, but make them follow the selected dashboard sales range.
+    today_sold_price = selected_range_sold_price
+    today_sold_cost = selected_range_sold_cost
+    today_profit = selected_range_profit
+    today_sold_cards = selected_range_sold_cards
+    today_profit_percent = selected_range_profit_percent
+    today_sales_margin_percent = selected_range_sales_margin_percent
 
     rookie_cards = sum(
         (card.quantity or 1)
@@ -600,6 +610,9 @@ def dashboard():
         recent_sales_start_date=recent_sales_start_date,
         recent_sales_range=recent_sales_range,
         recent_sales_label=recent_sales_label,
+        sales_summary_label=recent_sales_label,
+        sales_summary_range=recent_sales_range,
+        sales_summary_start_date=recent_sales_start_date,
         deal_cart_count=get_deal_cart_quantity()
     )
 
