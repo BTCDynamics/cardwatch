@@ -3,248 +3,270 @@
 {% block title %}Rapid Entry{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+<style>
+/* Rapid Entry page: match Add Card layout and keep Raw/Graded boxes dark on page load */
+.cw-form-compact #raw-fields,
+.cw-form-compact #graded-fields {
+    background: linear-gradient(145deg, #202b3a, #253246) !important;
+    border-color: rgba(148, 163, 184, .24) !important;
+}
+
+.cw-form-compact #raw-fields:hover,
+.cw-form-compact #graded-fields:hover {
+    background: linear-gradient(145deg, #253246, #2c3a50) !important;
+    border-color: rgba(96, 165, 250, .45) !important;
+}
+
+/* Fix invisible outline buttons on page load */
+.cw-form-compact .btn-outline-secondary,
+.cw-form-compact .btn-outline-primary {
+    color: #dbe7ff !important;
+    border-color: rgba(148, 163, 184, .45) !important;
+    background-color: rgba(37, 50, 70, 0.55) !important;
+}
+
+.cw-form-compact .btn-outline-secondary:hover,
+.cw-form-compact .btn-outline-primary:hover {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: rgba(96, 165, 250, .65) !important;
+}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 cw-page-title">
     <div>
         <h1 class="h2 mb-1">Rapid Entry</h1>
         <p class="text-muted mb-0">Fast card entry for batches, pickups, and repeated sets.</p>
     </div>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-light" href="{{ url_for('cards') }}">Back to Inventory</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Back to Cards</a>
         <a class="btn btn-primary" href="{{ url_for('add_card') }}">Full Add Form</a>
     </div>
 </div>
 
-<div class="card page-card mb-4 rapid-entry-card">
+<form method="POST" action="{{ url_for('rapid_entry') }}" class="card page-card cw-form-compact rapid-entry-form">
     <div class="card-body">
-        <div class="alert alert-info mb-4">
+        <div class="alert alert-info mb-3">
             <strong>Rapid Entry Tip:</strong> Use <em>Save & Add Another</em> to keep Sport, Year, Brand, Set, Type, Storage, Status, and Purchase Date filled in for the next card.
         </div>
 
-        <form method="POST" action="{{ url_for('rapid_entry') }}" class="cw-form-compact rapid-entry-form">
-            <div class="cw-form-row cw-row-a">
-                <h4 class="section-heading ms-2">Core Card Info</h4>
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-4 cw-field-player">
-                        <label class="form-label">Player Name</label>
-                        <input class="form-control" type="text" name="player_name" required autofocus>
-                    </div>
+        <p class="text-muted"><strong>Card Code:</strong> Auto-generated when saved</p>
 
-                    <div class="col-md-2 cw-field-select-sm">
-                        <label class="form-label">Sport</label>
-                        <select class="form-select" name="sport">
-                            {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
-                                <option value="{{ sport }}" {% if request.args.get('sport', 'Baseball') == sport %}selected{% endif %}>{{ sport }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+        <div class="cw-section-label mb-2">Card Identity</div>
+        <div class="row g-3 align-items-end cw-form-row cw-row-a flex-nowrap overflow-auto">
+            <div class="col-md-auto cw-field-player">
+                <label class="form-label">Player Name</label>
+                <input class="form-control" type="text" name="player_name" required autofocus>
+            </div>
 
-                    <div class="col-md-2 cw-field-xs">
-                        <label class="form-label">Year</label>
-                        <input class="form-control" type="number" name="year" value="{{ request.args.get('year', '') }}">
-                    </div>
+            <div class="col-md-auto cw-field-select-sm">
+                <label class="form-label">Sport</label>
+                <select class="form-select" name="sport">
+                    {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
+                        <option value="{{ sport }}" {% if request.args.get('sport', 'Baseball') == sport %}selected{% endif %}>{{ sport }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                    <div class="col-md-3 cw-field-md">
-                        <label class="form-label">Brand</label>
-                        <input class="form-control" type="text" name="brand" value="{{ request.args.get('brand', '') }}" placeholder="Topps">
-                    </div>
+            <div class="col-md-auto cw-field-select-xs">
+                <label class="form-label">Card Type</label>
+                <select class="form-select" name="card_type">
+                    <option value="Raw" {% if request.args.get('card_type', 'Raw') == 'Raw' %}selected{% endif %}>Raw</option>
+                    <option value="Graded" {% if request.args.get('card_type') == 'Graded' %}selected{% endif %}>Graded</option>
+                </select>
+            </div>
 
-                    <div class="col-md-3 cw-field-md">
-                        <label class="form-label">Set Name</label>
-                        <input class="form-control" type="text" name="set_name" value="{{ request.args.get('set_name', '') }}">
-                    </div>
+            <div class="col-md-auto cw-field-md">
+                <label class="form-label">Brand</label>
+                <input class="form-control" type="text" name="brand" placeholder="Topps" value="{{ request.args.get('brand', '') }}">
+            </div>
 
-                    <div class="col-md-2 cw-field-sm">
-                        <label class="form-label">Card #</label>
-                        <input class="form-control" type="text" name="card_number">
-                    </div>
+            <div class="col-md-auto cw-field-xs">
+                <label class="form-label">Year</label>
+                <input class="form-control cw-input-xs" type="number" name="year" value="{{ request.args.get('year', '') }}">
+            </div>
 
-                    <div class="col-md-3 cw-field-md">
-                        <label class="form-label">Variation</label>
-                        <input class="form-control" type="text" name="variation" placeholder="Refractor, Silver, Red /99">
-                    </div>
+            <div class="col-md-auto cw-field-sm">
+                <label class="form-label">Card #</label>
+                <input class="form-control cw-input-sm" type="text" name="card_number">
+            </div>
 
-                    <div class="col-md-2 cw-field-select-sm">
-                        <label class="form-label">Card Type</label>
-                        <select class="form-select" name="card_type">
-                            <option value="Raw" {% if request.args.get('card_type', 'Raw') == 'Raw' %}selected{% endif %}>Raw</option>
-                            <option value="Graded" {% if request.args.get('card_type') == 'Graded' %}selected{% endif %}>Graded</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3 d-flex gap-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_rookie" id="rapidRookie">
-                            <label class="form-check-label" for="rapidRookie">RC</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_hof" id="rapidHof">
-                            <label class="form-check-label" for="rapidHof">HOF</label>
-                        </div>
-                    </div>
+            <div class="col-md-auto">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_hof" id="rapidHof">
+                    <label class="form-check-label" for="rapidHof">Hall of Famer</label>
                 </div>
             </div>
 
-            <div class="cw-form-row cw-grade-row" id="raw-fields">
-                <h4 class="section-heading ms-2">Raw Card Info</h4>
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3 cw-field-sm">
-                        <label class="form-label">Grade Estimate</label>
-                        <input class="form-control" type="text" name="grade_estimate" placeholder="PSA 8">
-                    </div>
+            <div class="col-md-auto">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="is_rookie" id="rapidRookie">
+                    <label class="form-check-label" for="rapidRookie">Rookie Card</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-b">
+            <div class="col-12 col-md-auto cw-field-lg">
+                <label class="form-label">Set Name</label>
+                <input class="form-control" type="text" name="set_name" value="{{ request.args.get('set_name', '') }}">
+            </div>
+
+            <div class="col-7 col-md-auto cw-field-md">
+                <label class="form-label">Variation</label>
+                <input class="form-control" type="text" name="variation" placeholder="Refractor, Silver, Red /99">
+            </div>
+        </div>
+
+        <hr>
+
+        <div id="raw-heading" class="cw-section-label mb-2">Raw Card Info</div>
+        <div id="raw-fields" class="row g-3 cw-form-row cw-grade-row">
+            <div class="col-6 col-md-auto cw-field-sm">
+                <label class="form-label">Grade Estimate</label>
+                <input class="form-control cw-input-sm" type="text" name="grade_estimate" placeholder="PSA 8">
+            </div>
+        </div>
+
+        <div id="graded-heading" class="cw-section-label mt-3 mb-2">Graded Card Info</div>
+        <div id="graded-fields" class="row g-3 cw-form-row cw-grade-row">
+            <div class="col-12 col-md-auto cw-field-md">
+                <label class="form-label">Grading Company</label>
+                <input class="form-control" type="text" name="grading_company" placeholder="PSA, SGC, BGS, CGC">
+            </div>
+            <div class="col-6 col-md-auto cw-field-sm">
+                <label class="form-label">Actual Grade</label>
+                <input class="form-control cw-input-sm" type="text" name="actual_grade" placeholder="PSA 8">
+            </div>
+            <div class="col-12 col-md-auto cw-field-md">
+                <label class="form-label">Cert Number</label>
+                <input class="form-control" type="text" name="cert_number">
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="cw-section-label mb-2">Inventory</div>
+        <div class="row g-3 align-items-end cw-form-row cw-row-a">
+            <div class="col-6 col-md-auto cw-field-select-md">
+                <label class="form-label">Collection Type</label>
+                <select class="form-select" name="collection_type">
+                    <option value="Inventory" {% if request.args.get('collection_type', 'Inventory') == 'Inventory' %}selected{% endif %}>Inventory</option>
+                    <option value="Personal Collection" {% if request.args.get('collection_type') == 'Personal Collection' %}selected{% endif %}>Personal Collection</option>
+                    <option value="Trade Bait" {% if request.args.get('collection_type') == 'Trade Bait' %}selected{% endif %}>Trade Bait</option>
+                    <option value="Grading Queue" {% if request.args.get('collection_type') == 'Grading Queue' %}selected{% endif %}>Grading Queue</option>
+                </select>
+            </div>
+
+            <div class="col-5 col-md-auto cw-field-xs">
+                <label class="form-label">Quantity</label>
+                <input class="form-control cw-input-xs" type="number" name="quantity" min="1" value="1">
+            </div>
+
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Purchase Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="purchase_price">
+            </div>
+
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Comp Value</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="estimated_value">
+            </div>
+
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Asking Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="asking_price">
+            </div>
+
+            <div class="col-6 col-md-auto cw-field-date">
+                <label class="form-label">Purchase Date</label>
+                <input class="form-control" type="date" name="purchase_date" value="{{ request.args.get('purchase_date', '') }}">
+            </div>
+
+            <div class="col-12">
+                <div class="alert alert-info mb-0 small">
+                    Rapid Entry can save new cards as <strong>Active</strong>, <strong>Holding</strong>, or <strong>Sold</strong>. Use <strong>Force new record</strong> when you do not want a duplicate to increase quantity.
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 align-items-end cw-form-row cw-row-b">
+            <div class="col-12 col-md-auto cw-field-storage">
+                <label class="form-label">Storage Location</label>
+                <input class="form-control" type="text" name="storage_location" placeholder="Binder-1 / Page-3 / Pocket-2" value="{{ request.args.get('storage_location', '') }}">
+            </div>
+
+            <div class="col-6 col-md-auto cw-field-select-md">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status">
+                    {% for status in ["Holding", "Active", "Sold"] %}
+                        <option value="{{ status }}" {% if request.args.get('status', 'Active') == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-7 col-md-auto cw-field-sm">
+                <label class="form-label">Sold Price</label>
+                <input class="form-control cw-input-sm" type="number" step="0.01" name="sold_price">
+            </div>
+
+            <div class="col-6 col-md-auto cw-field-date">
+                <label class="form-label">Sold Date</label>
+                <input class="form-control" type="date" name="sold_date">
+            </div>
+
+            <div class="col-12 col-md-auto cw-field-select-md">
+                <label class="form-label">Sales Platform</label>
+                <select class="form-select" name="sales_platform">
+                    <option value="">Select Platform</option>
+                    <option value="eBay">eBay</option>
+                    <option value="Whatnot">Whatnot</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Card Show">Card Show</option>
+                    <option value="COMC">COMC</option>
+                    <option value="Direct Sale">Direct Sale</option>
+                    <option value="Trade">Trade</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="force_new" value="1" id="forceNew">
+                    <label class="form-check-label" for="forceNew">Force new record</label>
                 </div>
             </div>
 
-            <div class="cw-form-row cw-grade-row" id="graded-fields">
-                <h4 class="section-heading ms-2">Graded Card Info</h4>
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3 cw-field-sm">
-                        <label class="form-label">Company</label>
-                        <input class="form-control" type="text" name="grading_company" placeholder="PSA, SGC, BGS">
-                    </div>
-                    <div class="col-md-2 cw-field-sm">
-                        <label class="form-label">Grade</label>
-                        <input class="form-control" type="text" name="actual_grade" placeholder="9">
-                    </div>
-                    <div class="col-md-3 cw-field-md">
-                        <label class="form-label">Cert #</label>
-                        <input class="form-control" type="text" name="cert_number">
-                    </div>
-                </div>
+            <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" name="notes" rows="4"></textarea>
             </div>
+        </div>
 
-            <div class="cw-form-row cw-row-b">
-                <h4 class="section-heading ms-2">Inventory & Pricing</h4>
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-2 cw-field-xs">
-                        <label class="form-label">Qty</label>
-                        <input class="form-control" type="number" name="quantity" min="1" value="1">
-                    </div>
-                    <div class="col-md-2 cw-field-sm">
-                        <label class="form-label">Cost</label>
-                        <input class="form-control" type="number" step="0.01" name="purchase_price">
-                    </div>
-                    <div class="col-md-2 cw-field-sm">
-                        <label class="form-label">Est. Value</label>
-                        <input class="form-control" type="number" step="0.01" name="estimated_value">
-                    </div>
-                    <div class="col-md-2 cw-field-sm">
-                        <label class="form-label">Ask</label>
-                        <input class="form-control" type="number" step="0.01" name="asking_price">
-                    </div>
-                    <div class="col-md-3 cw-field-date">
-                        <label class="form-label">Purchase Date</label>
-                        <input class="form-control" type="date" name="purchase_date" value="{{ request.args.get('purchase_date', '') }}">
-                    </div>
-                    <div class="col-md-2 cw-field-sm">
-                        <label class="form-label">Sold Price</label>
-                        <input class="form-control" type="number" step="0.01" name="sold_price">
-                    </div>
-                    <div class="col-md-3 cw-field-date">
-                        <label class="form-label">Sold Date</label>
-                        <input class="form-control" type="date" name="sold_date">
-                    </div>
-                    <div class="col-md-3 cw-field-select-md">
-                        <label class="form-label">Sales Platform</label>
-                        <select class="form-select" name="sales_platform">
-                            <option value="">Select Platform</option>
-                            <option value="eBay">eBay</option>
-                            <option value="Whatnot">Whatnot</option>
-                            <option value="Facebook">Facebook</option>
-                            <option value="Card Show">Card Show</option>
-                            <option value="COMC">COMC</option>
-                            <option value="Direct Sale">Direct Sale</option>
-                            <option value="Trade">Trade</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 cw-field-storage">
-                        <label class="form-label">Storage</label>
-                        <input class="form-control" type="text" name="storage_location" value="{{ request.args.get('storage_location', '') }}" placeholder="Box-1 / Binder-2">
-                    </div>
-                    <div class="col-md-3 cw-field-select-md">
-                        <label class="form-label">Collection Type</label>
-                        <select class="form-select" name="collection_type">
-
-                            <option value="Inventory"
-                                {% if request.args.get('collection_type', 'Inventory') == 'Inventory' %}selected{% endif %}>
-                                Inventory
-                            </option>
-
-                            <option value="Personal Collection"
-                                {% if request.args.get('collection_type') == 'Personal Collection' %}selected{% endif %}>
-                                Personal Collection
-                            </option>
-
-                            <option value="Trade Bait"
-                                {% if request.args.get('collection_type') == 'Trade Bait' %}selected{% endif %}>
-                                Trade Bait
-                            </option>
-
-                            <option value="Grading Queue"
-                                {% if request.args.get('collection_type') == 'Grading Queue' %}selected{% endif %}>
-                                Grading Queue
-                            </option>
-
-                        </select>
-                    </div>
-
-                    <div class="col-md-2 cw-field-select-md">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status">
-                            {% for status in ["Holding", "Active", "Sold"] %}
-                                <option value="{{ status }}" {% if request.args.get('status', 'Holding') == status %}selected{% endif %}>{{ status }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-check mt-4">
-                            <input class="form-check-input" type="checkbox" name="force_new" value="1" id="forceNew">
-                            <label class="form-check-label" for="forceNew">Force new record</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cw-form-row cw-row-c">
-                <h4 class="section-heading ms-2">Notes</h4>
-                <div class="row g-3">
-                    <div class="col-md-8">
-                        <label class="form-label">Notes</label>
-                        <textarea class="form-control" name="notes" rows="3"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cw-form-row cw-actions-row d-flex flex-wrap gap-2">
-                <button class="btn btn-primary" type="submit" name="submit_action" value="save_add">Save & Add Another</button>
-                <button class="btn btn-outline-primary" type="submit" name="submit_action" value="save_view">Save & View Card</button>
-                <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Cancel</a>
-            </div>
-        </form>
+        <div class="mt-4 d-flex flex-wrap gap-2">
+            <button class="btn btn-primary" type="submit" name="submit_action" value="save_add">Save & Add Another</button>
+            <button class="btn btn-outline-primary" type="submit" name="submit_action" value="save_view">Save & View Card</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Cancel</a>
+        </div>
     </div>
-</div>
+</form>
 {% endblock %}
 
 {% block scripts %}
 <script>
 function toggleRapidCardTypeFields() {
     const cardType = document.querySelector('[name="card_type"]').value;
-    const rawSection = document.getElementById("raw-fields");
-    const gradedSection = document.getElementById("graded-fields");
+    const showRaw = cardType === "Raw";
+    const showGraded = cardType === "Graded";
 
-    if (cardType === "Raw") {
-        rawSection.style.display = "block";
-        gradedSection.style.display = "none";
-    } else {
-        rawSection.style.display = "none";
-        gradedSection.style.display = "block";
-    }
+    document.getElementById("raw-heading").style.display = showRaw ? "block" : "none";
+    document.getElementById("raw-fields").style.display = showRaw ? "flex" : "none";
+
+    document.getElementById("graded-heading").style.display = showGraded ? "block" : "none";
+    document.getElementById("graded-fields").style.display = showGraded ? "flex" : "none";
 }
 
-document
-    .querySelector('[name="card_type"]')
-    .addEventListener("change", toggleRapidCardTypeFields);
-
+document.querySelector('[name="card_type"]').addEventListener("change", toggleRapidCardTypeFields);
 toggleRapidCardTypeFields();
 </script>
 {% endblock %}
