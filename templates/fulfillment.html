@@ -11,9 +11,40 @@
 }
 
 .fulfillment-stat-card {
-    background: linear-gradient(145deg, #f59e0b, #d97706) !important;
-    border-color: #fbbf24 !important;
+    background: linear-gradient(145deg, #1e3a8a, #172554);
+    border-color: #3b82f6;
 }
+
+
+/* Fix invisible Pulled / dark outline buttons on dark theme */
+.fulfillment-filter-dark,
+.fulfillment-filter-dark:visited {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #475569 !important;
+}
+
+.fulfillment-filter-dark:hover,
+.fulfillment-filter-dark:focus {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border-color: #64748b !important;
+}
+
+.fulfillment-filter-outline-dark,
+.fulfillment-filter-outline-dark:visited {
+    color: #e5e7eb !important;
+    background-color: rgba(17, 24, 39, 0.35) !important;
+    border-color: #64748b !important;
+}
+
+.fulfillment-filter-outline-dark:hover,
+.fulfillment-filter-outline-dark:focus {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #94a3b8 !important;
+}
+
 </style>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
     <div>
@@ -82,7 +113,7 @@
 
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-sm {% if status_filter == 'Needs Pulling' %}btn-warning{% else %}btn-outline-warning{% endif %}" href="{{ url_for('fulfillment_queue', status='Needs Pulling') }}">Needs Pulling</a>
-                <a class="btn btn-sm {% if status_filter == 'Pulled' %}btn-dark{% else %}btn-outline-dark{% endif %}" href="{{ url_for('fulfillment_queue', status='Pulled') }}">Pulled</a>
+                <a class="btn btn-sm {% if status_filter == 'Pulled' %}fulfillment-filter-dark{% else %}fulfillment-filter-outline-dark{% endif %}" href="{{ url_for('fulfillment_queue', status='Pulled') }}">Pulled</a>
                 <a class="btn btn-sm {% if status_filter == 'Shipped' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('fulfillment_queue', status='Shipped') }}">Shipped</a>
                 <a class="btn btn-sm {% if status_filter == 'Delivered' %}btn-success{% else %}btn-outline-success{% endif %}" href="{{ url_for('fulfillment_queue', status='Delivered') }}">Delivered</a>
                 <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('fulfillment_queue', status='') }}">All</a>
@@ -193,7 +224,7 @@
                                     {% if card.fulfillment_status != "Completed" %}
                                         <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
                                             <input type="hidden" name="fulfillment_status" value="Completed">
-                                            <button class="btn btn-sm btn-outline-dark" type="submit">Complete</button>
+                                            <button class="btn btn-sm fulfillment-filter-outline-dark" type="submit">Complete</button>
                                         </form>
                                     {% endif %}
                                 </div>
