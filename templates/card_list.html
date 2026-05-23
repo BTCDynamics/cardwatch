@@ -18,6 +18,25 @@
     background-color: #111827 !important;
     border-color: #a5b4fc !important;
 }
+
+/* Fix Table / Gallery view toggle visibility */
+.btn-outline-dark {
+    color: #e5e7eb !important;
+    border-color: #6b7280 !important;
+}
+
+.btn-outline-dark:hover,
+.btn-outline-dark:focus {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #a5b4fc !important;
+}
+
+.btn-dark {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #374151 !important;
+}
 </style>
 {% set current_view = request.args.get('view', 'table') %}
 
@@ -208,7 +227,7 @@
                             </div>
                             <div><strong>Qty:</strong> {{ card.quantity or 1 }}</div>
                             <div><strong>Cost:</strong> ${{ "%.2f"|format(card.purchase_price or 0) }}</div>
-                            <div><strong>Est. Value:</strong> ${{ "%.2f"|format(card.estimated_value or 0) }}</div>
+                            <div><strong>Comp Value:</strong> ${{ "%.2f"|format(card.estimated_value or 0) }}</div>
                             <div><strong>Ask:</strong> ${{ "%.2f"|format(card.asking_price or 0) }}</div>
                             <div><strong>Sold:</strong> {% if card.sold_price %}${{ "%.2f"|format(card.sold_price or 0) }}{% else %}—{% endif %}</div>
                             <div><strong>Profit:</strong>
@@ -274,7 +293,7 @@
                         <th>Raw Estimate</th>
                         <th>Qty</th>
                         <th>Cost</th>
-                        <th>Est. Value</th>
+                        <th>Comp Value</th>
                         <th>Ask</th>
                         <th>Sold</th>
                         <th>Profit</th>
