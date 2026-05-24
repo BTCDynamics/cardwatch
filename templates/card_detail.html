@@ -392,6 +392,83 @@
     text-shadow: 0 1px 2px rgba(0,0,0,.45);
 }
 
+
+/* Sidebar fulfillment/shipping summary */
+.cd-fulfillment-summary {
+    margin-top: .75rem;
+    padding: .85rem;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #f8fafc, #eef2ff);
+    border: 1px solid rgba(37, 99, 235, .18);
+}
+
+.cd-fulfillment-summary-title {
+    color: #0d47a1;
+    font-size: .75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .55rem;
+}
+
+.cd-fulfillment-mini-row {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .42rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+.cd-fulfillment-mini-row:last-child {
+    border-bottom: 0;
+}
+
+.cd-fulfillment-mini-label {
+    color: #475569;
+    font-size: .72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.cd-fulfillment-mini-value {
+    color: #111827;
+    font-size: .82rem;
+    font-weight: 900;
+    text-align: right;
+    word-break: break-word;
+}
+
+.cd-fulfillment-note {
+    margin-top: .6rem;
+    padding: .6rem;
+    border-radius: 9px;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, .08);
+    color: #334155;
+    font-size: .8rem;
+    font-weight: 700;
+    white-space: pre-wrap;
+}
+
+.cd-fulfillment-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: .28rem .62rem;
+    font-size: .78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.cd-fulfillment-needs { background: #fef3c7; color: #92400e; }
+.cd-fulfillment-pulled { background: #e5e7eb; color: #111827; }
+.cd-fulfillment-ready { background: #cffafe; color: #155e75; }
+.cd-fulfillment-shipped { background: #dbeafe; color: #1d4ed8; }
+.cd-fulfillment-delivered,
+.cd-fulfillment-completed { background: #dcfce7; color: #166534; }
+
 </style>
 
 {% set quantity = card.quantity or 1 %}
@@ -670,8 +747,60 @@
 
                     <div class="cd-sidebar-row">
                         <div class="cd-sidebar-label">Fulfillment</div>
-                        <div class="cd-sidebar-value cd-sidebar-blue">{{ card.fulfillment_status or '—' }}</div>
+                        <div class="cd-sidebar-value">
+                            {% if card.fulfillment_status == "Needs Pulling" %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-needs">Needs Pulling</span>
+                            {% elif card.fulfillment_status == "Pulled" %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-pulled">Pulled</span>
+                            {% elif card.fulfillment_status == "Ready to Ship" %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-ready">Ready to Ship</span>
+                            {% elif card.fulfillment_status == "Shipped" %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-shipped">Shipped</span>
+                            {% elif card.fulfillment_status == "Delivered" %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-delivered">Delivered</span>
+                            {% elif card.fulfillment_status == "Completed" %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-completed">Completed</span>
+                            {% else %}
+                                <span class="cd-fulfillment-badge cd-fulfillment-pulled">{{ card.fulfillment_status or '—' }}</span>
+                            {% endif %}
+                        </div>
                     </div>
+
+                    {% if card.status == "Sold" %}
+                        <div class="cd-fulfillment-summary">
+                            <div class="cd-fulfillment-summary-title">Shipping Summary</div>
+
+                            <div class="cd-fulfillment-mini-row">
+                                <div class="cd-fulfillment-mini-label">Carrier</div>
+                                <div class="cd-fulfillment-mini-value">{{ card.shipping_carrier or '—' }}</div>
+                            </div>
+
+                            <div class="cd-fulfillment-mini-row">
+                                <div class="cd-fulfillment-mini-label">Tracking</div>
+                                <div class="cd-fulfillment-mini-value">{{ card.tracking_number or '—' }}</div>
+                            </div>
+
+                            <div class="cd-fulfillment-mini-row">
+                                <div class="cd-fulfillment-mini-label">Ship Prep Date</div>
+                                <div class="cd-fulfillment-mini-value">{{ card.shipped_date or '—' }}</div>
+                            </div>
+
+                            <div class="cd-fulfillment-mini-row">
+                                <div class="cd-fulfillment-mini-label">Ship Cost</div>
+                                <div class="cd-fulfillment-mini-value">
+                                    {% if card.shipping_cost %}
+                                        ${{ "%.2f"|format(card.shipping_cost or 0) }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if card.shipping_notes %}
+                                <div class="cd-fulfillment-note">{{ card.shipping_notes }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
 
                     <div class="cd-sidebar-row">
                         <div class="cd-sidebar-label">Status</div>
