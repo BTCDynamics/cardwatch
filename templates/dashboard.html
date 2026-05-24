@@ -11,38 +11,6 @@
     border-color: #ef4444 !important;
     box-shadow: 0 .35rem .9rem rgba(220, 38, 38, .28);
 }
-
-
-/* Dashboard Sales / Purchases tabs */
-.dashboard-metric-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    margin-bottom: .75rem;
-}
-.dashboard-metric-tab {
-    border: 1px solid rgba(255,255,255,.18);
-    background: rgba(255,255,255,.08);
-    color: #ffffff;
-    font-weight: 700;
-    border-radius: 999px;
-    padding: .45rem 1rem;
-    line-height: 1;
-}
-.dashboard-metric-tab:hover,
-.dashboard-metric-tab:focus {
-    color: #ffffff;
-    border-color: rgba(255,255,255,.38);
-}
-.dashboard-metric-tab.active {
-    background: #ffffff;
-    color: #111827;
-    border-color: #ffffff;
-}
-.dashboard-metric-panel.d-none {
-    display: none !important;
-}
-
 </style>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
@@ -128,92 +96,76 @@
 
 </div>
 
-<div class="dashboard-metric-tabs" role="tablist" aria-label="Dashboard metric tabs">
-    <button type="button" class="dashboard-metric-tab active" data-dashboard-tab="sales" role="tab" aria-selected="true">Sales</button>
-    <button type="button" class="dashboard-metric-tab" data-dashboard-tab="purchases" role="tab" aria-selected="false">Purchases</button>
-</div>
-
-<div class="dashboard-metric-panel" data-dashboard-panel="sales">
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card page-card dashboard-click-card h-100">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
-                        <div class="cw-section-label mb-0">Cards Sold · {{ sales_summary_label or 'Last 3 Days' }}</div>
-                        <div class="dashboard-range-links">
-                            <a class="{% if sales_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='today', dashboard_tab='sales') }}">Today</a>
-                            <a class="{% if sales_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='3d', dashboard_tab='sales') }}">3D</a>
-                            <a class="{% if sales_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='7d', dashboard_tab='sales') }}">7D</a>
-                            <a class="{% if sales_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='30d', dashboard_tab='sales') }}">30D</a>
-                        </div>
-                    </div>
-                    <div class="display-6 fw-bold">{{ sold_cards or 0 }}</div>
-                    <p class="text-muted mb-0 small">Quantity of cards marked Sold in the selected sales range.</p>
-                </div>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 3 Days' }} Sales</div>
+                <div class="display-6 fw-bold">${{ "%.2f"|format(total_sold_price or 0) }}</div>
+                <p class="text-muted mb-0 small">Sold price total for the selected sales range.</p>
             </div>
         </div>
+        </a>
+    </div>
 
-        <div class="col-md-4">
-            <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
-            <div class="card page-card dashboard-click-card h-100">
-                <div class="card-body">
-                    <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 3 Days' }} Sales</div>
-                    <div class="display-6 fw-bold">${{ "%.2f"|format(total_sold_price or 0) }}</div>
-                    <p class="text-muted mb-0 small">Sold price total for the selected sales range.</p>
+    <div class="col-md-3">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 3 Days' }} Realized Profit / Loss</div>
+                <div class="display-6 fw-bold {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ "%.2f"|format(total_profit or 0) }}
                 </div>
+                <div class="small {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %} mb-1">
+                    Margin: {{ "%.1f"|format(today_sales_margin_percent or 0) }}%
+                </div>
+                <p class="text-muted mb-0 small">Selected-range sales minus selected-range sold-card cost basis.</p>
             </div>
-            </a>
         </div>
+        </a>
+    </div>
 
-        <div class="col-md-4">
-            <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
-            <div class="card page-card dashboard-click-card h-100">
-                <div class="card-body">
-                    <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 3 Days' }} Realized Profit / Loss</div>
-                    <div class="display-6 fw-bold {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        ${{ "%.2f"|format(total_profit or 0) }}
+    <div class="col-md-3">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                    <div class="cw-section-label mb-0">Cards Sold · {{ sales_summary_label or 'Last 3 Days' }}</div>
+                    <div class="dashboard-range-links">
+                        <a class="{% if sales_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='today') }}">Today</a>
+                        <a class="{% if sales_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='3d') }}">3D</a>
+                        <a class="{% if sales_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='7d') }}">7D</a>
+                        <a class="{% if sales_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='30d') }}">30D</a>
                     </div>
-                    <div class="small {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %} mb-1">
-                        Margin: {{ "%.1f"|format(today_sales_margin_percent or 0) }}%
-                    </div>
-                    <p class="text-muted mb-0 small">Selected-range sales minus selected-range sold-card cost basis.</p>
                 </div>
+                <div class="display-6 fw-bold">{{ sold_cards or 0 }}</div>
+                <p class="text-muted mb-0 small">Quantity of cards marked Sold in the selected sales range.</p>
             </div>
-            </a>
         </div>
     </div>
-</div>
 
-<div class="dashboard-metric-panel d-none" data-dashboard-panel="purchases">
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card page-card dashboard-click-card h-100">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
-                        <div class="cw-section-label mb-0">Cards Bought · {{ purchase_summary_label or 'Last 3 Days' }}</div>
-                        <div class="dashboard-range-links">
-                            <a class="{% if purchase_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', purchase_summary_range='today', dashboard_tab='purchases') }}">Today</a>
-                            <a class="{% if purchase_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', purchase_summary_range='3d', dashboard_tab='purchases') }}">3D</a>
-                            <a class="{% if purchase_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', purchase_summary_range='7d', dashboard_tab='purchases') }}">7D</a>
-                            <a class="{% if purchase_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', purchase_summary_range='30d', dashboard_tab='purchases') }}">30D</a>
-                        </div>
+    <div class="col-md-3">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                    <div class="cw-section-label mb-0">Cards Bought · {{ sales_summary_label or 'Last 3 Days' }}</div>
+
+                    <div class="dashboard-range-links">
+                        <a class="{% if sales_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='today') }}">Today</a>
+                        <a class="{% if sales_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='3d') }}">3D</a>
+                        <a class="{% if sales_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='7d') }}">7D</a>
+                        <a class="{% if sales_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='30d') }}">30D</a>
                     </div>
-
-                    <div class="display-6 fw-bold">{{ cards_bought_in_range or 0 }}</div>
-
-                    <p class="text-muted mb-0 small">
-                        New inventory entered during the selected range.
-                    </p>
                 </div>
-            </div>
-        </div>
 
-        <div class="col-md-6">
-            <div class="card page-card dashboard-click-card h-100">
-                <div class="card-body">
-                    <div class="cw-section-label mb-1">{{ purchase_summary_label or 'Last 3 Days' }} Purchase Cost</div>
-                    <div class="display-6 fw-bold text-info">${{ "%.2f"|format(cost_bought_in_range or 0) }}</div>
-                    <p class="text-muted mb-0 small">New inventory cost added during the selected range.</p>
+                <div class="display-6 fw-bold">{{ cards_bought_in_range or 0 }}</div>
+
+                <p class="text-muted mb-1 small">
+                    New inventory entered during the selected range.
+                </p>
+
+                <div class="small text-info">
+                    ${{ "%.2f"|format(cost_bought_in_range or 0) }} new inventory cost added
                 </div>
             </div>
         </div>
@@ -391,40 +343,4 @@
         </div>
     </div>
 </div>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const tabs = document.querySelectorAll('[data-dashboard-tab]');
-    const panels = document.querySelectorAll('[data-dashboard-panel]');
-    const params = new URLSearchParams(window.location.search);
-
-    function activateDashboardTab(target, updateUrl) {
-        tabs.forEach(function (item) {
-            const isActive = item.getAttribute('data-dashboard-tab') === target;
-            item.classList.toggle('active', isActive);
-            item.setAttribute('aria-selected', isActive ? 'true' : 'false');
-        });
-
-        panels.forEach(function (panel) {
-            panel.classList.toggle('d-none', panel.getAttribute('data-dashboard-panel') !== target);
-        });
-
-        if (updateUrl && window.history && window.history.replaceState) {
-            const nextParams = new URLSearchParams(window.location.search);
-            nextParams.set('dashboard_tab', target);
-            window.history.replaceState(null, '', window.location.pathname + '?' + nextParams.toString());
-        }
-    }
-
-    const initialTab = params.get('dashboard_tab') || (params.has('purchase_summary_range') ? 'purchases' : 'sales');
-    activateDashboardTab(initialTab === 'purchases' ? 'purchases' : 'sales', false);
-
-    tabs.forEach(function (tab) {
-        tab.addEventListener('click', function () {
-            activateDashboardTab(tab.getAttribute('data-dashboard-tab'), true);
-        });
-    });
-});
-</script>
 {% endblock %}
