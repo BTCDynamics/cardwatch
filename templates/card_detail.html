@@ -1,168 +1,556 @@
 {% extends "base.html" %}
 
-{% block title %}{{ card.card_code }} - {{ card.player_name }}{% endblock %}
+{% block title %}{{ card.card_code }} - {{ card.player_name }} | CardDesk{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
-    <div>
-        <h1 class="h2 mb-1">{{ card.player_name }}</h1>
-        <p class="text-muted mb-0">{{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }} {% if card.card_number %}#{{ card.card_number }}{% endif %}</p>
-    </div>
-    <div>
-        <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Back to Cards</a>
-        <a class="btn btn-outline-dark" href="{{ url_for('clone_card', card_id=card.id) }}">Clone Card</a>
-        {% if card.status != "Sold" %}
-            <a class="btn btn-primary" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
-        {% endif %}
-        <a class="btn btn-primary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit Card</a>
-    </div>
-</div>
+<style>
+/* CardDesk Card Detail - Add Card style */
+.card-detail-page {
+    color: #0f172a;
+}
 
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card page-card">
-            <div class="card-body text-center">
-                {% if card.image_filename %}
-                    <img class="card-thumb-lg" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} card image">
-                {% else %}
-                    <div class="cw-empty-image">No image uploaded</div>
-                {% endif %}
+.card-detail-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.card-detail-title-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: .9rem;
+}
+
+.card-detail-icon {
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(15, 23, 42, .14);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 1.35rem;
+    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .06);
+}
+
+.card-detail-page h1 {
+    color: #0f172a;
+    font-weight: 800;
+}
+
+.card-detail-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.cd-panel {
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, .10);
+    border-radius: 14px;
+    box-shadow: 0 .45rem 1.4rem rgba(15, 23, 42, .06);
+}
+
+.cd-panel-body {
+    padding: 1.25rem;
+}
+
+.cd-section {
+    border-bottom: 1px solid rgba(15, 23, 42, .10);
+    padding-bottom: 1.05rem;
+    margin-bottom: 1.05rem;
+}
+
+.cd-section:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.cd-section-title {
+    color: #0d47a1;
+    font-weight: 800;
+    font-size: .78rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: .85rem;
+}
+
+.cd-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .85rem;
+    max-width: 1100px;
+}
+
+.cd-detail-item {
+    background: #f1f5f9;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 10px;
+    padding: .8rem;
+    min-height: 76px;
+}
+
+.cd-detail-item-wide {
+    grid-column: span 2;
+}
+
+.cd-detail-label {
+    color: #475569;
+    font-size: .72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .35rem;
+}
+
+.cd-detail-value {
+    color: #111827;
+    font-weight: 800;
+    word-break: break-word;
+}
+
+.cd-money-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .85rem;
+    max-width: 1100px;
+}
+
+.cd-money-card {
+    background: #f1f5f9;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 10px;
+    padding: .9rem;
+}
+
+.cd-money-label {
+    color: #475569;
+    font-size: .72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .35rem;
+}
+
+.cd-money-value {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.cd-money-note {
+    color: #64748b;
+    font-size: .78rem;
+    margin-top: .3rem;
+}
+
+.cd-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cd-sidebar-title {
+    color: #0d47a1;
+    font-weight: 800;
+    font-size: .82rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: .75rem;
+}
+
+.cd-preview-box {
+    border: 1px dashed rgba(15, 23, 42, .20);
+    border-radius: 13px;
+    min-height: 300px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 1rem;
+}
+
+.cd-card-image {
+    max-width: 100%;
+    max-height: 360px;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 .45rem 1.2rem rgba(15, 23, 42, .14);
+    background: #e2e8f0;
+}
+
+.cd-empty-image {
+    color: #64748b;
+    font-weight: 800;
+}
+
+.cd-sidebar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 0;
+    border-bottom: 1px solid rgba(15, 23, 42, .08);
+}
+
+.cd-sidebar-row:last-child {
+    border-bottom: 0;
+}
+
+.cd-sidebar-label {
+    color: #475569;
+    font-size: .75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.cd-sidebar-value {
+    color: #111827;
+    font-weight: 900;
+    text-align: right;
+}
+
+.cd-sidebar-blue {
+    color: #2563eb !important;
+}
+
+.cd-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.cd-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: .3rem .65rem;
+    background: #e2e8f0;
+    color: #111827;
+    font-size: .78rem;
+    font-weight: 900;
+    border: 1px solid rgba(15, 23, 42, .08);
+}
+
+.cd-chip-blue {
+    background: rgba(37, 99, 235, .12);
+    color: #1d4ed8;
+}
+
+.cd-chip-green {
+    background: rgba(34, 197, 94, .12);
+    color: #15803d;
+}
+
+.cd-chip-yellow {
+    background: rgba(245, 158, 11, .18);
+    color: #92400e;
+}
+
+.cd-chip-red {
+    background: rgba(239, 68, 68, .12);
+    color: #b91c1c;
+}
+
+.cd-storage-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: .3rem .7rem;
+    background: rgba(37, 99, 235, .10);
+    color: #2563eb;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.cd-storage-pill:hover {
+    background: rgba(37, 99, 235, .16);
+    color: #1d4ed8;
+}
+
+.cd-notes-box {
+    background: #f1f5f9;
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 10px;
+    padding: .9rem;
+    color: #111827;
+    white-space: pre-wrap;
+    max-width: 1100px;
+}
+
+.cd-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(15, 23, 42, .10);
+    background: rgba(248, 250, 252, .75);
+    border-radius: 0 0 14px 14px;
+}
+
+.cd-actions-left,
+.cd-actions-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem;
+}
+
+.cd-actions form {
+    margin: 0;
+}
+
+@media (max-width: 1199.98px) {
+    .card-detail-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .cd-sidebar {
+        order: -1;
+    }
+
+    .cd-money-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .card-detail-hero {
+        flex-direction: column;
+    }
+
+    .cd-detail-grid,
+    .cd-money-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cd-detail-item-wide {
+        grid-column: auto;
+    }
+
+    .cd-actions {
+        flex-direction: column;
+    }
+
+    .cd-actions-left,
+    .cd-actions-right,
+    .cd-actions .btn,
+    .cd-actions form,
+    .cd-actions button {
+        width: 100%;
+    }
+}
+</style>
+
+{% set quantity = card.quantity or 1 %}
+{% set purchase_price = card.purchase_price or 0 %}
+{% set estimated_value = card.estimated_value or 0 %}
+{% set asking_price = card.asking_price or 0 %}
+{% set sold_price = card.sold_price or 0 %}
+{% set potential_profit = asking_price - purchase_price %}
+{% set realized_profit = sold_price - purchase_price %}
+{% set displayed_profit = realized_profit if card.sold_price else potential_profit %}
+
+<div class="card-detail-page">
+    <div class="card-detail-hero">
+        <div class="card-detail-title-wrap">
+            <div class="card-detail-icon">▣</div>
+            <div>
+                <h1 class="h2 mb-1">{{ card.player_name }}</h1>
+                <p class="text-muted mb-0">
+                    {{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }}
+                    {% if card.card_number %}#{{ card.card_number }}{% endif %}
+                    {% if card.set_name %} · {{ card.set_name }}{% endif %}
+                </p>
             </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">← Back to Cards</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
+            {% if card.status != "Sold" %}
+                <a class="btn btn-primary" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
+            {% endif %}
+            <a class="btn btn-primary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit</a>
         </div>
     </div>
 
-    <div class="col-lg-8">
-        <div class="card page-card mb-4 card-info-compact">
-            <div class="section-heading ms-3">Card Info</div>
-            <div class="card-body">
-                <div class="compact-detail-grid">
-                    <div class="compact-detail-item compact-detail-player">
-                        <div class="detail-label">Player</div>
-                        <div class="detail-value">{{ card.player_name }}</div>
+    <div class="card-detail-shell">
+        <main class="cd-panel">
+            <div class="cd-panel-body">
+                <section class="cd-section">
+                    <div class="cd-section-title">Status</div>
+                    <div class="cd-chip-row">
+                        {% if card.status %}
+                            <span class="cd-chip {% if card.status == 'Active' %}cd-chip-green{% elif card.status == 'Sold' %}cd-chip-red{% else %}cd-chip-yellow{% endif %}">{{ card.status }}</span>
+                        {% endif %}
+                        <span class="cd-chip cd-chip-blue">{{ card.collection_type or 'Inventory' }}</span>
+                        <span class="cd-chip">{{ card.card_type or 'Raw' }}</span>
+                        {% if card.is_rookie %}<span class="cd-chip cd-chip-yellow">Rookie Card</span>{% endif %}
+                        {% if card.is_hof %}<span class="cd-chip cd-chip-blue">Hall of Famer</span>{% endif %}
                     </div>
+                </section>
 
-                    <div class="compact-detail-item">
-                        <div class="detail-label">Sport</div>
-                        <div class="detail-value">{{ card.sport or '—' }}</div>
-                    </div>
+                <section class="cd-section">
+                    <div class="cd-section-title">Pricing Snapshot</div>
+                    <div class="cd-money-grid">
+                        <div class="cd-money-card">
+                            <div class="cd-money-label">Cost Basis</div>
+                            <div class="cd-money-value">${{ "%.2f"|format(purchase_price * quantity) }}</div>
+                            <div class="cd-money-note">${{ "%.2f"|format(purchase_price) }} each</div>
+                        </div>
 
-                    <div class="compact-detail-item">
-                        <div class="detail-label">Brand</div>
-                        <div class="detail-value">{{ card.brand or '—' }}</div>
-                    </div>
+                        <div class="cd-money-card">
+                            <div class="cd-money-label">Comp Value</div>
+                            <div class="cd-money-value">${{ "%.2f"|format(estimated_value * quantity) }}</div>
+                            <div class="cd-money-note">${{ "%.2f"|format(estimated_value) }} each</div>
+                        </div>
 
-                    <div class="compact-detail-item compact-detail-small">
-                        <div class="detail-label">Year</div>
-                        <div class="detail-value">{{ card.year or '—' }}</div>
-                    </div>
+                        <div class="cd-money-card">
+                            <div class="cd-money-label">Asking Price</div>
+                            <div class="cd-money-value">${{ "%.2f"|format(asking_price * quantity) }}</div>
+                            <div class="cd-money-note">${{ "%.2f"|format(asking_price) }} each</div>
+                        </div>
 
-                    <div class="compact-detail-item compact-detail-small">
-                        <div class="detail-label">Card</div>
-                        <div class="detail-value">{% if card.card_number %}#{{ card.card_number }}{% else %}—{% endif %}</div>
-                    </div>
-
-                    <div class="compact-detail-item compact-detail-small">
-                        <div class="detail-label">Type</div>
-                        <div class="detail-value">{{ card.card_type or '—' }}</div>
-                    </div>
-
-                    <div class="compact-detail-item compact-detail-flag">
-                        <div class="detail-label">Hall of Famer</div>
-                        <div class="detail-value">{% if card.is_hof %}<span class="badge badge-hof">Yes</span>{% else %}<span class="text-muted">No</span>{% endif %}</div>
-                    </div>
-
-                    <div class="compact-detail-item compact-detail-flag">
-                        <div class="detail-label">Rookie Card</div>
-                        <div class="detail-value">{% if card.is_rookie %}<span class="badge badge-rc">Yes</span>{% else %}<span class="text-muted">No</span>{% endif %}</div>
-                    </div>
-                </div>
-
-                <div class="compact-detail-grid compact-detail-grid-secondary mt-3">
-                    <div class="compact-detail-item compact-detail-wide">
-                        <div class="detail-label">Set</div>
-                        <div class="detail-value">{{ card.set_name or '—' }}</div>
-                    </div>
-
-                    <div class="compact-detail-item compact-detail-wide">
-                        <div class="detail-label">Variation</div>
-                        <div class="detail-value">{{ card.variation or '—' }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card page-card mb-4">
-            <div class="section-heading ms-3">Grading</div>
-            <div class="card-body">
-                {% if card.card_type == "Graded" %}
-                    <div class="row g-4 inventory-grid">
-                        <div class="col-md-4"><div class="detail-label">Company</div><div class="detail-value">{{ card.grading_company or '—' }}</div></div>
-                        <div class="col-md-4"><div class="detail-label">Official Grade</div><div class="detail-value">{{ card.actual_grade or '—' }}</div></div>
-                        <div class="col-md-4"><div class="detail-label">Cert #</div><div class="detail-value">{{ card.cert_number or '—' }}</div></div>
-                    </div>
-                {% else %}
-                    <div class="row g-4 inventory-grid">
-                        <div class="col-md-4"><div class="detail-label">Raw Grade Estimate</div><div class="detail-value">{{ card.grade_estimate or '—' }}</div></div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="card page-card">
-            <div class="section-heading ms-3">Inventory</div>
-            <div class="card-body">
-                <div class="row g-4 inventory-grid mb-3">
-
-                    <div class="col-md-3">
-                        <div class="detail-label">Collection Type</div>
-                        <div class="detail-value">
-                            {% if card.collection_type == "Personal Collection" %}
-                                <span class="badge bg-primary">PC</span>
-                            {% elif card.collection_type == "Inventory" %}
-                                <span class="badge bg-success">Inventory</span>
-                            {% elif card.collection_type == "Trade Bait" %}
-                                <span class="badge bg-warning text-dark">Trade</span>
-                            {% elif card.collection_type == "Grading Queue" %}
-                                <span class="badge bg-info text-dark">Grade</span>
-                            {% else %}
-                                {{ card.collection_type or "Inventory" }}
-                            {% endif %}
+                        <div class="cd-money-card">
+                            <div class="cd-money-label">{% if card.sold_price %}Realized Profit{% else %}Potential Profit{% endif %}</div>
+                            <div class="cd-money-value {% if displayed_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                {% if card.sold_price or card.asking_price %}
+                                    ${{ "%.2f"|format(displayed_profit * quantity) }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                            <div class="cd-money-note">
+                                {% if card.sold_price %}Sold at ${{ "%.2f"|format(sold_price) }} each{% else %}Based on asking price{% endif %}
+                            </div>
                         </div>
                     </div>
+                </section>
 
-                    <div class="col-md-3"><div class="detail-label">Quantity</div><div class="detail-value">{{ card.quantity or 1 }}</div></div>
+                <section class="cd-section">
+                    <div class="cd-section-title">Card Identity</div>
+                    <div class="cd-detail-grid">
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Player</div>
+                            <div class="cd-detail-value">{{ card.player_name }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Status</div><div class="detail-value">{% if card.status %}<span class="status-badge status-{{ card.status|replace(' ', '-') }}">{{ card.status }}</span>{% else %}—{% endif %}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Sport</div>
+                            <div class="cd-detail-value">{{ card.sport or '—' }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Purchase Price</div><div class="detail-value">${{ "%.2f"|format(card.purchase_price or 0) }}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Year</div>
+                            <div class="cd-detail-value">{{ card.year or '—' }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Estimated Value</div><div class="detail-value">${{ "%.2f"|format(card.estimated_value or 0) }}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Brand</div>
+                            <div class="cd-detail-value">{{ card.brand or '—' }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Asking Price</div><div class="detail-value">${{ "%.2f"|format(card.asking_price or 0) }}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Card #</div>
+                            <div class="cd-detail-value">{% if card.card_number %}#{{ card.card_number }}{% else %}—{% endif %}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Sold Price</div><div class="detail-value">${{ "%.2f"|format(card.sold_price or 0) }}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Quantity</div>
+                            <div class="cd-detail-value">{{ quantity }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Profit</div><div class="detail-value {% if (card.sold_price or 0) - (card.purchase_price or 0) >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        {% if card.sold_price %}
-                            ${{ "%.2f"|format((card.sold_price or 0) - (card.purchase_price or 0)) }}
+                        <div class="cd-detail-item cd-detail-item-wide">
+                            <div class="cd-detail-label">Set Name</div>
+                            <div class="cd-detail-value">{{ card.set_name or '—' }}</div>
+                        </div>
+
+                        <div class="cd-detail-item cd-detail-item-wide">
+                            <div class="cd-detail-label">Variation / Parallel</div>
+                            <div class="cd-detail-value">{{ card.variation or '—' }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cd-section">
+                    <div class="cd-section-title">Grading</div>
+                    <div class="cd-detail-grid">
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Type</div>
+                            <div class="cd-detail-value">{{ card.card_type or '—' }}</div>
+                        </div>
+
+                        {% if card.card_type == "Graded" %}
+                            <div class="cd-detail-item">
+                                <div class="cd-detail-label">Company</div>
+                                <div class="cd-detail-value">{{ card.grading_company or '—' }}</div>
+                            </div>
+
+                            <div class="cd-detail-item">
+                                <div class="cd-detail-label">Official Grade</div>
+                                <div class="cd-detail-value">{{ card.actual_grade or '—' }}</div>
+                            </div>
+
+                            <div class="cd-detail-item">
+                                <div class="cd-detail-label">Cert #</div>
+                                <div class="cd-detail-value">{{ card.cert_number or '—' }}</div>
+                            </div>
                         {% else %}
-                            —
+                            <div class="cd-detail-item">
+                                <div class="cd-detail-label">Grade Estimate</div>
+                                <div class="cd-detail-value">{{ card.grade_estimate or '—' }}</div>
+                            </div>
                         {% endif %}
-                    </div></div>
+                    </div>
+                </section>
 
-                    <div class="col-md-3"><div class="detail-label">Purchase Date</div><div class="detail-value">{{ card.purchase_date or '—' }}</div></div>
+                <section class="cd-section">
+                    <div class="cd-section-title">Dates & Sales</div>
+                    <div class="cd-detail-grid">
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Purchase Date</div>
+                            <div class="cd-detail-value">{{ card.purchase_date or '—' }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Sold Date</div><div class="detail-value">{{ card.sold_date or '—' }}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Sold Date</div>
+                            <div class="cd-detail-value">{{ card.sold_date or '—' }}</div>
+                        </div>
 
-                    <div class="col-md-3"><div class="detail-label">Sales Platform</div><div class="detail-value">{{ card.sales_platform or '—' }}</div></div>
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Sales Platform</div>
+                            <div class="cd-detail-value">{{ card.sales_platform or '—' }}</div>
+                        </div>
 
-                    <div class="col-md-6"><div class="detail-label">Storage Location</div><div class="detail-value">{% if card.storage_location %}<a class="storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>{% else %}—{% endif %}</div></div>
+                        <div class="cd-detail-item cd-detail-item-wide">
+                            <div class="cd-detail-label">Storage Location</div>
+                            <div class="cd-detail-value">
+                                {% if card.storage_location %}
+                                    <a class="cd-storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                    <div class="col-12"><div class="detail-label">Notes</div><div class="detail-value">{{ card.notes or '—' }}</div></div>
+                <section class="cd-section">
+                    <div class="cd-section-title">Notes</div>
+                    <div class="cd-notes-box">{{ card.notes or '—' }}</div>
+                </section>
+            </div>
 
-                </div>
-
-                <div class="d-flex flex-wrap gap-2">
+            <div class="cd-actions">
+                <div class="cd-actions-left">
                     <form method="POST" action="{{ url_for('add_duplicate', card_id=card.id) }}">
                         <button class="btn btn-outline-success" type="submit">+1 Duplicate</button>
                     </form>
@@ -170,14 +558,75 @@
                     {% if card.status != "Sold" %}
                         <a class="btn btn-primary" href="{{ url_for('quick_sell', card_id=card.id) }}">Quick Sell</a>
                     {% endif %}
-
-                    <form method="POST" action="{{ url_for('delete_card', card_id=card.id) }}" onsubmit="return confirm('Delete this card?');">
-                        <button class="btn btn-outline-danger" type="submit">Delete Card</button>
-                    </form>
                 </div>
 
+                <div class="cd-actions-right">
+                    <a class="btn btn-outline-secondary" href="{{ url_for('clone_card', card_id=card.id) }}">Clone</a>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('edit_card', card_id=card.id) }}">Edit</a>
+                    <form method="POST" action="{{ url_for('delete_card', card_id=card.id) }}" onsubmit="return confirm('Delete this card?');">
+                        <button class="btn btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </div>
             </div>
-        </div>
+        </main>
+
+        <aside class="cd-sidebar">
+            <div class="cd-panel">
+                <div class="cd-panel-body">
+                    <div class="cd-sidebar-title">Card Image</div>
+                    <div class="cd-preview-box">
+                        {% if card.image_filename %}
+                            <img class="cd-card-image" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} card image">
+                        {% else %}
+                            <div class="cd-empty-image">
+                                <div>No image uploaded</div>
+                                <a class="btn btn-sm btn-primary mt-3" href="{{ url_for('edit_card', card_id=card.id) }}">Add Image</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="cd-panel">
+                <div class="cd-panel-body">
+                    <div class="cd-sidebar-title">Quick Facts</div>
+
+                    <div class="cd-sidebar-row">
+                        <div class="cd-sidebar-label">Card</div>
+                        <div class="cd-sidebar-value cd-sidebar-blue">
+                            {{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }}
+                            {% if card.card_number %}#{{ card.card_number }}{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="cd-sidebar-row">
+                        <div class="cd-sidebar-label">Storage</div>
+                        <div class="cd-sidebar-value">
+                            {% if card.storage_location %}
+                                <a class="cd-storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="cd-sidebar-row">
+                        <div class="cd-sidebar-label">Quantity</div>
+                        <div class="cd-sidebar-value cd-sidebar-blue">{{ quantity }}</div>
+                    </div>
+
+                    <div class="cd-sidebar-row">
+                        <div class="cd-sidebar-label">Fulfillment</div>
+                        <div class="cd-sidebar-value cd-sidebar-blue">{{ card.fulfillment_status or '—' }}</div>
+                    </div>
+
+                    <div class="cd-sidebar-row">
+                        <div class="cd-sidebar-label">Status</div>
+                        <div class="cd-sidebar-value">{{ card.status or '—' }}</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
 </div>
 {% endblock %}
