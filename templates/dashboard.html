@@ -144,32 +144,6 @@
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card page-card dashboard-click-card h-100">
-            <div class="card-body">
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
-                    <div class="cw-section-label mb-0">Cards Bought · {{ sales_summary_label or 'Last 3 Days' }}</div>
-
-                    <div class="dashboard-range-links">
-                        <a class="{% if sales_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='today') }}">Today</a>
-                        <a class="{% if sales_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='3d') }}">3D</a>
-                        <a class="{% if sales_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='7d') }}">7D</a>
-                        <a class="{% if sales_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='30d') }}">30D</a>
-                    </div>
-                </div>
-
-                <div class="display-6 fw-bold">{{ cards_bought_in_range or 0 }}</div>
-
-                <p class="text-muted mb-1 small">
-                    New inventory entered during the selected range.
-                </p>
-
-                <div class="small text-info">
-                    ${{ "%.2f"|format(cost_bought_in_range or 0) }} new inventory cost added
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="row g-3 dashboard-bottom-row">
