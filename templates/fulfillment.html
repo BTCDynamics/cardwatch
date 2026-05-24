@@ -2,6 +2,38 @@
 
 {% block title %}Fulfillment Queue{% endblock %}
 
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectLocationButtons = document.querySelectorAll(".select-location-pull");
+    const clearSelectionButton = document.getElementById("clearPullSelection");
+    const pullCheckboxes = document.querySelectorAll(".pull-card-checkbox");
+
+    selectLocationButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            const locationKey = button.dataset.pullLocation;
+
+            pullCheckboxes.forEach(function (checkbox) {
+                if (checkbox.dataset.pullLocation === locationKey) {
+                    checkbox.checked = true;
+                }
+            });
+        });
+    });
+
+    if (clearSelectionButton) {
+        clearSelectionButton.addEventListener("click", function () {
+            pullCheckboxes.forEach(function (checkbox) {
+                checkbox.checked = false;
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+
+
 {% block content %}
 <style>
 /* Fix unreadable Needs Pulling stat card text */
@@ -43,6 +75,70 @@
     color: #ffffff !important;
     background-color: #111827 !important;
     border-color: #94a3b8 !important;
+}
+
+
+/* Pull grouping panel */
+.pull-group-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    overflow: hidden;
+}
+
+.pull-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.pull-group-location {
+    color: #111827;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.pull-group-count {
+    color: #1e3a8a;
+    background: #dbeafe;
+    border: 1px solid #bfdbfe;
+    border-radius: 999px;
+    padding: .25rem .6rem;
+    font-size: .78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.pull-group-body {
+    padding: .85rem 1rem 1rem;
+}
+
+.pull-card-list {
+    display: grid;
+    gap: .45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pull-card-item {
+    color: #334155;
+    font-size: .86rem;
+    line-height: 1.25;
+}
+
+.pull-card-item strong {
+    color: #111827;
+}
+
+.pull-actions-bar {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: .95rem;
+    padding: .85rem 1rem;
 }
 
 </style>
@@ -126,8 +222,63 @@
     {% if status_filter == 'Needs Pulling' %}
         <form id="bulkPulledForm" method="POST" action="{{ url_for('mark_selected_fulfillment_pulled') }}"></form>
 
-        <div class="d-flex flex-wrap justify-content-end gap-2 mb-2">
-            <button class="btn btn-warning" type="submit" form="bulkPulledForm">Mark Selected Pulled</button>
+        <div class="pull-actions-bar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <div class="fw-bold"><span style="color: #000000 !important; font-weight: 800;">Pull by Storage Location</span></div>
+                <div class="small text-muted">Use the location groups below to select every card from one box, binder, case, or storage area.</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-secondary" type="button" id="clearPullSelection">Clear Selection</button>
+                <button class="btn btn-warning" type="submit" form="bulkPulledForm">Mark Selected Pulled</button>
+            </div>
+        </div>
+
+        <div class="card page-card mb-4">
+            <div class="card-header fw-bold d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span>Grouped Pull List</span>
+                <span class="badge text-bg-warning">{{ cards|length }} card(s) need pulling</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for location, location_cards in cards|groupby("storage_location", default="No Location") %}
+                        {% set location_key = location or '__NO_LOCATION__' %}
+                        <div class="col-12 col-lg-6 col-xl-4">
+                            <div class="pull-group-card h-100">
+                                <div class="pull-group-header">
+                                    <div>
+                                        <div class="pull-group-location">
+                                            {% if location %}
+                                                {{ location }}
+                                            {% else %}
+                                                No Location
+                                            {% endif %}
+                                        </div>
+                                        <div class="small text-muted">Pull these together from the same location.</div>
+                                    </div>
+                                    <span class="pull-group-count">{{ location_cards|length }} card(s)</span>
+                                </div>
+                                <div class="pull-group-body">
+                                    <ul class="pull-card-list mb-3">
+                                        {% for card in location_cards %}
+                                            <li class="pull-card-item">
+                                                <strong>{{ card.player_name }}</strong><br>
+                                                <span>{{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }}{% if card.card_number %} #{{ card.card_number }}{% endif %}</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                    <button
+                                        class="btn btn-sm btn-outline-primary select-location-pull"
+                                        type="button"
+                                        data-pull-location="{{ location_key }}"
+                                    >
+                                        Select This Location
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     {% endif %}
 
@@ -152,7 +303,7 @@
                         <tr class="inventory-row">
                             <td>
                                 {% if card.fulfillment_status == "Needs Pulling" %}
-                                    <input class="form-check-input" type="checkbox" name="card_ids" value="{{ card.id }}" form="bulkPulledForm">
+                                    <input class="form-check-input pull-card-checkbox" type="checkbox" name="card_ids" value="{{ card.id }}" form="bulkPulledForm" data-pull-location="{{ card.storage_location or '__NO_LOCATION__' }}">
                                 {% else %}
                                     <span class="text-muted">—</span>
                                 {% endif %}
