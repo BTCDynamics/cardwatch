@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
 </div>
 
-<div class="row row-cols-1 row-cols-md-4 g-3 mb-4">
+<div class="row row-cols-1 row-cols-md-5 g-3 mb-4">
     <div class="col">
         <a class="text-decoration-none" href="{{ url_for('fulfillment_queue', status='Needs Pulling') }}">
             <div class="card page-card fulfillment-stat-card h-100">
@@ -265,6 +265,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="card-body">
                     <div class="detail-label">Pulled</div>
                     <div class="detail-value">{{ counts.pulled or 0 }}</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col">
+        <a class="text-decoration-none" href="{{ url_for('fulfillment_queue', status='Ready to Ship') }}">
+            <div class="card page-card h-100">
+                <div class="card-body">
+                    <div class="detail-label">Ready to Ship</div>
+                    <div class="detail-value">{{ counts.ready_to_ship or 0 }}</div>
                 </div>
             </div>
         </a>
@@ -304,6 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="d-flex flex-wrap gap-2">
                 <a class="btn btn-sm {% if status_filter == 'Needs Pulling' %}btn-warning{% else %}btn-outline-warning{% endif %}" href="{{ url_for('fulfillment_queue', status='Needs Pulling') }}">Needs Pulling</a>
                 <a class="btn btn-sm {% if status_filter == 'Pulled' %}fulfillment-filter-dark{% else %}fulfillment-filter-outline-dark{% endif %}" href="{{ url_for('fulfillment_queue', status='Pulled') }}">Pulled</a>
+                <a class="btn btn-sm {% if status_filter == 'Ready to Ship' %}btn-info{% else %}btn-outline-info{% endif %}" href="{{ url_for('fulfillment_queue', status='Ready to Ship') }}">Ready to Ship</a>
                 <a class="btn btn-sm {% if status_filter == 'Shipped' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('fulfillment_queue', status='Shipped') }}">Shipped</a>
                 <a class="btn btn-sm {% if status_filter == 'Delivered' %}btn-success{% else %}btn-outline-success{% endif %}" href="{{ url_for('fulfillment_queue', status='Delivered') }}">Delivered</a>
                 <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('fulfillment_queue', status='') }}">All</a>
@@ -442,6 +454,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                     <span class="badge text-bg-warning">Needs Pulling</span>
                                 {% elif card.fulfillment_status == "Pulled" %}
                                     <span class="badge text-bg-dark">Pulled</span>
+                                {% elif card.fulfillment_status == "Ready to Ship" %}
+                                    <span class="badge text-bg-info">Ready to Ship</span>
                                 {% elif card.fulfillment_status == "Shipped" %}
                                     <span class="badge text-bg-primary">Shipped</span>
                                 {% elif card.fulfillment_status == "Delivered" %}
@@ -455,16 +469,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             <td class="text-end">
                                 <div class="d-flex flex-wrap justify-content-end gap-1">
-                                    {% if card.fulfillment_status != "Pulled" %}
+                                    {% if card.fulfillment_status == "Needs Pulling" or not card.fulfillment_status %}
                                         <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
                                             <input type="hidden" name="fulfillment_status" value="Pulled">
                                             <button class="btn btn-sm btn-warning" type="submit">Mark Pulled</button>
                                         </form>
-                                    {% endif %}
 
-                                    {% if card.fulfillment_status != "Shipped" %}
+                                    {% elif card.fulfillment_status == "Pulled" %}
                                         <button
-                                            class="btn btn-sm btn-outline-primary"
+                                            class="btn btn-sm btn-info"
                                             type="button"
                                             data-bs-toggle="modal"
                                             data-bs-target="#shippingModal"
@@ -472,21 +485,34 @@ document.addEventListener("DOMContentLoaded", function () {
                                             data-card-code="{{ card.card_code }}"
                                             data-player-name="{{ card.player_name }}"
                                         >
-                                            Shipped
+                                            Prepare Shipment
                                         </button>
-                                    {% endif %}
 
-                                    {% if card.fulfillment_status != "Delivered" %}
+                                    {% elif card.fulfillment_status == "Ready to Ship" %}
+                                        <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
+                                            <input type="hidden" name="fulfillment_status" value="Shipped">
+                                            <button class="btn btn-sm btn-primary" type="submit">Mark Shipped</button>
+                                        </form>
+
+                                    {% elif card.fulfillment_status == "Shipped" %}
                                         <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
                                             <input type="hidden" name="fulfillment_status" value="Delivered">
-                                            <button class="btn btn-sm btn-outline-success" type="submit">Delivered</button>
+                                            <button class="btn btn-sm btn-outline-success" type="submit">Mark Delivered</button>
                                         </form>
-                                    {% endif %}
 
-                                    {% if card.fulfillment_status != "Completed" %}
+                                    {% elif card.fulfillment_status == "Delivered" %}
                                         <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
                                             <input type="hidden" name="fulfillment_status" value="Completed">
                                             <button class="btn btn-sm fulfillment-filter-outline-dark" type="submit">Complete</button>
+                                        </form>
+
+                                    {% elif card.fulfillment_status == "Completed" %}
+                                        <span class="badge text-bg-success">Workflow Complete</span>
+
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
+                                            <input type="hidden" name="fulfillment_status" value="Pulled">
+                                            <button class="btn btn-sm btn-warning" type="submit">Mark Pulled</button>
                                         </form>
                                     {% endif %}
                                 </div>
@@ -514,8 +540,8 @@ document.addEventListener("DOMContentLoaded", function () {
             <form method="POST" id="shippingForm">
                 <div class="modal-header">
                     <div>
-                        <h5 class="modal-title fw-bold" id="shippingModalTitle">Enter Shipping Info</h5>
-                        <div class="shipping-modal-help">Saving this will mark the card as <strong>Shipped</strong>.</div>
+                        <h5 class="modal-title fw-bold" id="shippingModalTitle">Prepare Shipment</h5>
+                        <div class="shipping-modal-help">Saving this will mark the card as <strong>Ready to Ship</strong>.</div>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -526,7 +552,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="shipping-modal-card-label" id="shippingModalCardLabel">—</div>
                     </div>
 
-                    <input type="hidden" name="fulfillment_status" value="Shipped">
+                    <input type="hidden" name="fulfillment_status" value="Ready to Ship">
 
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -570,7 +596,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Shipping & Mark Shipped</button>
+                    <button type="submit" class="btn btn-primary">Save Prep & Mark Ready to Ship</button>
                 </div>
             </form>
         </div>
