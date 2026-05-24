@@ -29,6 +29,33 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    const shippingModal = document.getElementById("shippingModal");
+
+    if (shippingModal) {
+        shippingModal.addEventListener("show.bs.modal", function (event) {
+            const button = event.relatedTarget;
+
+            if (!button) {
+                return;
+            }
+
+            const cardId = button.dataset.cardId;
+            const cardCode = button.dataset.cardCode || "";
+            const playerName = button.dataset.playerName || "";
+
+            const modalCardLabel = document.getElementById("shippingModalCardLabel");
+            const shippingForm = document.getElementById("shippingForm");
+
+            if (modalCardLabel) {
+                modalCardLabel.textContent = cardCode + " · " + playerName;
+            }
+
+            if (shippingForm && cardId) {
+                shippingForm.action = "{{ url_for('update_fulfillment_status', card_id=0) }}".replace("/0/", "/" + cardId + "/");
+            }
+        });
+    }
 });
 </script>
 {% endblock %}
@@ -139,6 +166,73 @@ document.addEventListener("DOMContentLoaded", function () {
     border: 1px solid #fed7aa;
     border-radius: .95rem;
     padding: .85rem 1rem;
+}
+
+
+/* Shipping modal */
+.shipping-modal-card {
+    background: linear-gradient(145deg, #f8fafc, #eef2ff);
+    border: 1px solid #cbd5e1;
+    border-radius: .95rem;
+    padding: .85rem 1rem;
+}
+
+.shipping-modal-card-label {
+    color: #111827;
+    font-weight: 900;
+}
+
+.shipping-modal-help {
+    color: #475569;
+    font-size: .86rem;
+}
+
+
+/* Dark shipping modal */
+.shipping-dark-modal .modal-content {
+    background: #374151;
+    border: 1px solid #4b5563;
+    color: #ffffff;
+}
+
+.shipping-dark-modal .modal-header,
+.shipping-dark-modal .modal-footer {
+    border-color: #4b5563;
+}
+
+.shipping-dark-modal .modal-title,
+.shipping-dark-modal .form-label,
+.shipping-dark-modal .shipping-modal-help,
+.shipping-dark-modal .shipping-modal-card-label {
+    color: #ffffff !important;
+}
+
+.shipping-dark-modal .shipping-modal-card {
+    background: #1f2937;
+    border: 1px solid #4b5563;
+}
+
+.shipping-dark-modal .form-control,
+.shipping-dark-modal .form-select {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #d1d5db;
+}
+
+.shipping-dark-modal .form-control:focus,
+.shipping-dark-modal .form-select:focus {
+    background: #ffffff;
+    color: #000000;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 .2rem rgba(96,165,250,.25);
+}
+
+.shipping-dark-modal .text-muted {
+    color: #d1d5db !important;
+}
+
+.shipping-dark-modal .btn-close {
+    filter: invert(1);
 }
 
 </style>
@@ -293,6 +387,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         <th>Sold Price</th>
                         <th>Customer</th>
                         <th>Platform</th>
+                        <th>Carrier</th>
+                        <th>Tracking</th>
                         <th>Storage Location</th>
                         <th>Fulfillment</th>
                         <th class="text-end">Actions</th>
@@ -325,6 +421,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             <td>${{ "%.2f"|format((card.sold_price or 0) * (card.quantity or 1)) }}</td>
                             <td>{{ card.customer_name or '—' }}</td>
                             <td>{{ card.sales_platform or '—' }}</td>
+                            <td>{{ card.shipping_carrier|default('—', true) }}</td>
+                            <td>
+                                {% if card.tracking_number|default('', true) %}
+                                    <span class="fw-bold">{{ card.tracking_number }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if card.storage_location %}
                                     <a class="storage-pill storage-pill-sm" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
@@ -359,10 +463,17 @@ document.addEventListener("DOMContentLoaded", function () {
                                     {% endif %}
 
                                     {% if card.fulfillment_status != "Shipped" %}
-                                        <form method="POST" action="{{ url_for('update_fulfillment_status', card_id=card.id) }}" class="d-inline">
-                                            <input type="hidden" name="fulfillment_status" value="Shipped">
-                                            <button class="btn btn-sm btn-outline-primary" type="submit">Shipped</button>
-                                        </form>
+                                        <button
+                                            class="btn btn-sm btn-outline-primary"
+                                            type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#shippingModal"
+                                            data-card-id="{{ card.id }}"
+                                            data-card-code="{{ card.card_code }}"
+                                            data-player-name="{{ card.player_name }}"
+                                        >
+                                            Shipped
+                                        </button>
                                     {% endif %}
 
                                     {% if card.fulfillment_status != "Delivered" %}
@@ -395,4 +506,75 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
     </div>
 {% endif %}
+
+<!-- Shipping Info Modal -->
+<div class="modal fade" id="shippingModal" tabindex="-1" aria-labelledby="shippingModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered shipping-dark-modal">
+        <div class="modal-content">
+            <form method="POST" id="shippingForm">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="shippingModalTitle">Enter Shipping Info</h5>
+                        <div class="shipping-modal-help">Saving this will mark the card as <strong>Shipped</strong>.</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="shipping-modal-card mb-3">
+                        <div class="small text-muted">Card</div>
+                        <div class="shipping-modal-card-label" id="shippingModalCardLabel">—</div>
+                    </div>
+
+                    <input type="hidden" name="fulfillment_status" value="Shipped">
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Carrier</label>
+                            <select class="form-select" name="shipping_carrier">
+                                <option value="">Select Carrier</option>
+                                <option value="USPS">USPS</option>
+                                <option value="UPS">UPS</option>
+                                <option value="FedEx">FedEx</option>
+                                <option value="DHL">DHL</option>
+                                <option value="eBay Standard Envelope">eBay Standard Envelope</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold">Tracking Number</label>
+                            <input class="form-control" type="text" name="tracking_number" placeholder="Enter tracking number">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Shipping Cost</label>
+                            <input class="form-control" type="number" step="0.01" min="0" name="shipping_cost" placeholder="0.00">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Shipped Date</label>
+                            <input class="form-control" type="date" name="shipped_date" value="{{ today }}">
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Shipping Notes</label>
+                            <input class="form-control" type="text" name="shipping_notes" placeholder="Optional notes">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-secondary mt-3 mb-0 small">
+                        This version is safe with your current app.py. It will mark the card Shipped now. The shipping details will start saving after we update app.py and models.py next.
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Shipping & Mark Shipped</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
