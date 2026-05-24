@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}CardDesk Dashboard{% endblock %}
+{% block title %}CardWatch Dashboard{% endblock %}
 
 {% block content %}
 <style>
@@ -128,20 +128,18 @@
 </div>
 
 
-{% set purchase_summary_range = request.args.get('purchase_summary_range', purchase_summary_range or '3d') %}
-{% if request.args.get('dashboard_tab') == 'purchases' and request.args.get('purchase_summary_range') %}
-    {% set active_dashboard_tab = 'purchases' %}
-{% else %}
-    {% set active_dashboard_tab = 'sales' %}
-{% endif %}
+{% set active_dashboard_tab = request.args.get('dashboard_tab', 'sales') %}
+{% set purchase_summary_range = request.args.get('purchase_summary_range', purchase_summary_range or '30d') %}
 {% if purchase_summary_range == 'today' %}
     {% set purchase_summary_label = 'Today' %}
 {% elif purchase_summary_range == '7d' %}
     {% set purchase_summary_label = 'Last 7 Days' %}
 {% elif purchase_summary_range == '30d' %}
     {% set purchase_summary_label = 'Last 30 Days' %}
-{% else %}
+{% elif purchase_summary_range == '3d' %}
     {% set purchase_summary_label = 'Last 3 Days' %}
+{% else %}
+    {% set purchase_summary_label = 'Last 30 Days' %}
 {% endif %}
 
 <div class="dashboard-tabs">
@@ -156,7 +154,7 @@
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
-                    <div class="cw-section-label mb-0">Cards Sold · {{ sales_summary_label or 'Last 3 Days' }}</div>
+                    <div class="cw-section-label mb-0">Cards Sold · {{ sales_summary_label or 'Last 30 Days' }}</div>
                     <div class="dashboard-range-links">
                         <a class="{% if sales_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='today') }}">Today</a>
                         <a class="{% if sales_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='3d') }}">3D</a>
@@ -171,10 +169,10 @@
     </div>
 
 <div class="col-md-4">
-        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '30d') }}">
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
-                <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 3 Days' }} Sales</div>
+                <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 30 Days' }} Sales</div>
                 <div class="display-6 fw-bold">${{ "%.2f"|format(total_sold_price or 0) }}</div>
                 <p class="text-muted mb-0 small">Sold price total for the selected sales range.</p>
             </div>
@@ -183,10 +181,10 @@
     </div>
 
 <div class="col-md-4">
-        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
+        <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '30d') }}">
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
-                <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 3 Days' }} Realized Profit / Loss</div>
+                <div class="cw-section-label mb-1">{{ sales_summary_label or 'Last 30 Days' }} Realized Profit / Loss</div>
                 <div class="display-6 fw-bold {% if total_profit >= 0 %}text-success{% else %}text-danger{% endif %}">
                     ${{ "%.2f"|format(total_profit or 0) }}
                 </div>
@@ -209,13 +207,13 @@
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
-                    <div class="cw-section-label mb-0">Cards Bought · {{ purchase_summary_label or 'Last 3 Days' }}</div>
+                    <div class="cw-section-label mb-0">Cards Bought · {{ purchase_summary_label or 'Last 30 Days' }}</div>
 
                     <div class="dashboard-range-links">
-                        <a class="{% if purchase_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='today', dashboard_tab='purchases') }}">Today</a>
-                        <a class="{% if purchase_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='3d', dashboard_tab='purchases') }}">3D</a>
-                        <a class="{% if purchase_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='7d', dashboard_tab='purchases') }}">7D</a>
-                        <a class="{% if purchase_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='30d', dashboard_tab='purchases') }}">30D</a>
+                        <a class="{% if purchase_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '30d', purchase_summary_range='today', dashboard_tab='purchases') }}">Today</a>
+                        <a class="{% if purchase_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '30d', purchase_summary_range='3d', dashboard_tab='purchases') }}">3D</a>
+                        <a class="{% if purchase_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '30d', purchase_summary_range='7d', dashboard_tab='purchases') }}">7D</a>
+                        <a class="{% if purchase_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '30d', purchase_summary_range='30d', dashboard_tab='purchases') }}">30D</a>
                     </div>
                 </div>
 
@@ -231,7 +229,7 @@
     <div class="col-md-4">
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
-                <div class="cw-section-label mb-1">Purchase Cost · {{ purchase_summary_label or 'Last 3 Days' }}</div>
+                <div class="cw-section-label mb-1">Purchase Cost · {{ purchase_summary_label or 'Last 30 Days' }}</div>
 
                 <div class="display-6 fw-bold">${{ "%.2f"|format(cost_bought_in_range or 0) }}</div>
 
@@ -245,7 +243,7 @@
     <div class="col-md-4">
         <div class="card page-card dashboard-click-card h-100">
             <div class="card-body">
-                <div class="cw-section-label mb-1">Comp Value Added · {{ purchase_summary_label or 'Last 3 Days' }}</div>
+                <div class="cw-section-label mb-1">Comp Value Added · {{ purchase_summary_label or 'Last 30 Days' }}</div>
 
                 <div class="display-6 fw-bold">${{ "%.2f"|format(comp_value_bought_in_range or value_bought_in_range or 0) }}</div>
 
@@ -272,7 +270,7 @@
                     <a class="{% if recent_sales_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range='30d') }}">30D</a>
                 </div>
 
-                <span class="badge text-bg-dark">{{ recent_sales_label or 'Last 3 Days' }}</span>
+                <span class="badge text-bg-dark">{{ recent_sales_label or 'Last 30 Days' }}</span>
             </div>
 
             <div class="card-body">
@@ -342,9 +340,9 @@
     <div class="col-lg-4">
         <div class="card page-card dashboard-brand-card h-100">
             <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
-                <div class="dashboard-brand-logo">CD</div>
+                <div class="dashboard-brand-logo">CW</div>
 
-                <h2 class="dashboard-brand-title mb-2">CardDesk</h2>
+                <h2 class="dashboard-brand-title mb-2">CardWatch</h2>
 
                 <div class="dashboard-brand-subtitle mb-3">Dealer Command Center</div>
 

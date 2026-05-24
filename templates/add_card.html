@@ -411,6 +411,23 @@
     margin-left: auto;
 }
 
+
+.cd-preview-image {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 .45rem 1.2rem rgba(15, 23, 42, .14);
+    background: #eef2f7;
+}
+
+.cd-preview-file-name {
+    color: #334155;
+    font-size: .82rem;
+    margin-top: .75rem;
+    word-break: break-word;
+}
+
 </style>
 
 <div class="add-card-page">
@@ -590,7 +607,7 @@
                         <div class="col-lg-4 col-md-6">
                             <div class="cd-upload-zone">
                                 <label class="form-label">Card Image</label>
-                                <input class="form-control" type="file" name="card_image" accept="image/*">
+                                <input class="form-control" type="file" name="card_image" id="card_image_input" accept="image/*">
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-6">
@@ -615,11 +632,16 @@
             <div class="cd-panel">
                 <div class="cd-panel-body">
                     <div class="cd-sidebar-title">Card Preview</div>
-                    <div class="cd-preview-box">
-                        <div>
+                    <div class="cd-preview-box" id="card-preview-box">
+                        <div id="card-preview-empty">
                             <div class="cd-preview-icon">▧</div>
                             <div class="fw-bold text-dark">No image selected</div>
                             <div class="cd-small-help mt-2">Upload an image to attach it to this inventory record.</div>
+                        </div>
+
+                        <div id="card-preview-live" style="display: none;">
+                            <img id="card-preview-image" class="cd-preview-image" src="" alt="Selected card preview">
+                            <div id="card-preview-file-name" class="cd-preview-file-name"></div>
                         </div>
                     </div>
                 </div>
@@ -707,5 +729,36 @@ document.querySelectorAll('[name="card_type_choice"]').forEach(input => {
 });
 
 toggleCardTypeFields();
+
+const cardImageInput = document.getElementById("card_image_input");
+const previewEmpty = document.getElementById("card-preview-empty");
+const previewLive = document.getElementById("card-preview-live");
+const previewImage = document.getElementById("card-preview-image");
+const previewFileName = document.getElementById("card-preview-file-name");
+
+if (cardImageInput) {
+    cardImageInput.addEventListener("change", function () {
+        const file = this.files && this.files[0];
+
+        if (!file) {
+            previewImage.src = "";
+            previewFileName.textContent = "";
+            previewLive.style.display = "none";
+            previewEmpty.style.display = "block";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            previewImage.src = event.target.result;
+            previewFileName.textContent = file.name;
+            previewEmpty.style.display = "none";
+            previewLive.style.display = "block";
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
 </script>
 {% endblock %}
