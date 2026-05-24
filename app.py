@@ -1219,9 +1219,17 @@ def clone_card(card_id):
         f"Cloning {source_card.card_code}. Review the details, adjust what changed, then save as a new card."
     )
 
+    recent_added_cards = (
+        Card.query
+        .order_by(Card.id.desc())
+        .limit(5)
+        .all()
+    )
+
     return render_template(
         "add_card.html",
-        clone_source=source_card
+        clone_source=source_card,
+        recent_added_cards=recent_added_cards
     )
 
 
@@ -1460,7 +1468,18 @@ def add_card():
 
         return redirect(url_for("card_detail", card_id=new_card.id))
 
-    return render_template("add_card.html", clone_source=None)
+    recent_added_cards = (
+        Card.query
+        .order_by(Card.id.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template(
+        "add_card.html",
+        clone_source=None,
+        recent_added_cards=recent_added_cards
+    )
 
 
 @app.route("/fulfillment")
