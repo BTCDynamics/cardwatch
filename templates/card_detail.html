@@ -23,19 +23,6 @@
     gap: .9rem;
 }
 
-.card-detail-icon {
-    width: 44px;
-    height: 44px;
-    border: 1px solid rgba(15, 23, 42, .14);
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    background: #ffffff;
-    color: #0f172a;
-    font-size: 1.35rem;
-    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .06);
-}
-
 .card-detail-page h1 {
     color: #0f172a;
     font-weight: 800;
@@ -260,7 +247,7 @@
     color: #b91c1c;
 }
 
-.cd-storage-pill {
+.storage-pill {
     display: inline-flex;
     align-items: center;
     border-radius: 999px;
@@ -271,7 +258,7 @@
     text-decoration: none;
 }
 
-.cd-storage-pill:hover {
+.storage-pill:hover {
     background: rgba(37, 99, 235, .16);
     color: #1d4ed8;
 }
@@ -347,6 +334,64 @@
         width: 100%;
     }
 }
+
+.storage-pill {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: 1px solid #1d4ed8 !important;
+    font-weight: 900 !important;
+    text-decoration: none !important;
+}
+
+.storage-pill:hover {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+}
+
+
+.card-detail-thumb {
+    width: 58px;
+    height: 78px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(15, 23, 42, .12);
+    background: #e2e8f0;
+    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .10);
+    flex: 0 0 auto;
+}
+
+.card-detail-thumb-placeholder {
+    width: 58px;
+    height: 78px;
+    border-radius: 10px;
+    border: 1px dashed rgba(15, 23, 42, .18);
+    background: #f1f5f9;
+    color: #64748b;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: .62rem;
+    font-weight: 800;
+    line-height: 1.05;
+    flex: 0 0 auto;
+}
+
+
+.card-detail-player-label {
+    color: #475569 !important;
+    font-size: .78rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+    margin-bottom: .35rem !important;
+}
+
+.card-detail-player-title {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,.45);
+}
+
 </style>
 
 {% set quantity = card.quantity or 1 %}
@@ -361,9 +406,17 @@
 <div class="card-detail-page">
     <div class="card-detail-hero">
         <div class="card-detail-title-wrap">
-            <div class="card-detail-icon">▣</div>
+            {% if card.image_filename %}
+                <img class="card-detail-thumb" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name }} thumbnail">
+            {% else %}
+                <div class="card-detail-thumb-placeholder">
+                    No<br>Image
+                </div>
+            {% endif %}
+
             <div>
-                <h1 class="h2 mb-1">{{ card.player_name }}</h1>
+                <div class="card-detail-player-label">Player Name</div>
+                <h1 class="h2 mb-1 card-detail-player-title">{{ card.player_name }}</h1>
                 <p class="text-muted mb-0">
                     {{ card.card_code }} · {{ card.year or '' }} {{ card.brand or '' }}
                     {% if card.card_number %}#{{ card.card_number }}{% endif %}
@@ -534,7 +587,7 @@
                             <div class="cd-detail-label">Storage Location</div>
                             <div class="cd-detail-value">
                                 {% if card.storage_location %}
-                                    <a class="cd-storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
+                                    <a class="storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
                                 {% else %}
                                     —
                                 {% endif %}
@@ -603,7 +656,7 @@
                         <div class="cd-sidebar-label">Storage</div>
                         <div class="cd-sidebar-value">
                             {% if card.storage_location %}
-                                <a class="cd-storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
+                                <a class="storage-pill" href="{{ url_for('cards', storage=card.storage_location) }}">{{ card.storage_location }}</a>
                             {% else %}
                                 —
                             {% endif %}
