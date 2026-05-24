@@ -1,6 +1,32 @@
 {% extends "base.html" %}
 
-{% block title %}CardWatch Dashboard{% endblock %}
+{% block title %}CardWatch Dashboard
+<script>
+function showDashboardTab(tabId, button) {
+    document.querySelectorAll('.dashboard-tab-panel').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    document.querySelectorAll('.dashboard-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    document.getElementById(tabId).classList.add('active');
+    button.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dashboard_tab') === 'purchases') {
+        const purchaseButton = document.querySelector('.dashboard-tab-btn[onclick*="purchases-tab"]');
+        if (purchaseButton) {
+            showDashboardTab('purchases-tab', purchaseButton);
+        }
+    }
+});
+</script>
+
+{% endblock %}
 
 {% block content %}
 <style>
@@ -11,6 +37,37 @@
     border-color: #ef4444 !important;
     box-shadow: 0 .35rem .9rem rgba(220, 38, 38, .28);
 }
+
+.dashboard-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.dashboard-tab-btn {
+    border: 1px solid #444;
+    background: #1f2937;
+    color: #d1d5db;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.dashboard-tab-btn.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.dashboard-tab-panel {
+    display: none;
+}
+
+.dashboard-tab-panel.active {
+    display: block;
+}
+
 </style>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
@@ -96,6 +153,14 @@
 
 </div>
 
+
+<div class="dashboard-tabs">
+    <button class="dashboard-tab-btn active" onclick="showDashboardTab('sales-tab', this)">Sales</button>
+    <button class="dashboard-tab-btn" onclick="showDashboardTab('purchases-tab', this)">Purchases</button>
+</div>
+
+<div id="sales-tab" class="dashboard-tab-panel active">
+
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <a class="dashboard-card-link" href="{{ url_for('cards', status='Sold', sold_range=sales_summary_range or '3d') }}">
@@ -144,6 +209,38 @@
         </div>
     </div>
 
+</div>
+</div>
+
+<div id="purchases-tab" class="dashboard-tab-panel">
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card page-card dashboard-click-card h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-1">
+                    <div class="cw-section-label mb-0">Cards Bought · {{ purchase_summary_label or 'Last 3 Days' }}</div>
+
+                    <div class="dashboard-range-links">
+                        <a class="{% if purchase_summary_range == 'today' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='today', dashboard_tab='purchases') }}">Today</a>
+                        <a class="{% if purchase_summary_range == '3d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='3d', dashboard_tab='purchases') }}">3D</a>
+                        <a class="{% if purchase_summary_range == '7d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='7d', dashboard_tab='purchases') }}">7D</a>
+                        <a class="{% if purchase_summary_range == '30d' %}active{% endif %}" href="{{ url_for('dashboard', recent_sales_range=recent_sales_range or '3d', purchase_summary_range='30d', dashboard_tab='purchases') }}">30D</a>
+                    </div>
+                </div>
+
+                <div class="display-6 fw-bold">{{ cards_bought_in_range or 0 }}</div>
+
+                <p class="text-muted mb-1 small">
+                    New inventory entered during the selected range.
+                </p>
+
+                <div class="small text-info">
+                    ${{ "%.2f"|format(cost_bought_in_range or 0) }} new inventory cost added
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
 
 <div class="row g-3 dashboard-bottom-row">
@@ -317,4 +414,30 @@
         </div>
     </div>
 </div>
+
+<script>
+function showDashboardTab(tabId, button) {
+    document.querySelectorAll('.dashboard-tab-panel').forEach(tab => {
+        tab.classList.remove('active');
+    });
+
+    document.querySelectorAll('.dashboard-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    document.getElementById(tabId).classList.add('active');
+    button.classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dashboard_tab') === 'purchases') {
+        const purchaseButton = document.querySelector('.dashboard-tab-btn[onclick*="purchases-tab"]');
+        if (purchaseButton) {
+            showDashboardTab('purchases-tab', purchaseButton);
+        }
+    }
+});
+</script>
+
 {% endblock %}
