@@ -17,30 +17,61 @@
     box-shadow: 0 1rem 2.5rem rgba(0,0,0,.35);
 }
 
-.capture-camera-card {
+.capture-video-wrap {
     position: relative;
     background: #020617;
     min-height: 420px;
     display: grid;
     place-items: center;
-    padding: 1rem;
-    text-align: center;
+}
+
+#captureVideo {
+    width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+    background: #020617;
 }
 
 .capture-card-guide {
+    position: absolute;
     width: min(68vw, 360px);
     aspect-ratio: 2.5 / 3.5;
     border: 3px solid rgba(251, 191, 36, .95);
     border-radius: 16px;
     box-shadow:
-        0 0 0 9999px rgba(0,0,0,.18),
+        0 0 0 9999px rgba(0,0,0,.24),
         0 0 22px rgba(251, 191, 36, .35);
-    display: grid;
-    place-items: center;
-    color: #fbbf24;
-    font-weight: 900;
-    margin: 0 auto 1rem auto;
+    pointer-events: none;
 }
+
+.capture-card-guide::before {
+    content: "Place card here";
+    position: absolute;
+    top: -2.1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fbbf24;
+    background: rgba(15, 23, 42, .88);
+    border: 1px solid rgba(251, 191, 36, .35);
+    padding: .28rem .65rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.capture-corners span {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-color: #ffffff;
+    border-style: solid;
+}
+
+.capture-corners span:nth-child(1) { top: 10px; left: 10px; border-width: 3px 0 0 3px; border-radius: 10px 0 0 0; }
+.capture-corners span:nth-child(2) { top: 10px; right: 10px; border-width: 3px 3px 0 0; border-radius: 0 10px 0 0; }
+.capture-corners span:nth-child(3) { bottom: 10px; left: 10px; border-width: 0 0 3px 3px; border-radius: 0 0 0 10px; }
+.capture-corners span:nth-child(4) { bottom: 10px; right: 10px; border-width: 0 3px 3px 0; border-radius: 0 0 10px 0; }
 
 .capture-controls {
     padding: 1rem;
@@ -55,7 +86,7 @@
 
 .capture-preview-img {
     width: 100%;
-    max-height: 420px;
+    max-height: 280px;
     object-fit: contain;
     border-radius: .9rem;
     background: #020617;
@@ -73,19 +104,13 @@
     margin-bottom: .45rem;
 }
 
-.mobile-file-input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
 @media (max-width: 768px) {
     .mobile-capture-page {
         margin: 0 -.4rem;
     }
 
-    .capture-camera-card {
-        min-height: 58vh;
+    .capture-video-wrap {
+        min-height: 62vh;
     }
 
     .capture-card-guide {
@@ -102,7 +127,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
         <div>
             <h1 class="h2 mb-1">Mobile Capture</h1>
-            <p class="text-muted mb-0">Use your iPhone camera to send card images directly into CardDesk.</p>
+            <p class="text-muted mb-0">Use your phone camera as a CardDesk capture station.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a class="btn btn-outline-info" href="{{ url_for('ai_import_review') }}">Review Queue</a>
@@ -113,45 +138,43 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="capture-shell">
-                <div class="capture-camera-card">
-                    <div>
-                        <div id="guideBox" class="capture-card-guide">
-                            Place Card Here
+                <div class="capture-video-wrap">
+                    <video id="captureVideo" autoplay playsinline muted></video>
+                    <div class="capture-card-guide">
+                        <div class="capture-corners">
+                            <span></span><span></span><span></span><span></span>
                         </div>
-
-                        <div id="previewEmpty" class="text-muted small mb-3">
-                            Tap Take Photo. Safari will open the iPhone camera, then CardDesk will preview the image before saving.
-                        </div>
-
-                        <img id="capturePreview" class="capture-preview-img" alt="Captured card preview" style="display:none;">
                     </div>
                 </div>
 
                 <div class="capture-controls">
-                    <input class="mobile-file-input" id="mobilePhotoInput" type="file" accept="image/*" capture="environment">
-
                     <div class="row g-2 align-items-center">
-                        <div class="col-md-6">
-                            <button class="btn btn-warning w-100" id="takePhotoBtn" type="button">Take Photo</button>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" id="startCameraBtn" type="button">Start Camera</button>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <button class="btn btn-warning w-100" id="captureBtn" type="button" disabled>Capture Card</button>
+                        </div>
+                        <div class="col-md-4">
                             <button class="btn btn-success w-100" id="saveBtn" type="button" disabled>Save to CardDesk</button>
                         </div>
                     </div>
-
                     <div class="capture-status mt-3" id="captureStatus">
-                        Ready. Take a photo of one card, then save it directly to CardDesk.
+                        Open this page on your iPhone, start the camera, center the card, then capture.
                     </div>
                 </div>
             </div>
+
+            <canvas id="captureCanvas" style="display:none;"></canvas>
         </div>
 
         <div class="col-lg-4">
             <div class="capture-tip-card mb-4">
-                <div class="cw-section-label mb-3">Why This Version?</div>
-                <p class="text-muted small mb-0">
-                    iPhone Safari often blocks live camera streaming from a local HTTP address. This version uses the native iPhone camera picker, which works better on local CardDesk installs.
-                </p>
+                <div class="cw-section-label mb-3">Capture Preview</div>
+                <div id="previewEmpty" class="text-muted small">
+                    No card captured yet.
+                </div>
+                <img id="capturePreview" class="capture-preview-img" alt="Captured card preview" style="display:none;">
             </div>
 
             <div class="capture-tip-card">
@@ -161,7 +184,7 @@
                     <li>Use soft light from both sides.</li>
                     <li>Avoid direct flash and glare.</li>
                     <li>Use a dark matte background.</li>
-                    <li>Fill the frame with one card.</li>
+                    <li>Keep the card square inside the guide.</li>
                     <li>For slabs, make sure the label is readable.</li>
                 </ul>
             </div>
@@ -170,52 +193,80 @@
 </div>
 
 <script>
-const fileInput = document.getElementById("mobilePhotoInput");
-const takePhotoBtn = document.getElementById("takePhotoBtn");
+const video = document.getElementById("captureVideo");
+const canvas = document.getElementById("captureCanvas");
+const startBtn = document.getElementById("startCameraBtn");
+const captureBtn = document.getElementById("captureBtn");
 const saveBtn = document.getElementById("saveBtn");
 const statusBox = document.getElementById("captureStatus");
 const preview = document.getElementById("capturePreview");
 const previewEmpty = document.getElementById("previewEmpty");
-const guideBox = document.getElementById("guideBox");
 
-let selectedFile = null;
+let stream = null;
+let lastCapturedBlob = null;
 
 function setStatus(message) {
     statusBox.textContent = message;
 }
 
-takePhotoBtn.addEventListener("click", function () {
-    fileInput.click();
-});
+async function startCamera() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: { ideal: "environment" },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            },
+            audio: false
+        });
 
-fileInput.addEventListener("change", function () {
-    selectedFile = this.files && this.files[0] ? this.files[0] : null;
+        video.srcObject = stream;
+        captureBtn.disabled = false;
+        setStatus("Camera ready. Center the card inside the guide and tap Capture Card.");
+    } catch (error) {
+        setStatus("Camera could not start. On iPhone, this page may need HTTPS or local network permissions.");
+        console.error(error);
+    }
+}
 
-    if (!selectedFile) {
-        setStatus("No photo selected.");
-        saveBtn.disabled = true;
+function captureFrame() {
+    if (!video.videoWidth || !video.videoHeight) {
+        setStatus("Camera is not ready yet.");
         return;
     }
 
-    const objectUrl = URL.createObjectURL(selectedFile);
-    preview.src = objectUrl;
-    preview.style.display = "block";
-    previewEmpty.style.display = "none";
-    guideBox.style.display = "none";
-    saveBtn.disabled = false;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
-    setStatus("Photo ready. Review it, then tap Save to CardDesk.");
-});
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(function(blob) {
+        if (!blob) {
+            setStatus("Could not capture image.");
+            return;
+        }
+
+        lastCapturedBlob = blob;
+        const objectUrl = URL.createObjectURL(blob);
+        preview.src = objectUrl;
+        preview.style.display = "block";
+        previewEmpty.style.display = "none";
+        saveBtn.disabled = false;
+
+        setStatus("Captured. Review the preview, then Save to CardDesk or capture again.");
+    }, "image/jpeg", 0.94);
+}
 
 async function saveCapture() {
-    if (!selectedFile) {
-        setStatus("No photo selected.");
+    if (!lastCapturedBlob) {
+        setStatus("No captured image to save.");
         return;
     }
 
     const formData = new FormData();
     const filename = `mobile-capture-${Date.now()}.jpg`;
-    formData.append("card_image", selectedFile, filename);
+    formData.append("card_image", lastCapturedBlob, filename);
 
     saveBtn.disabled = true;
     setStatus("Saving image to CardDesk...");
@@ -232,10 +283,8 @@ async function saveCapture() {
             throw new Error(result.error || "Upload failed.");
         }
 
-        setStatus(`Saved to CardDesk: ${result.filename}. Take another photo when ready.`);
-        selectedFile = null;
-        fileInput.value = "";
-        saveBtn.disabled = true;
+        setStatus(`Saved to CardDesk: ${result.filename}`);
+        lastCapturedBlob = null;
     } catch (error) {
         saveBtn.disabled = false;
         setStatus("Save failed: " + error.message);
@@ -243,6 +292,8 @@ async function saveCapture() {
     }
 }
 
+startBtn.addEventListener("click", startCamera);
+captureBtn.addEventListener("click", captureFrame);
 saveBtn.addEventListener("click", saveCapture);
 </script>
 {% endblock %}
