@@ -1,4 +1,8 @@
-__pycache__/
-*.pyc
 .env
+**pycache**/
+*.pyc
+cardwatch.db
+instance/
+uploads/
+static/uploads/
 
