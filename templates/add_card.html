@@ -496,14 +496,17 @@
                             <input class="form-control" type="text" name="brand" placeholder="e.g. Topps, Panini" value="{{ clone_source.brand if clone_source else '' }}">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Set Name</label>
-                            <input class="form-control" type="text" name="set_name" placeholder="e.g. Update, Prizm" value="{{ clone_source.set_name if clone_source else '' }}">
-                        </div>
-                        <div class="col-md-3">
                             <label class="form-label">Card #</label>
                             <input class="form-control" type="text" name="card_number" placeholder="e.g. US175" value="{{ clone_source.card_number if clone_source else '' }}">
                         </div>
-                        <div class="col-lg-4 col-md-6">
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-lg-6 col-md-6">
+                            <label class="form-label">Set Name</label>
+                            <input class="form-control" type="text" name="set_name" placeholder="e.g. Update, Prizm" value="{{ clone_source.set_name if clone_source else '' }}">
+                        </div>
+                        <div class="col-lg-6 col-md-6">
                             <label class="form-label">Variation / Parallel</label>
                             <input class="form-control" type="text" name="variation" placeholder="e.g. RC, Silver Prizm, Holo, Gold /10 — leave blank if base" value="{{ clone_source.variation if clone_source else '' }}">
                         </div>

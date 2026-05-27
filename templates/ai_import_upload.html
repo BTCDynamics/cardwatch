@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}AI Import | CardDesk{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+    <div>
+        <h1 class="h2 mb-1">AI Card Import</h1>
+        <p class="text-muted mb-0">Upload card images, let Ximilar identify them, then review before importing to inventory.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-info" href="{{ url_for('ai_import_review') }}">Review Queue{% if pending_count %} ({{ pending_count }}){% endif %}</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Back to Inventory</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <form method="POST" enctype="multipart/form-data" class="card page-card ai-import-card">
+            <div class="card-body">
+                {% if not token_configured %}
+                    <div class="alert alert-warning">
+                        <strong>Ximilar API token is not configured.</strong><br>
+                        Set <code>XIMILAR_API_TOKEN</code> as an environment variable before scanning real images. Uploaded images will be staged with a manual-review error until the token is configured.
+                    </div>
+                {% endif %}
+
+                <div class="cw-section-label mb-2">Upload Images</div>
+                <div class="ai-upload-zone mb-4">
+                    <div class="ai-upload-icon">▧</div>
+                    <h5 class="mb-2">Choose card images</h5>
+                    <p class="text-muted small mb-3">You can select multiple JPG, PNG, GIF, or WEBP images. CardDesk keeps each image local and sends a copy to Ximilar for recognition.</p>
+                    <input class="form-control" type="file" name="card_images" accept="image/*" multiple required id="aiImportFileInput">
+                    <div class="small text-muted mt-2" id="aiImportFileCount">No files selected.</div>
+                </div>
+
+                <div class="cw-section-label mb-2">Default Values for This Batch</div>
+                <div class="row g-3 align-items-end cw-form-row cw-row-a">
+                    <div class="col-md-3">
+                        <label class="form-label">Default Sport</label>
+                        <select class="form-select" name="default_sport">
+                            {% for sport in ["Baseball", "Football", "Basketball", "Hockey", "Soccer", "Golf", "Racing", "Wrestling", "Boxing", "Other"] %}
+                                <option value="{{ sport }}">{{ sport }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Collection Type</label>
+                        <select class="form-select" name="collection_type">
+                            <option value="Inventory" selected>Inventory</option>
+                            <option value="Personal Collection">Personal Collection</option>
+                            <option value="Trade Bait">Trade Bait</option>
+                            <option value="Grading Queue">Grading Queue</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status">
+                            <option value="Active" selected>Active</option>
+                            <option value="Holding">Holding</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Purchase Date</label>
+                        <input class="form-control" type="date" name="purchase_date">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Storage Location</label>
+                        <input class="form-control" type="text" name="storage_location" placeholder="Optional batch location">
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3 mb-0">
+                    Nothing is written to inventory yet. Every result goes to the review queue first so the user can verify and edit the card data.
+                </div>
+            </div>
+            <div class="card-footer d-flex flex-wrap justify-content-between gap-2">
+                <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">Cancel</a>
+                <div class="text-end">
+                    <button class="btn btn-primary" type="submit">Start AI Recognition</button>
+                    <div class="small text-muted mt-2">AI will identify your card(s) and prepare them for review before importing into inventory.</div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card page-card mb-4">
+            <div class="card-body">
+                <div class="cw-section-label mb-3">Import Queue</div>
+                <div class="row g-3 inventory-grid">
+                    <div class="col-6">
+                        <div class="detail-label">Pending Review</div>
+                        <div class="detail-value">{{ pending_count }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="detail-label">Imported</div>
+                        <div class="detail-value">{{ imported_count }}</div>
+                    </div>
+                </div>
+                <a class="btn btn-outline-info w-100 mt-3" href="{{ url_for('ai_import_review') }}">Open Review Queue</a>
+            </div>
+        </div>
+
+        <div class="card page-card">
+            <div class="card-body">
+                <div class="cw-section-label mb-3">Workflow</div>
+                <ol class="ai-workflow-list mb-0">
+                    <li>Upload images.</li>
+                    <li>Ximilar suggests card identity.</li>
+                    <li>Review and edit the staged data.</li>
+                    <li>Import approved records into inventory.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const aiImportFileInput = document.getElementById("aiImportFileInput");
+const aiImportFileCount = document.getElementById("aiImportFileCount");
+
+if (aiImportFileInput && aiImportFileCount) {
+    aiImportFileInput.addEventListener("change", function () {
+        const count = this.files ? this.files.length : 0;
+        aiImportFileCount.textContent = count ? `${count} file(s) selected.` : "No files selected.";
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Mobile Capture | CardDesk{% endblock %}
+
+{% block content %}
+<style>
+.mobile-capture-page {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.capture-shell {
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border: 1px solid rgba(148, 163, 184, .25);
+    border-radius: 1.2rem;
+    overflow: hidden;
+    box-shadow: 0 1rem 2.5rem rgba(0,0,0,.35);
+}
+
+.capture-camera-card {
+    position: relative;
+    background: #020617;
+    min-height: 420px;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.capture-card-guide {
+    width: min(68vw, 360px);
+    aspect-ratio: 2.5 / 3.5;
+    border: 3px solid rgba(251, 191, 36, .95);
+    border-radius: 16px;
+    box-shadow:
+        0 0 0 9999px rgba(0,0,0,.18),
+        0 0 22px rgba(251, 191, 36, .35);
+    display: grid;
+    place-items: center;
+    color: #fbbf24;
+    font-weight: 900;
+    margin: 0 auto 1rem auto;
+}
+
+.capture-controls {
+    padding: 1rem;
+    background: linear-gradient(145deg, #1f2937, #263244);
+}
+
+.capture-status {
+    min-height: 1.4rem;
+    color: #cbd5e1;
+    font-size: .9rem;
+}
+
+.capture-preview-img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: .9rem;
+    background: #020617;
+    border: 1px solid rgba(148, 163, 184, .25);
+}
+
+.capture-tip-card {
+    background: linear-gradient(145deg, #202b3a, #263244);
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.capture-tip-card li {
+    margin-bottom: .45rem;
+}
+
+.mobile-file-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-capture-page {
+        margin: 0 -.4rem;
+    }
+
+    .capture-camera-card {
+        min-height: 58vh;
+    }
+
+    .capture-card-guide {
+        width: 72vw;
+    }
+
+    .capture-controls .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<div class="mobile-capture-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
+        <div>
+            <h1 class="h2 mb-1">Mobile Capture</h1>
+            <p class="text-muted mb-0">Use your iPhone camera to send card images directly into CardDesk.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-info" href="{{ url_for('ai_import_review') }}">Review Queue</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('ai_import_upload') }}">AI Import</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="capture-shell">
+                <div class="capture-camera-card">
+                    <div>
+                        <div id="guideBox" class="capture-card-guide">
+                            Place Card Here
+                        </div>
+
+                        <div id="previewEmpty" class="text-muted small mb-3">
+                            Tap Take Photo. Safari will open the iPhone camera, then CardDesk will preview the image before saving.
+                        </div>
+
+                        <img id="capturePreview" class="capture-preview-img" alt="Captured card preview" style="display:none;">
+                    </div>
+                </div>
+
+                <div class="capture-controls">
+                    <input class="mobile-file-input" id="mobilePhotoInput" type="file" accept="image/*" capture="environment">
+
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-6">
+                            <button class="btn btn-warning w-100" id="takePhotoBtn" type="button">Take Photo</button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-success w-100" id="saveBtn" type="button" disabled>Save to CardDesk</button>
+                        </div>
+                    </div>
+
+                    <div class="capture-status mt-3" id="captureStatus">
+                        Ready. Take a photo of one card, then save it directly to CardDesk.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="capture-tip-card mb-4">
+                <div class="cw-section-label mb-3">Why This Version?</div>
+                <p class="text-muted small mb-0">
+                    iPhone Safari often blocks live camera streaming from a local HTTP address. This version uses the native iPhone camera picker, which works better on local CardDesk installs.
+                </p>
+            </div>
+
+            <div class="capture-tip-card">
+                <div class="cw-section-label mb-3">Best Results</div>
+                <ul class="mb-0 text-muted small">
+                    <li>Use a phone mount or tripod.</li>
+                    <li>Use soft light from both sides.</li>
+                    <li>Avoid direct flash and glare.</li>
+                    <li>Use a dark matte background.</li>
+                    <li>Fill the frame with one card.</li>
+                    <li>For slabs, make sure the label is readable.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const fileInput = document.getElementById("mobilePhotoInput");
+const takePhotoBtn = document.getElementById("takePhotoBtn");
+const saveBtn = document.getElementById("saveBtn");
+const statusBox = document.getElementById("captureStatus");
+const preview = document.getElementById("capturePreview");
+const previewEmpty = document.getElementById("previewEmpty");
+const guideBox = document.getElementById("guideBox");
+
+let selectedFile = null;
+
+function setStatus(message) {
+    statusBox.textContent = message;
+}
+
+takePhotoBtn.addEventListener("click", function () {
+    fileInput.click();
+});
+
+fileInput.addEventListener("change", function () {
+    selectedFile = this.files && this.files[0] ? this.files[0] : null;
+
+    if (!selectedFile) {
+        setStatus("No photo selected.");
+        saveBtn.disabled = true;
+        return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+    preview.src = objectUrl;
+    preview.style.display = "block";
+    previewEmpty.style.display = "none";
+    guideBox.style.display = "none";
+    saveBtn.disabled = false;
+
+    setStatus("Photo ready. Review it, then tap Save to CardDesk.");
+});
+
+async function saveCapture() {
+    if (!selectedFile) {
+        setStatus("No photo selected.");
+        return;
+    }
+
+    const formData = new FormData();
+    const filename = `mobile-capture-${Date.now()}.jpg`;
+    formData.append("card_image", selectedFile, filename);
+
+    saveBtn.disabled = true;
+    setStatus("Saving image to CardDesk...");
+
+    try {
+        const response = await fetch("{{ url_for('mobile_capture_upload') }}", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+            throw new Error(result.error || "Upload failed.");
+        }
+
+        setStatus(`Saved to CardDesk: ${result.filename}. Take another photo when ready.`);
+        selectedFile = null;
+        fileInput.value = "";
+        saveBtn.disabled = true;
+    } catch (error) {
+        saveBtn.disabled = false;
+        setStatus("Save failed: " + error.message);
+        console.error(error);
+    }
+}
+
+saveBtn.addEventListener("click", saveCapture);
+</script>
+{% endblock %}
