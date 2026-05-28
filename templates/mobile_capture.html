@@ -25,6 +25,26 @@
     place-items: center;
 }
 
+.capture-video-wrap {
+    cursor: pointer;
+}
+
+.capture-video-wrap::after {
+    content: "Tap anywhere to capture";
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, .82);
+    color: #f8fafc;
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    border: 1px solid rgba(255,255,255,.15);
+}
+
 #captureVideo {
     width: 100%;
     max-height: 72vh;
@@ -354,5 +374,22 @@ async function saveCapture() {
 startBtn.addEventListener("click", startCamera);
 captureBtn.addEventListener("click", captureFrame);
 saveBtn.addEventListener("click", saveCapture);
+
+// Tap anywhere on the camera preview area to capture.
+const videoWrap = document.querySelector(".capture-video-wrap");
+
+videoWrap.addEventListener("click", function(event) {
+    // Prevent accidental captures before camera starts.
+    if (captureBtn.disabled) {
+        return;
+    }
+
+    // Ignore taps on buttons.
+    if (event.target.tagName === "BUTTON") {
+        return;
+    }
+
+    captureFrame();
+});
 </script>
 {% endblock %}
