@@ -186,11 +186,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
         <div>
             <h1 class="h2 mb-1">Mobile Capture</h1>
-            <p class="text-muted mb-0">Use your phone camera as a CardDesk capture station.</p>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-outline-info" href="{{ url_for('ai_import_review') }}">Review Queue</a>
-            <a class="btn btn-outline-secondary" href="{{ url_for('ai_import_upload') }}">AI Import</a>
+            <p class="text-muted mb-0">Use your phone as a capture-only station. Review and import saved cards from your main CardDesk dashboard.</p>
         </div>
     </div>
 
@@ -222,7 +218,7 @@
                         </div>
                     </div>
                     <div class="capture-status mt-3" id="captureStatus">
-                        Open this page on your iPhone, start the camera, center the card, then capture.
+                        Start the camera, center the card, capture, then save it to the Review Queue.
                     </div>
                 </div>
             </div>
@@ -237,6 +233,13 @@
                     No card captured yet.
                 </div>
                 <img id="capturePreview" class="capture-preview-img" alt="Captured card preview" style="display:none;">
+            </div>
+
+            <div class="capture-tip-card mb-4">
+                <div class="cw-section-label mb-3">Capture Workflow</div>
+                <p class="text-muted small mb-0">
+                    Saved cards are added to the AI Review Queue. Use the main CardDesk dashboard on your desktop or tablet to review, edit, and import them into inventory.
+                </p>
             </div>
 
             <div class="capture-tip-card">
