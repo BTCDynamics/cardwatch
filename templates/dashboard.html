@@ -56,7 +56,17 @@
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ai-nav-badge">{{ ai_action_needed_cards }}</span>
             {% endif %}
         </a>
-        <a class="btn btn-outline-info" href="{{ url_for('mobile_capture') }}">Mobile Capture</a>
+        <div class="mobile-capture-mini">
+            <div class="mobile-capture-mini-text">
+                <div class="mobile-capture-mini-title">Mobile Card Capture</div>
+                <button class="mobile-capture-mini-copy" type="button" onclick="copyMobileCaptureUrl()">Copy URL</button>
+            </div>
+            <a class="mobile-capture-mini-qr-link" href="{{ url_for('mobile_capture') }}" title="Open Mobile Card Capture">
+                <img class="mobile-capture-mini-qr" src="{{ mobile_capture_qr_url }}" alt="QR code for Mobile Card Capture">
+            </a>
+            <span id="mobileCaptureUrlText" class="visually-hidden">{{ mobile_capture_url }}</span>
+        </div>
+
         <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
         <a class="btn btn-primary position-relative" href="{{ url_for('add_card') }}">Add Card</a>
         <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">View Inventory</a>
@@ -186,33 +196,6 @@
 </div>
 {% endif %}
 
-<div class="card page-card mobile-capture-setup-card mb-4">
-    <div class="card-body">
-        <div class="mobile-capture-setup-grid">
-            <div>
-                <div class="ai-dashboard-eyebrow">Mobile Capture Station</div>
-                <h2 class="h4 mb-2">Scan to open the phone capture page</h2>
-                <p class="text-muted mb-3">
-                    Open this link on an iPhone, Android phone, or tablet to capture card images directly into the AI Review Queue.
-                </p>
-
-                <div class="mobile-capture-url-box mb-3">
-                    <span id="mobileCaptureUrlText">{{ mobile_capture_url }}</span>
-                </div>
-
-                <div class="d-flex flex-wrap gap-2">
-                    <a class="btn btn-outline-info" href="{{ url_for('mobile_capture') }}">Open Capture Page</a>
-                    <button class="btn btn-outline-light" type="button" onclick="copyMobileCaptureUrl()">Copy URL</button>
-                </div>
-            </div>
-
-            <div class="mobile-capture-qr-wrap">
-                <img class="mobile-capture-qr" src="{{ mobile_capture_qr_url }}" alt="QR code for CardDesk Mobile Capture">
-                <div class="text-muted small mt-2">Scan with your phone camera</div>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 {% set active_dashboard_tab = request.args.get('dashboard_tab', 'sales') %}
