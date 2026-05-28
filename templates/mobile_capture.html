@@ -45,6 +45,45 @@
     border: 1px solid rgba(255,255,255,.15);
 }
 
+.capture-flash {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .72);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .22s ease;
+    z-index: 8;
+}
+
+.capture-flash.active {
+    opacity: 1;
+}
+
+.capture-toast {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(.92);
+    padding: .85rem 1.25rem;
+    border-radius: 999px;
+    color: #111827;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border: 1px solid rgba(255,255,255,.35);
+    box-shadow: 0 1rem 2.2rem rgba(0,0,0,.35);
+    font-size: 1rem;
+    font-weight: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+    z-index: 9;
+    white-space: nowrap;
+}
+
+.capture-toast.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
 #captureVideo {
     width: 100%;
     max-height: 72vh;
@@ -165,6 +204,9 @@
                             <span></span><span></span><span></span><span></span>
                         </div>
                     </div>
+
+                    <div id="captureFlash" class="capture-flash"></div>
+                    <div id="captureToast" class="capture-toast">Image Captured</div>
                 </div>
 
                 <div class="capture-controls">
@@ -227,6 +269,52 @@ let lastCapturedBlob = null;
 
 function setStatus(message) {
     statusBox.textContent = message;
+}
+
+function playCaptureBeep() {
+    try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            return;
+        }
+
+        const audioContext = new AudioContextClass();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.001, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.16, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.12);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.13);
+    } catch (error) {
+        // Some mobile browsers may block generated audio. Visual feedback still works.
+    }
+}
+
+function showCaptureFeedback() {
+    if (captureFlash) {
+        captureFlash.classList.add("active");
+        setTimeout(() => captureFlash.classList.remove("active"), 130);
+    }
+
+    if (captureToast) {
+        captureToast.classList.add("active");
+        setTimeout(() => captureToast.classList.remove("active"), 850);
+    }
+
+    if (navigator.vibrate) {
+        navigator.vibrate(60);
+    }
+
+    playCaptureBeep();
 }
 
 async function startCamera() {
@@ -327,13 +415,14 @@ function captureFrame() {
         }
 
         lastCapturedBlob = blob;
+        showCaptureFeedback();
         const objectUrl = URL.createObjectURL(blob);
         preview.src = objectUrl;
         preview.style.display = "block";
         previewEmpty.style.display = "none";
         saveBtn.disabled = false;
 
-        setStatus("Captured the guide-box area. Review the cropped image, then Save to CardDesk or capture again.");
+        setStatus("Image captured. Review the preview, then Save to CardDesk or tap the camera area to retake.");
     }, "image/jpeg", 0.94);
 }
 
