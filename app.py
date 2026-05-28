@@ -9,11 +9,8 @@ from uuid import uuid4
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from sqlalchemy import inspect, text
 from werkzeug.utils import secure_filename
-from dotenv import load_dotenv
 
 from models import db, Card, CardImportStaging
-
-load_dotenv()
 
 app = Flask(__name__)
 
@@ -1952,6 +1949,7 @@ def delete_staged_import(staging_id):
     return redirect(request.referrer or url_for("ai_import_review"))
 
 
+
 @app.route("/mobile-capture")
 def mobile_capture():
     """Use a phone browser as a CardDesk camera capture station."""
@@ -1960,21 +1958,61 @@ def mobile_capture():
 
 @app.route("/mobile-capture/upload", methods=["POST"])
 def mobile_capture_upload():
-    """Receive a captured phone image and save it locally in CardDesk uploads."""
+    """Receive a captured phone image, save it, and send it into the AI import review queue."""
     uploaded_file = request.files.get("card_image")
 
     if not uploaded_file or not uploaded_file.filename:
         return {"ok": False, "error": "No image received."}, 400
 
-    image_filename = save_uploaded_image(uploaded_file)
+    image_filename, source_filename = save_uploaded_image_with_source(uploaded_file)
 
     if not image_filename:
         return {"ok": False, "error": "Image could not be saved."}, 400
 
+    staged_card = CardImportStaging(
+        image_filename=image_filename,
+        source_filename=source_filename or uploaded_file.filename,
+        sport=request.form.get("default_sport") or "Baseball",
+        collection_type=request.form.get("collection_type") or "Inventory",
+        status=request.form.get("status") or "Active",
+        purchase_date=request.form.get("purchase_date"),
+        storage_location=clean_value(request.form.get("storage_location")),
+        quantity=1,
+        ai_status="Pending Review",
+        notes="Captured from Mobile Capture.",
+    )
+
+    try:
+        raw_response = call_ximilar_for_image(image_filename)
+        extracted = extract_card_data_from_ximilar(raw_response)
+
+        staged_card.raw_response_json = json.dumps(raw_response, indent=2, sort_keys=True)
+        staged_card.player_name = clean_value(extracted.get("player_name"))
+        staged_card.year = extracted.get("year")
+        staged_card.sport = extracted.get("sport") or staged_card.sport
+        staged_card.brand = clean_value(extracted.get("brand"))
+        staged_card.set_name = clean_value(extracted.get("set_name"))
+        staged_card.card_number = clean_value(extracted.get("card_number"))
+        staged_card.variation = clean_value(extracted.get("variation"))
+        staged_card.card_type = extracted.get("card_type") or "Raw"
+        staged_card.grading_company = clean_value(extracted.get("grading_company"))
+        staged_card.actual_grade = clean_value(extracted.get("actual_grade"))
+        staged_card.cert_number = clean_value(extracted.get("cert_number"))
+        staged_card.ai_confidence = extracted.get("ai_confidence")
+    except Exception as error:
+        staged_card.ai_status = "Needs Manual Review"
+        staged_card.ai_error = str(error)
+
+    db.session.add(staged_card)
+    db.session.commit()
+
     return {
         "ok": True,
         "filename": image_filename,
-        "message": "Image saved to CardDesk uploads."
+        "staging_id": staged_card.id,
+        "ai_status": staged_card.ai_status,
+        "review_url": url_for("ai_import_review"),
+        "message": "Image saved and added to the AI review queue."
     }
 
 
@@ -2099,4 +2137,4 @@ def mark_selected_fulfillment_pulled():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
