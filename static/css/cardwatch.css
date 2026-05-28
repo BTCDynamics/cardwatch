@@ -1572,3 +1572,92 @@ textarea.form-control {
             linear-gradient(180deg, #08111f 0%, #0f172a 12rem, #111827 100%) !important;
     }
 }
+
+/* AI Import workflow */
+.ai-import-card,
+.ai-review-card {
+    overflow: visible;
+}
+
+.ai-upload-zone {
+    border: 2px dashed rgba(96, 165, 250, .40);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    background: rgba(15, 23, 42, .32);
+    text-align: center;
+}
+
+.ai-upload-icon {
+    font-size: 3rem;
+    color: #93c5fd;
+    line-height: 1;
+    margin-bottom: .75rem;
+}
+
+.ai-workflow-list {
+    color: #cbd5e1;
+    display: grid;
+    gap: .55rem;
+    padding-left: 1.2rem;
+}
+
+.ai-review-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.ai-review-grid {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.ai-review-image-panel {
+    position: sticky;
+    top: 1rem;
+}
+
+.ai-review-image {
+    width: 100%;
+    max-height: 360px;
+    object-fit: contain;
+    border-radius: 1rem;
+    border: 1px solid rgba(148, 163, 184, .25);
+    background: #111827;
+    box-shadow: 0 .75rem 1.75rem rgba(0, 0, 0, .25);
+}
+
+.ai-review-form-panel .form-label {
+    font-size: .78rem;
+    font-weight: 800;
+    color: #e5e7eb !important;
+}
+
+.ai-review-actions {
+    border-top: 1px solid rgba(148, 163, 184, .18);
+    padding-top: 1rem;
+}
+
+.ai-json-box {
+    max-height: 280px;
+    overflow: auto;
+    color: #dbeafe;
+    background: #020617;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: .75rem;
+    padding: .85rem;
+    font-size: .78rem;
+.ai-review-image {
+    width: 100%;
+    max-width: 240px;
+    max-height: 340px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: #0f172a;
+}
+
+.ai-review-image-panel {
+    max-width: 260px;
+}
