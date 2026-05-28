@@ -1784,3 +1784,56 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Mobile Capture QR setup card */
+.mobile-capture-setup-card {
+    background:
+        radial-gradient(circle at top right, rgba(59,130,246,.18), transparent 36%),
+        linear-gradient(145deg, #172033, #202b3a) !important;
+    border: 1px solid rgba(147,197,253,.24) !important;
+}
+
+.mobile-capture-setup-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.mobile-capture-url-box {
+    max-width: 760px;
+    padding: .75rem .9rem;
+    border-radius: .85rem;
+    color: #dbeafe;
+    background: rgba(2, 6, 23, .42);
+    border: 1px solid rgba(147,197,253,.22);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: .86rem;
+    overflow-wrap: anywhere;
+}
+
+.mobile-capture-qr-wrap {
+    text-align: center;
+    justify-self: end;
+}
+
+.mobile-capture-qr {
+    width: 180px;
+    height: 180px;
+    padding: .55rem;
+    border-radius: 1rem;
+    background: #ffffff;
+    border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 .85rem 1.8rem rgba(0,0,0,.28);
+}
+
+@media (max-width: 768px) {
+    .mobile-capture-setup-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mobile-capture-qr-wrap {
+        justify-self: start;
+    }
+}
