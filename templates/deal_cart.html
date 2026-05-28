@@ -72,6 +72,20 @@
     box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.18) !important;
 }
 
+/* Make Full Ask button visible without hover */
+.discount-btn[data-discount="0"] {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #64748b !important;
+    font-weight: 800 !important;
+}
+
+.discount-btn[data-discount="0"]:hover,
+.discount-btn[data-discount="0"]:focus {
+    background-color: #000000 !important;
+    border-color: #94a3b8 !important;
+}
+
 .deal-workflow-card .alert-info {
     background: #dbeafe !important;
     border-color: #93c5fd !important;
@@ -120,93 +134,6 @@
     white-space: nowrap;
 }
 
-
-/* Dealer Breakdown Mode */
-.breakdown-toggle-btn {
-    white-space: nowrap;
-    font-weight: 800;
-}
-
-.dealer-breakdown-row {
-    display: none;
-}
-
-.dealer-breakdown-row.is-open {
-    display: table-row;
-}
-
-.dealer-breakdown-panel {
-    margin: .25rem 0 1rem 0;
-    padding: 1rem;
-    border-radius: 1rem;
-    background: linear-gradient(145deg, #111827, #1f2937);
-    border: 1px solid rgba(96, 165, 250, .32);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.03), 0 .75rem 1.75rem rgba(0,0,0,.24);
-}
-
-.dealer-breakdown-title {
-    color: #ffffff;
-    font-weight: 900;
-    font-size: 1rem;
-}
-
-.dealer-breakdown-subtitle,
-.dealer-breakdown-note {
-    color: #94a3b8;
-    font-size: .78rem;
-}
-
-.dealer-breakdown-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(190px, 1fr));
-    gap: .85rem;
-}
-
-.dealer-breakdown-field {
-    padding: .8rem;
-    border-radius: .85rem;
-    background: rgba(15, 23, 42, .65);
-    border: 1px solid rgba(148, 163, 184, .22);
-}
-
-.dealer-breakdown-field label {
-    display: block;
-    margin-bottom: .35rem;
-    color: #cbd5e1;
-    font-size: .74rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-}
-
-.dealer-breakdown-readout {
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    padding: .38rem .6rem;
-    border-radius: .55rem;
-    color: #f8fafc;
-    background: rgba(2, 6, 23, .55);
-    border: 1px solid rgba(148, 163, 184, .20);
-    font-weight: 900;
-}
-
-.lowest-warning {
-    color: #f87171 !important;
-    font-weight: 900;
-}
-
-@media (max-width: 1199.98px) {
-    .dealer-breakdown-grid {
-        grid-template-columns: repeat(2, minmax(220px, 1fr));
-    }
-}
-
-@media (max-width: 767.98px) {
-    .dealer-breakdown-grid {
-        grid-template-columns: 1fr;
-    }
-}
 
 
 /* Deal Cart workflow redesign */
@@ -319,7 +246,7 @@
 .comp-assist-box {
     background: #ffffff;
     border: 1px solid #cbd5e1;
-    color: #f8fafc;
+    color: #111827;
     border-radius: .85rem;
     padding: .85rem;
 }
@@ -360,45 +287,176 @@
 }
 
 
-/* In Deal toggle */
-.deal-include-cell {
-    min-width: 92px;
+/* Main negotiation focus boxes */
+.negotiation-focus-input {
+    background: linear-gradient(145deg, #fbbf24, #f59e0b) !important;
+    border: 2px solid #b45309 !important;
+    color: #111827 !important;
+    font-weight: 900 !important;
+    font-size: 1.15rem !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.28);
 }
 
-.deal-include-check {
-    transform: scale(1.15);
-    margin-right: .35rem;
+.negotiation-focus-input:focus {
+    background: linear-gradient(145deg, #fcd34d, #fbbf24) !important;
+    border-color: #92400e !important;
+    box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.30) !important;
+    color: #111827 !important;
 }
 
-.deal-include-label {
+
+
+/* Force Full Ask button to stay visible */
+.full-ask-btn,
+button.full-ask-btn,
+.deal-workflow-card .full-ask-btn {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: #64748b !important;
+    font-weight: 800 !important;
+    box-shadow: 0 .25rem .65rem rgba(17, 24, 39, .22);
+}
+
+.full-ask-btn:hover,
+.full-ask-btn:focus,
+.deal-workflow-card .full-ask-btn:hover,
+.deal-workflow-card .full-ask-btn:focus {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border-color: #94a3b8 !important;
+}
+
+
+/* Experimental negotiation command center */
+.negotiation-command-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.05fr) minmax(320px, .95fr);
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.negotiation-command-panel {
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(15, 23, 42, .14);
+    background: #f8fafc;
+}
+
+.negotiation-command-panel.primary {
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border-color: rgba(96, 165, 250, .38);
+    color: #ffffff;
+    box-shadow: 0 .75rem 1.8rem rgba(15, 23, 42, .22);
+}
+
+.negotiation-command-panel.primary .form-label,
+.negotiation-command-panel.primary .negotiation-panel-title {
+    color: #ffffff !important;
+}
+
+.negotiation-command-panel.primary .negotiation-panel-help {
+    color: #cbd5e1 !important;
+}
+
+.negotiation-panel-title {
+    font-size: .95rem;
+    font-weight: 900;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: #111827;
+}
+
+.negotiation-panel-help {
+    color: #475569;
+    font-size: .86rem;
+    font-weight: 650;
+    margin-top: .2rem;
+}
+
+.negotiation-main-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    gap: .85rem;
+    margin-top: 1rem;
+}
+
+.negotiation-support-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: .85rem;
+    margin-top: .85rem;
+}
+
+.negotiation-discount-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,.14);
+}
+
+.card-by-card-guide {
+    display: grid;
+    gap: .75rem;
+    margin-top: 1rem;
+}
+
+.card-by-card-guide-row {
+    display: grid;
+    grid-template-columns: 2.3rem 1fr;
+    gap: .7rem;
+    align-items: start;
+    padding: .75rem;
+    border-radius: .85rem;
+    background: #ffffff;
+    border: 1px solid #dbe3ef;
+}
+
+.card-by-card-guide-number {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font-weight: 900;
+}
+
+.card-by-card-guide-title {
+    color: #111827;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.card-by-card-guide-text {
+    color: #475569;
+    font-size: .84rem;
+    font-weight: 650;
+    margin-top: .2rem;
+}
+
+.negotiation-mode-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: .32rem .7rem;
+    background: #dbeafe;
+    color: #1e3a8a;
     font-size: .78rem;
     font-weight: 900;
-    color: #ffffff !important;
-    white-space: nowrap;
 }
 
-.inventory-row.deal-excluded {
-    opacity: .42;
-}
+@media (max-width: 991.98px) {
+    .negotiation-command-grid {
+        grid-template-columns: 1fr;
+    }
 
-.inventory-row.deal-excluded td {
-    background: rgba(148, 163, 184, .10) !important;
-}
-
-.dealer-breakdown-row.deal-excluded {
-    opacity: .42;
-}
-
-.excluded-note {
-    display: none;
-    color: #fca5a5;
-    font-size: .74rem;
-    font-weight: 900;
-    margin-top: .25rem;
-}
-
-.inventory-row.deal-excluded .excluded-note {
-    display: block;
+    .negotiation-main-fields,
+    .negotiation-support-fields {
+        grid-template-columns: 1fr;
+    }
 }
 
 </style>
@@ -420,7 +478,7 @@
 {% if selected_cards %}
     <form method="POST" action="{{ url_for('bulk_sell') }}" id="completeDealForm" class="d-none">
         {% for card in selected_cards %}
-            <input type="hidden" name="card_ids" value="{{ card.id }}" class="deal-card-id-input" data-card-id="{{ card.id }}">
+            <input type="hidden" name="card_ids" value="{{ card.id }}">
         {% endfor %}
 
         <input type="hidden" name="complete_deal" value="1">
@@ -437,8 +495,8 @@
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-3 mb-4">
-        <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Selected Cards</div><div class="detail-value" id="includedCardCount">{{ selected_card_count or selected_cards|length }}</div></div></div></div>
-        <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Total Cost Basis</div><div class="detail-value" id="includedCostTotal">${{ "%.2f"|format(total_cost or 0) }}</div></div></div></div>
+        <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Selected Cards</div><div class="detail-value">{{ selected_card_count or selected_cards|length }}</div></div></div></div>
+        <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Total Cost Basis</div><div class="detail-value">${{ "%.2f"|format(total_cost or 0) }}</div></div></div></div>
         <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Working Ask Total</div><div class="detail-value" id="topWorkingAskTotal">${{ "%.2f"|format(total_asking or 0) }}</div></div></div></div>
         <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Total Est. Value</div><div class="detail-value">${{ "%.2f"|format(total_estimated_value or 0) }}</div></div></div></div>
         <div class="col"><div class="card page-card deal-cart-stat-card h-100"><div class="card-body"><div class="detail-label">Total Est. Profit / Loss</div><div class="detail-value {% if total_estimated_profit_loss >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "%.2f"|format(total_estimated_profit_loss or 0) }}</div></div></div></div>
@@ -448,52 +506,105 @@
         <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
-                    <div class="deal-flow-heading" style="color:#111827 !important;"><span class="deal-flow-step">2</span>Negotiate Final Price</div>
-                    <p class="text-muted mb-0 small" style="color:#374151 !important;">Final price, discount, trade credit, cash needed, and profit stay together.</p>
+                    <div class="deal-flow-heading" style="color:#111827 !important;"><span class="deal-flow-step">2</span>Negotiate the Deal</div>
+                    <p class="text-muted mb-0 small" style="color:#374151 !important;">Start with the lot total. If the buyer breaks it down card-by-card, adjust individual Working Ask values below and the totals update here.</p>
                 </div>
                 <button class="btn btn-outline-secondary btn-sm" type="button" id="resetTradeCalculator">Reset</button>
             </div>
 
-            <div class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Working Card Total</label>
-                    <input class="form-control" id="cartAskingPrice" type="number" step="0.01" value="{{ "%.2f"|format(total_asking or 0) }}" readonly>
+            <div class="negotiation-command-grid">
+                <div class="negotiation-command-panel primary">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                        <div>
+                            <div class="negotiation-panel-title">Lot Negotiation</div>
+                            <div class="negotiation-panel-help">Use these two numbers when the buyer asks, “What can you do on all of them?”</div>
+                        </div>
+                        <span class="negotiation-mode-badge">Group Price</span>
+                    </div>
+
+                    <div class="negotiation-main-fields">
+                        <div>
+                            <label class="form-label fw-bold">Working Card Total</label>
+                            <input class="form-control negotiation-focus-input" id="cartAskingPrice" type="number" step="0.01" value="{{ "%.2f"|format(total_asking or 0) }}" readonly>
+                            <div class="small mt-2" style="color:#cbd5e1;">Auto-updates from card-level Working Ask values.</div>
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold">Final Deal Price</label>
+                            <input class="form-control fw-bold negotiation-focus-input" id="workingDealPrice" type="number" step="0.01" min="0" value="{{ "%.2f"|format(total_asking or 0) }}">
+                            <div class="small mt-2" style="color:#cbd5e1;">The actual number you are offering or accepting.</div>
+                        </div>
+                    </div>
+
+                    <div class="negotiation-support-fields">
+                        <div>
+                            <label class="form-label fw-bold">Trade-In Credit</label>
+                            <input class="form-control" id="tradeCredit" type="number" step="0.01" min="0" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold">Cash Needed</label>
+                            <input class="form-control fw-bold" id="cashNeeded" type="text" value="${{ "%.2f"|format(total_asking or 0) }}" readonly>
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold">Discount Amount</label>
+                            <input class="form-control fw-bold text-danger" id="discountAmount" type="text" value="$0.00" readonly>
+                        </div>
+                        <div>
+                            <label class="form-label fw-bold">Profit / Loss After Trade</label>
+                            <input class="form-control fw-bold" id="profitAfterTrade" type="text" value="${{ "%.2f"|format((total_asking or 0) - (total_cost or 0)) }}" readonly>
+                            <div class="dashboard-percent mt-1" id="profitAfterTradePercent">{{ "%.1f"|format((((total_asking or 0) - (total_cost or 0)) / (total_cost or 1)) * 100 if total_cost else 0) }}% markup</div>
+                        </div>
+                    </div>
+
+                    <div class="negotiation-discount-strip">
+                        <button class="btn btn-dark btn-sm discount-btn full-ask-btn" type="button" data-discount="0">Full Ask</button>
+                        <button class="btn btn-outline-light btn-sm discount-btn" type="button" data-discount="10">10% Off</button>
+                        <button class="btn btn-outline-light btn-sm discount-btn" type="button" data-discount="15">15% Off</button>
+                        <button class="btn btn-outline-light btn-sm discount-btn" type="button" data-discount="20">20% Off</button>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Final Deal Price</label>
-                    <input class="form-control fw-bold" id="workingDealPrice" type="number" step="0.01" min="0" value="{{ "%.2f"|format(total_asking or 0) }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Trade-In Credit</label>
-                    <input class="form-control" id="tradeCredit" type="number" step="0.01" min="0" placeholder="0.00">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Cash Needed</label>
-                    <input class="form-control fw-bold" id="cashNeeded" type="text" value="${{ "%.2f"|format(total_asking or 0) }}" readonly>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Discount Amount</label>
-                    <input class="form-control fw-bold text-danger" id="discountAmount" type="text" value="$0.00" readonly>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Profit / Loss After Trade</label>
-                    <input class="form-control fw-bold" id="profitAfterTrade" type="text" value="${{ "%.2f"|format((total_asking or 0) - (total_cost or 0)) }}" readonly>
-                    <div class="dashboard-percent mt-1" id="profitAfterTradePercent">{{ "%.1f"|format((((total_asking or 0) - (total_cost or 0)) / (total_cost or 1)) * 100 if total_cost else 0) }}% markup</div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Quick Counter Discount</label>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-outline-dark btn-sm discount-btn" type="button" data-discount="0">Full Ask</button>
-                        <button class="btn btn-outline-primary btn-sm discount-btn" type="button" data-discount="10">10% Off</button>
-                        <button class="btn btn-outline-primary btn-sm discount-btn" type="button" data-discount="15">15% Off</button>
-                        <button class="btn btn-outline-primary btn-sm discount-btn" type="button" data-discount="20">20% Off</button>
+
+                <div class="negotiation-command-panel">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                        <div>
+                            <div class="negotiation-panel-title">Card-by-Card Negotiation</div>
+                            <div class="negotiation-panel-help">Use this when the buyer starts asking, “What are you at on that one?”</div>
+                        </div>
+                        <span class="negotiation-mode-badge">Individual Cards</span>
+                    </div>
+
+                    <div class="card-by-card-guide">
+                        <div class="card-by-card-guide-row">
+                            <div class="card-by-card-guide-number">1</div>
+                            <div>
+                                <div class="card-by-card-guide-title">Check the card row below</div>
+                                <div class="card-by-card-guide-text">Find the card the buyer is asking about and review Original Ask, Comp, Working Ask, and floor.</div>
+                            </div>
+                        </div>
+                        <div class="card-by-card-guide-row">
+                            <div class="card-by-card-guide-number">2</div>
+                            <div>
+                                <div class="card-by-card-guide-title">Adjust that card’s Working Ask</div>
+                                <div class="card-by-card-guide-text">Changing one card updates the Working Card Total automatically.</div>
+                            </div>
+                        </div>
+                        <div class="card-by-card-guide-row">
+                            <div class="card-by-card-guide-number">3</div>
+                            <div>
+                                <div class="card-by-card-guide-title">Close with the Final Deal Price</div>
+                                <div class="card-by-card-guide-text">Use Final Deal Price for the actual agreed number after individual adjustments.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info small mt-3 mb-0">
+                        Tip: Use <strong>Comp Assist</strong>, <strong>Working Ask</strong>, and <strong>Lowest Acceptable</strong> to handle card-by-card negotiation without changing saved inventory pricing.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    
+
 
 <div class="card page-card deal-workflow-card mb-4">
         <div class="card-body">
@@ -537,7 +648,7 @@
 
     <div class="mb-3" style="color:#f8fafc;">
         <div class="deal-flow-heading" style="color:#f8fafc !important;"><span class="deal-flow-step">4</span>Adjust Card-Level Pricing</div>
-        <div class="deal-flow-subtext" style="color:#e2e8f0 !important;">Fine tune comps, comp sources, working asks, floors, and breakdown notes for each card.</div>
+        <div class="deal-flow-subtext" style="color:#e2e8f0 !important;">Fine tune comps, comp sources, working asks, and floors for each card.</div>
     </div>
 
     <div class="card page-card">
@@ -545,9 +656,7 @@
             <table class="table table-hover mb-0 align-middle negotiation-table">
                 <thead class="table-light">
                     <tr>
-                        <th>In Deal</th>
                         <th>Card</th>
-                        <th>Breakdown</th>
                         <th>Comp Assist</th>
                         <th>Type</th>
                         <th>Qty</th>
@@ -566,20 +675,7 @@
                 </thead>
                 <tbody>
                     {% for card in selected_cards %}
-                        <tr class="inventory-row" data-card-id="{{ card.id }}">
-                            <td class="deal-include-cell">
-                                <div class="form-check d-flex align-items-center">
-                                    <input
-                                        class="form-check-input deal-include-check deal-include-toggle"
-                                        type="checkbox"
-                                        checked
-                                        data-card-id="{{ card.id }}"
-                                        id="dealInclude{{ card.id }}"
-                                    >
-                                    <label class="form-check-label deal-include-label" for="dealInclude{{ card.id }}">In Deal</label>
-                                </div>
-                                <div class="excluded-note">Excluded from current total</div>
-                            </td>
+                        <tr class="inventory-row">
                             <td>
                                 <div class="fw-bold">
                                     <a href="{{ url_for('card_detail', card_id=card.id) }}" class="text-decoration-none">{{ card.player_name }}</a>
@@ -590,16 +686,6 @@
                                 {% if card.variation %}<span class="badge text-bg-light border">{{ card.variation }}</span>{% endif %}
                                 {% if card.is_rookie %}<span class="badge badge-rc">RC</span>{% endif %}
                                 {% if card.is_hof %}<span class="badge badge-hof">HOF</span>{% endif %}
-                            </td>
-                            <td>
-                                <button
-                                    class="btn btn-sm btn-outline-info breakdown-toggle-btn"
-                                    type="button"
-                                    data-card-id="{{ card.id }}"
-                                    aria-expanded="false"
-                                >
-                                    Breakdown
-                                </button>
                             </td>
                             <td>
                                 {% set comp_search_term = (card.year|string ~ ' ' ~ (card.player_name or '') ~ ' ' ~ (card.brand or '') ~ ' ' ~ (card.set_name or '') ~ ' ' ~ ('#' ~ card.card_number if card.card_number else '') ~ ' ' ~ (card.variation or '') ~ ' ' ~ (card.grading_company or '') ~ ' ' ~ (card.actual_grade or ''))|trim %}
@@ -661,7 +747,6 @@
                                     min="0"
                                     value="{{ "%.2f"|format(original_ask_total) }}"
                                     data-original-ask="{{ "%.2f"|format(original_ask_total) }}"
-                                    data-card-cost="{{ "%.2f"|format((card.purchase_price or 0) * (card.quantity or 1)) }}"
                                     data-card-id="{{ card.id }}"
                                     form="completeDealForm"
                                     name="working_ask_{{ card.id }}"
@@ -683,100 +768,7 @@
                                 </form>
                             </td>
                         </tr>
-                        <tr class="dealer-breakdown-row" id="breakdown-{{ card.id }}">
-                            <td colspan="17">
-                                <div class="dealer-breakdown-panel">
-                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-                                        <div>
-                                            <div class="dealer-breakdown-title">Dealer Breakdown · {{ card.player_name }}</div>
-                                            <div class="dealer-breakdown-subtitle">Use this during back-and-forth negotiation without changing saved inventory pricing.</div>
-                                        </div>
-                                        <span class="badge text-bg-dark">{{ card.card_code }}</span>
-                                    </div>
-
-                                    <div class="dealer-breakdown-grid">
-                                        <div class="dealer-breakdown-field">
-                                            <label>Original Ask</label>
-                                            <div class="dealer-breakdown-readout original-ask-readout" data-card-id="{{ card.id }}">${{ "%.2f"|format(original_ask_total) }}</div>
-                                            <div class="dealer-breakdown-note">Saved inventory ask.</div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Comp Value</label>
-                                            <div class="dealer-breakdown-readout comp-value-readout" data-card-id="{{ card.id }}">—</div>
-                                            <div class="dealer-breakdown-note">Mirrors the row comp field.</div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Comp Source</label>
-                                            <div class="dealer-breakdown-readout comp-source-readout" data-card-id="{{ card.id }}">—</div>
-                                            <div class="dealer-breakdown-note">Example: eBay sold, 130Point, Card Ladder.</div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Lowest Acceptable</label>
-                                            <input
-                                                class="form-control form-control-sm lowest-acceptable-input"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                placeholder="Floor"
-                                                data-card-id="{{ card.id }}"
-                                                form="completeDealForm"
-                                                name="lowest_acceptable_{{ card.id }}"
-                                            >
-                                            <div class="dealer-breakdown-note lowest-warning-message" data-card-id="{{ card.id }}"></div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Customer Offer</label>
-                                            <input
-                                                class="form-control form-control-sm customer-offer-input"
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                placeholder="Offer"
-                                                data-card-id="{{ card.id }}"
-                                                form="completeDealForm"
-                                                name="customer_offer_{{ card.id }}"
-                                            >
-                                            <div class="dealer-breakdown-note customer-offer-profit" data-card-id="{{ card.id }}">Shows quick profit against your cost.</div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Working Ask</label>
-                                            <div class="dealer-breakdown-readout working-ask-readout" data-card-id="{{ card.id }}">${{ "%.2f"|format(original_ask_total) }}</div>
-                                            <div class="dealer-breakdown-note">Mirrors the row working ask.</div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Instant Profit</label>
-                                            <div
-                                                class="dealer-breakdown-readout instant-profit-readout"
-                                                data-card-id="{{ card.id }}"
-                                                data-card-cost="{{ "%.2f"|format((card.purchase_price or 0) * (card.quantity or 1)) }}"
-                                            >
-                                                $0.00
-                                            </div>
-                                            <div class="dealer-breakdown-note">Working ask minus cost basis.</div>
-                                        </div>
-
-                                        <div class="dealer-breakdown-field">
-                                            <label>Notes</label>
-                                            <textarea
-                                                class="form-control form-control-sm negotiation-note-input"
-                                                rows="2"
-                                                placeholder="Why this number? Counter notes?"
-                                                data-card-id="{{ card.id }}"
-                                                form="completeDealForm"
-                                                name="negotiation_notes_{{ card.id }}"
-                                            ></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
+{% endfor %}
                 </tbody>
             </table>
         </div>
@@ -790,7 +782,6 @@
                     <div class="deal-flow-heading" style="color:#ffffff;"><span class="deal-flow-step" style="background:#2563eb;">5</span>Final Review & Complete Deal</div>
                     <p class="mb-0 small" style="color:#cbd5e1;">Review final numbers, choose the fulfillment starting point, then complete the sale.</p>
                 </div>
-                <button class="btn btn-danger btn-lg" type="submit" form="completeDealForm" id="completeDealButton">Complete Deal at ${{ "%.2f"|format(total_asking or 0) }}</button>
             </div>
 
             <div class="deal-final-grid mb-3">
@@ -854,6 +845,7 @@
                     <a class="btn btn-light fw-bold" id="compEbaySoldLink" href="#" target="_blank" rel="noopener">eBay Search</a>
                     <a class="btn btn-light fw-bold" id="comp130PointLink" href="#" target="_blank" rel="noopener">130Point</a>
                     <a class="btn btn-light fw-bold" id="compSportsCardsProLink" href="#" target="_blank" rel="noopener">SportsCardsPro</a>
+                    <a class="btn btn-light fw-bold" id="compCardHedgeLink" href="#" target="_blank" rel="noopener">Card Hedge</a>
                     <a class="btn btn-light fw-bold" id="compCardLadderLink" href="#" target="_blank" rel="noopener">Card Ladder</a>
                     <a class="btn btn-light fw-bold" id="compMarketMoversLink" href="#" target="_blank" rel="noopener">Market Movers</a>
                 </div>
@@ -874,6 +866,7 @@
                             <option value="eBay sold">eBay sold</option>
                             <option value="130Point">130Point</option>
                             <option value="SportsCardsPro">SportsCardsPro</option>
+                            <option value="Card Hedge">Card Hedge</option>
                             <option value="Card Ladder">Card Ladder</option>
                             <option value="Market Movers">Market Movers</option>
                             <option value="Other">Other</option>
@@ -911,42 +904,11 @@ function numericFieldValue(id) {
     return field ? Number(field.value) || 0 : 0;
 }
 
-function isCardIncluded(cardId) {
-    const toggle = document.querySelector('.deal-include-toggle[data-card-id="' + cardId + '"]');
-    return !toggle || toggle.checked;
-}
-
-function getIncludedCardCount() {
-    let count = 0;
-
-    document.querySelectorAll(".deal-include-toggle").forEach(function (toggle) {
-        if (toggle.checked) {
-            count += 1;
-        }
-    });
-
-    return count;
-}
-
-function getIncludedCostTotal() {
-    let total = 0;
-
-    document.querySelectorAll(".working-ask-input").forEach(function (input) {
-        if (isCardIncluded(input.dataset.cardId)) {
-            total += Number(input.dataset.cardCost) || 0;
-        }
-    });
-
-    return total;
-}
-
 function getWorkingAskTotal() {
     let total = 0;
 
     document.querySelectorAll(".working-ask-input").forEach(function (input) {
-        if (isCardIncluded(input.dataset.cardId)) {
-            total += Number(input.value) || 0;
-        }
+        total += Number(input.value) || 0;
     });
 
     return total;
@@ -970,16 +932,6 @@ function refreshWorkingAskTotal(syncFinalDealPrice) {
         finalWorkingAskTotalInput.value = workingAskTotal.toFixed(2);
     }
 
-    const includedCardCount = document.getElementById("includedCardCount");
-    if (includedCardCount) {
-        includedCardCount.textContent = getIncludedCardCount();
-    }
-
-    const includedCostTotal = document.getElementById("includedCostTotal");
-    if (includedCostTotal) {
-        includedCostTotal.textContent = formatCurrency(getIncludedCostTotal());
-    }
-
     if (syncFinalDealPrice) {
         const workingDealPriceField = document.getElementById("workingDealPrice");
         if (workingDealPriceField) {
@@ -994,7 +946,7 @@ function updateTradeCalculator() {
     const askingPrice = numericFieldValue("cartAskingPrice");
     const workingDealPrice = numericFieldValue("workingDealPrice");
     const tradeCredit = numericFieldValue("tradeCredit");
-    const totalCost = getIncludedCostTotal();
+    const totalCost = {{ "%.2f"|format(total_cost or 0) }};
 
     const discountAmount = askingPrice - workingDealPrice;
     const discountPercent = askingPrice > 0 ? (discountAmount / askingPrice) * 100 : 0;
@@ -1016,11 +968,6 @@ function updateTradeCalculator() {
     const finalDealPriceInput = document.getElementById("finalDealPriceInput");
     const finalTradeCreditInput = document.getElementById("finalTradeCreditInput");
     const finalDiscountPercentInput = document.getElementById("finalDiscountPercentInput");
-    const completeDealButton = document.getElementById("completeDealButton");
-
-    if (finalDealPriceInput) {
-        finalDealPriceInput.value = workingDealPrice.toFixed(2);
-    }
 
     if (finalTradeCreditInput) {
         finalTradeCreditInput.value = tradeCredit.toFixed(2);
@@ -1080,26 +1027,8 @@ function refreshDealerBreakdowns() {
     document.querySelectorAll(".working-ask-input").forEach(function (workingInput) {
         const cardId = workingInput.dataset.cardId;
         const workingAsk = Number(workingInput.value) || 0;
-        const workingReadout = document.querySelector('.working-ask-readout[data-card-id="' + cardId + '"]');
-        const profitReadout = document.querySelector('.instant-profit-readout[data-card-id="' + cardId + '"]');
         const lowestInput = document.querySelector('.lowest-acceptable-input[data-card-id="' + cardId + '"]');
         const lowestMainReadout = document.querySelector('.lowest-acceptable-main-value[data-card-id="' + cardId + '"]');
-        const warning = document.querySelector('.lowest-warning-message[data-card-id="' + cardId + '"]');
-        const customerOfferInput = document.querySelector('.customer-offer-input[data-card-id="' + cardId + '"]');
-        const customerOfferProfit = document.querySelector('.customer-offer-profit[data-card-id="' + cardId + '"]');
-
-        if (workingReadout) {
-            workingReadout.textContent = formatCurrency(workingAsk);
-        }
-
-        const cost = profitReadout ? (Number(profitReadout.dataset.cardCost) || 0) : 0;
-
-        if (profitReadout) {
-            const profit = workingAsk - cost;
-            profitReadout.textContent = formatCurrency(profit);
-            profitReadout.classList.remove("text-success", "text-danger");
-            profitReadout.classList.add(profit >= 0 ? "text-success" : "text-danger");
-        }
 
         if (lowestInput) {
             const lowest = Number(lowestInput.value) || 0;
@@ -1107,49 +1036,11 @@ function refreshDealerBreakdowns() {
             if (lowestMainReadout) {
                 lowestMainReadout.textContent = lowest > 0 ? formatCurrency(lowest) : "—";
                 lowestMainReadout.classList.remove("text-success", "text-danger");
+
                 if (lowest > 0) {
                     lowestMainReadout.classList.add(workingAsk >= lowest ? "text-success" : "text-danger");
                 }
             }
-
-            if (warning) {
-                if (lowest > 0 && workingAsk < lowest) {
-                    warning.textContent = "Below your floor by " + formatCurrency(lowest - workingAsk);
-                    warning.classList.add("lowest-warning");
-                } else {
-                    warning.textContent = "";
-                    warning.classList.remove("lowest-warning");
-                }
-            }
-        }
-
-        if (customerOfferInput && customerOfferProfit) {
-            const offer = Number(customerOfferInput.value) || 0;
-            if (offer > 0) {
-                const offerProfit = offer - cost;
-                customerOfferProfit.textContent = "Offer profit: " + formatCurrency(offerProfit);
-                customerOfferProfit.classList.remove("text-success", "text-danger");
-                customerOfferProfit.classList.add(offerProfit >= 0 ? "text-success" : "text-danger");
-            } else {
-                customerOfferProfit.textContent = "Shows quick profit against your cost.";
-                customerOfferProfit.classList.remove("text-success", "text-danger");
-            }
-        }
-    });
-
-    document.querySelectorAll(".comp-value-input").forEach(function (input) {
-        const cardId = input.dataset.cardId;
-        const readout = document.querySelector('.comp-value-readout[data-card-id="' + cardId + '"]');
-        if (readout) {
-            readout.textContent = input.value === "" ? "—" : formatCurrency(Number(input.value) || 0);
-        }
-    });
-
-    document.querySelectorAll(".comp-source-input").forEach(function (input) {
-        const cardId = input.dataset.cardId;
-        const readout = document.querySelector('.comp-source-readout[data-card-id="' + cardId + '"]');
-        if (readout) {
-            readout.textContent = input.value.trim() || "—";
         }
     });
 }
@@ -1212,22 +1103,8 @@ document.querySelectorAll(".comp-value-input").forEach(function (input) {
     });
 });
 
-document.querySelectorAll(".comp-source-input, .lowest-acceptable-input, .customer-offer-input").forEach(function (input) {
+document.querySelectorAll(".comp-source-input, .lowest-acceptable-input").forEach(function (input) {
     input.addEventListener("input", refreshDealerBreakdowns);
-});
-
-document.querySelectorAll(".breakdown-toggle-btn").forEach(function (button) {
-    button.addEventListener("click", function () {
-        const row = document.getElementById("breakdown-" + button.dataset.cardId);
-        if (!row) {
-            return;
-        }
-
-        const isOpen = row.classList.toggle("is-open");
-        button.textContent = isOpen ? "Close" : "Breakdown";
-        button.setAttribute("aria-expanded", isOpen ? "true" : "false");
-        refreshDealerBreakdowns();
-    });
 });
 
 document.querySelectorAll(".discount-btn").forEach(function (button) {
@@ -1243,7 +1120,7 @@ if (resetButton) {
             input.value = (Number(input.dataset.originalAsk) || 0).toFixed(2);
         });
 
-        document.querySelectorAll(".comp-value-input, .comp-source-input, .lowest-acceptable-input, .customer-offer-input, .negotiation-note-input").forEach(function (input) {
+        document.querySelectorAll(".comp-value-input, .comp-source-input, .lowest-acceptable-input").forEach(function (input) {
             input.value = "";
         });
 
@@ -1253,38 +1130,6 @@ if (resetButton) {
         refreshDealerBreakdowns();
     });
 }
-
-
-function syncIncludedCards() {
-    document.querySelectorAll(".deal-include-toggle").forEach(function (toggle) {
-        const cardId = toggle.dataset.cardId;
-        const row = document.querySelector('.inventory-row[data-card-id="' + cardId + '"]');
-        const breakdownRow = document.getElementById("breakdown-" + cardId);
-        const hiddenInput = document.querySelector('.deal-card-id-input[data-card-id="' + cardId + '"]');
-
-        if (row) {
-            row.classList.toggle("deal-excluded", !toggle.checked);
-        }
-
-        if (breakdownRow) {
-            breakdownRow.classList.toggle("deal-excluded", !toggle.checked);
-        }
-
-        if (hiddenInput) {
-            hiddenInput.disabled = !toggle.checked;
-        }
-    });
-}
-
-document.querySelectorAll(".deal-include-toggle").forEach(function (toggle) {
-    toggle.addEventListener("change", function () {
-        syncIncludedCards();
-        refreshWorkingAskTotal(true);
-        updateTradeCalculator();
-        refreshDealerBreakdowns();
-    });
-});
-
 
 const completeDealForm = document.getElementById("completeDealForm");
 if (completeDealForm) {
@@ -1302,7 +1147,7 @@ if (completeDealForm) {
             "Final Deal Price: $" + dealPrice + "\n" +
             "Trade-In Credit: $" + tradeCredit + "\n" +
             "Discount: " + discountPercent + "%\n\n" +
-            "Only cards checked In Deal will be marked Sold. Unchecked cards stay in the cart/inventory.\n" +
+            "All selected cards will be marked Sold.\n" +
             "Note: comp values, working asks, and lowest acceptable floors are submitted with the form for future backend use."
         );
 
@@ -1324,6 +1169,7 @@ function buildCompSearchUrls(searchTerm) {
         ebay: "https://www.ebay.com/sch/i.html?_nkw=" + encoded + "&LH_Sold=1&LH_Complete=1",
         point130: "https://130point.com/sales/?search=" + encoded,
         sportsCardsPro: "https://www.sportscardspro.com/search-products?q=" + encoded,
+        cardHedge: "https://ai.cardhedger.com/price-guide?search=" + encoded,
         cardLadder: "https://www.cardladder.com/search?q=" + encoded,
         marketMovers: "https://www.sportscardinvestor.com/cards/search?search=" + encoded
     };
@@ -1335,12 +1181,14 @@ function setCompAssistLinks(searchTerm) {
     const ebay = document.getElementById("compEbaySoldLink");
     const point130 = document.getElementById("comp130PointLink");
     const sportsCardsPro = document.getElementById("compSportsCardsProLink");
+    const cardHedge = document.getElementById("compCardHedgeLink");
     const cardLadder = document.getElementById("compCardLadderLink");
     const marketMovers = document.getElementById("compMarketMoversLink");
 
     if (ebay) ebay.href = urls.ebay;
     if (point130) point130.href = urls.point130;
     if (sportsCardsPro) sportsCardsPro.href = urls.sportsCardsPro;
+    if (cardHedge) cardHedge.href = urls.cardHedge;
     if (cardLadder) cardLadder.href = urls.cardLadder;
     if (marketMovers) marketMovers.href = urls.marketMovers;
 }
@@ -1408,6 +1256,7 @@ if (openAllCompSourcesButton) {
         window.open(urls.ebay, "_blank", "noopener");
         window.open(urls.point130, "_blank", "noopener");
         window.open(urls.sportsCardsPro, "_blank", "noopener");
+        window.open(urls.cardHedge, "_blank", "noopener");
     });
 }
 
@@ -1461,7 +1310,6 @@ if (applyCompAssistButton) {
 }
 
 
-syncIncludedCards();
 refreshWorkingAskTotal(false);
 updateTradeCalculator();
 refreshDealerBreakdowns();
