@@ -218,7 +218,7 @@
                             <button class="btn btn-warning w-100" id="captureBtn" type="button" disabled>Capture Card</button>
                         </div>
                         <div class="col-md-4">
-                            <button class="btn btn-success w-100" id="saveBtn" type="button" disabled>Save to CardDesk</button>
+                            <button class="btn btn-success w-100" id="saveBtn" type="button" disabled>Save to Review Queue</button>
                         </div>
                     </div>
                     <div class="capture-status mt-3" id="captureStatus">
@@ -422,7 +422,7 @@ function captureFrame() {
         previewEmpty.style.display = "none";
         saveBtn.disabled = false;
 
-        setStatus("Image captured. Review the preview, then Save to CardDesk or tap the camera area to retake.");
+        setStatus("Image captured. Review the preview, then Save to Review Queue or tap the camera area to retake.");
     }, "image/jpeg", 0.94);
 }
 
@@ -451,7 +451,7 @@ async function saveCapture() {
             throw new Error(result.error || "Upload failed.");
         }
 
-        setStatus(`Saved to CardDesk: ${result.filename}`);
+        setStatus(`Saved to AI Review Queue: ${result.ai_status || "Pending Review"}. Capture another card when ready.`);
         lastCapturedBlob = null;
     } catch (error) {
         saveBtn.disabled = false;
