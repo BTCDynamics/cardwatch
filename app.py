@@ -1846,6 +1846,21 @@ def ai_import_review():
         query = query.filter(CardImportStaging.ai_status == "Pending Review")
 
     staged_cards = query.order_by(CardImportStaging.created_at.desc(), CardImportStaging.id.desc()).all()
+
+    focus_id = request.args.get("focus", type=int)
+    missing_fields = [
+        field.strip()
+        for field in request.args.get("missing", "").split(",")
+        if field.strip()
+    ]
+    imported_success = request.args.get("imported") == "1"
+
+    if focus_id:
+        staged_cards = sorted(
+            staged_cards,
+            key=lambda card: 0 if card.id == focus_id else 1
+        )
+
     duplicate_map = {card.id: find_probable_duplicate_from_staging(card) for card in staged_cards}
 
     counts = {
@@ -1861,6 +1876,9 @@ def ai_import_review():
         duplicate_map=duplicate_map,
         status_filter=status_filter,
         counts=counts,
+        focus_id=focus_id,
+        missing_fields=missing_fields,
+        imported_success=imported_success,
     )
 
 
@@ -1901,6 +1919,85 @@ def update_staged_import(staging_id):
     return redirect(url_for("ai_import_review", status=request.args.get("status", "Pending Review")))
 
 
+
+def apply_staged_import_form(staged_card, form_data):
+    """Apply review form values to a staged card before validation/import."""
+    staged_card.player_name = clean_value(form_data.get("player_name"))
+    staged_card.sport = form_data.get("sport") or "Baseball"
+    staged_card.year = normalize_year(form_data.get("year"))
+    staged_card.brand = clean_value(form_data.get("brand"))
+    staged_card.set_name = clean_value(form_data.get("set_name"))
+    staged_card.card_number = clean_value(form_data.get("card_number"))
+    staged_card.variation = clean_value(form_data.get("variation"))
+    staged_card.is_rookie = True if form_data.get("is_rookie") else False
+    staged_card.is_hof = True if form_data.get("is_hof") else False
+    staged_card.card_type = form_data.get("card_type") or "Raw"
+    staged_card.grading_company = clean_value(form_data.get("grading_company"))
+    staged_card.actual_grade = clean_value(form_data.get("actual_grade"))
+    staged_card.cert_number = clean_value(form_data.get("cert_number"))
+    staged_card.grade_estimate = clean_value(form_data.get("grade_estimate"))
+    staged_card.quantity = int(form_data.get("quantity") or 1)
+    staged_card.purchase_price = form_data.get("purchase_price") or None
+    staged_card.estimated_value = form_data.get("estimated_value") or None
+    staged_card.asking_price = form_data.get("asking_price") or None
+    staged_card.purchase_date = form_data.get("purchase_date")
+    staged_card.storage_location = clean_value(form_data.get("storage_location"))
+    staged_card.collection_type = form_data.get("collection_type") or "Inventory"
+    staged_card.status = form_data.get("status") or "Active"
+    staged_card.notes = form_data.get("notes")
+
+
+def validate_staged_card_for_import(staged_card):
+    """Return missing required inventory-intake fields for a staged card."""
+    required_fields = [
+        ("player_name", "Player / Subject"),
+        ("sport", "Sport"),
+        ("card_type", "Card Type"),
+        ("collection_type", "Collection Type"),
+        ("status", "Status"),
+        ("quantity", "Quantity"),
+        ("year", "Year"),
+        ("brand", "Brand"),
+        ("set_name", "Set"),
+        ("card_number", "Card Number"),
+        ("storage_location", "Storage Location"),
+        ("purchase_price", "Cost"),
+    ]
+
+    missing_fields = []
+
+    for field_name, label in required_fields:
+        value = getattr(staged_card, field_name, None)
+
+        if value is None:
+            missing_fields.append(label)
+            continue
+
+        if isinstance(value, str) and not value.strip():
+            missing_fields.append(label)
+            continue
+
+        if field_name == "quantity":
+            try:
+                if int(value) < 1:
+                    missing_fields.append(label)
+            except (TypeError, ValueError):
+                missing_fields.append(label)
+
+    return missing_fields
+
+
+def next_staged_review_card(current_staging_id):
+    """Return the next non-imported/non-rejected staged card for fast intake."""
+    return (
+        CardImportStaging.query
+        .filter(CardImportStaging.id != current_staging_id)
+        .filter(CardImportStaging.ai_status.in_(["Needs Manual Review", "Pending Review"]))
+        .order_by(CardImportStaging.created_at.desc(), CardImportStaging.id.desc())
+        .first()
+    )
+
+
 @app.route("/ai-import/<int:staging_id>/import", methods=["POST"])
 def import_staged_card(staging_id):
     staged_card = CardImportStaging.query.get_or_404(staging_id)
@@ -1909,12 +2006,31 @@ def import_staged_card(staging_id):
         flash("This staged card has already been imported.")
         return redirect(url_for("ai_import_review"))
 
-    if not staged_card.player_name:
-        flash("Player / Subject is required before importing.")
-        return redirect(url_for("ai_import_review"))
+    apply_staged_import_form(staged_card, request.form)
+
+    missing_fields = validate_staged_card_for_import(staged_card)
+
+    if missing_fields:
+        staged_card.ai_status = "Needs Manual Review"
+        db.session.commit()
+
+        flash(
+            "Please complete these required fields before importing: "
+            + ", ".join(missing_fields)
+        )
+
+        return redirect(
+            url_for(
+                "ai_import_review",
+                status=staged_card.ai_status,
+                focus=staged_card.id,
+                missing=",".join(missing_fields)
+            )
+        )
 
     duplicate_action = request.form.get("duplicate_action") or "create_new"
     probable_duplicate = find_probable_duplicate_from_staging(staged_card)
+    next_card = next_staged_review_card(staged_card.id)
 
     if probable_duplicate and duplicate_action == "increase_quantity":
         old_quantity = probable_duplicate.quantity or 1
@@ -1929,8 +2045,20 @@ def import_staged_card(staging_id):
         staged_card.imported_at = datetime.utcnow()
 
         db.session.commit()
-        flash(f"Duplicate found. Quantity updated from {old_quantity} to {probable_duplicate.quantity}.")
-        return redirect(url_for("card_detail", card_id=probable_duplicate.id))
+
+        if next_card:
+            flash("Card imported successfully. Loading next card...")
+            return redirect(
+                url_for(
+                    "ai_import_review",
+                    status=next_card.ai_status,
+                    focus=next_card.id,
+                    imported="1"
+                )
+            )
+
+        flash("Card imported successfully. Review queue is clear.")
+        return redirect(url_for("ai_import_review", status="Pending Review", imported="1"))
 
     new_card = Card(
         card_code=generate_card_code(),
@@ -1970,8 +2098,19 @@ def import_staged_card(staging_id):
 
     db.session.commit()
 
-    flash(f"{new_card.card_code} imported into inventory.")
-    return redirect(url_for("card_detail", card_id=new_card.id))
+    if next_card:
+        flash("Card imported successfully. Loading next card...")
+        return redirect(
+            url_for(
+                "ai_import_review",
+                status=next_card.ai_status,
+                focus=next_card.id,
+                imported="1"
+            )
+        )
+
+    flash("Card imported successfully. Review queue is clear.")
+    return redirect(url_for("ai_import_review", status="Pending Review", imported="1"))
 
 
 @app.route("/ai-import/<int:staging_id>/reject", methods=["POST"])
