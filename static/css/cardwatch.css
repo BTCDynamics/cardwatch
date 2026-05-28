@@ -1837,3 +1837,72 @@ textarea.form-control {
         justify-self: start;
     }
 }
+
+
+/* Compact dashboard header Mobile Card Capture QR */
+.mobile-capture-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .38rem .48rem .38rem .7rem;
+    border-radius: .95rem;
+    background: rgba(15, 23, 42, .42);
+    border: 1px solid rgba(147,197,253,.24);
+    box-shadow: 0 .55rem 1.2rem rgba(0,0,0,.18);
+}
+
+.mobile-capture-mini-text {
+    display: grid;
+    gap: .12rem;
+    line-height: 1.05;
+}
+
+.mobile-capture-mini-title {
+    color: #f8fafc;
+    font-size: .78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.mobile-capture-mini-copy {
+    width: fit-content;
+    padding: 0;
+    border: 0;
+    color: #93c5fd;
+    background: transparent;
+    font-size: .68rem;
+    font-weight: 800;
+    text-align: left;
+}
+
+.mobile-capture-mini-copy:hover {
+    color: #bfdbfe;
+    text-decoration: underline;
+}
+
+.mobile-capture-mini-qr-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-capture-mini-qr {
+    width: 54px;
+    height: 54px;
+    padding: .22rem;
+    border-radius: .55rem;
+    background: #ffffff;
+    border: 1px solid rgba(255,255,255,.28);
+    box-shadow: 0 .35rem .85rem rgba(0,0,0,.22);
+}
+
+.mobile-capture-mini-qr:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 575.98px) {
+    .mobile-capture-mini {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
