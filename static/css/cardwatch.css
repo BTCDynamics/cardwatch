@@ -1916,3 +1916,101 @@ textarea.form-control {
         justify-content: space-between;
     }
 }
+
+
+/* AI Review fast intake validation + import-next flow */
+.required-field-label::after {
+    content: " *";
+    color: #f87171;
+    font-weight: 900;
+}
+
+.ai-required-banner {
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(220,38,38,.22), rgba(127,29,29,.38));
+    border: 1px solid rgba(248,113,113,.42);
+    box-shadow: 0 .85rem 1.8rem rgba(0,0,0,.22);
+}
+
+.ai-required-title {
+    color: #fecaca;
+    font-weight: 900;
+    font-size: 1.05rem;
+}
+
+.ai-required-subtitle {
+    color: #fca5a5;
+    font-size: .86rem;
+    margin-top: .15rem;
+}
+
+.ai-required-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-top: .7rem;
+}
+
+.ai-required-list span {
+    display: inline-flex;
+    align-items: center;
+    padding: .35rem .6rem;
+    border-radius: 999px;
+    color: #ffffff;
+    background: rgba(220,38,38,.48);
+    border: 1px solid rgba(248,113,113,.35);
+    font-size: .78rem;
+    font-weight: 900;
+}
+
+.ai-required-missing {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 .18rem rgba(239,68,68,.22) !important;
+}
+
+.ai-review-card-focus {
+    border-color: rgba(248,113,113,.55) !important;
+    box-shadow:
+        0 0 0 .15rem rgba(248,113,113,.16),
+        0 1rem 2.35rem rgba(0,0,0,.34) !important;
+}
+
+.ai-flow-success-banner {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(21,128,61,.36));
+    border: 1px solid rgba(134,239,172,.38);
+    box-shadow: 0 .85rem 1.8rem rgba(0,0,0,.22);
+}
+
+.ai-flow-success-icon {
+    width: 2.45rem;
+    height: 2.45rem;
+    min-width: 2.45rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    color: #052e16;
+    background: #86efac;
+    font-weight: 900;
+    font-size: 1.25rem;
+}
+
+.ai-flow-success-title {
+    color: #dcfce7;
+    font-weight: 900;
+}
+
+.ai-flow-success-subtitle {
+    color: #bbf7d0;
+    font-size: .88rem;
+}
+
+.ai-import-next-btn {
+    font-weight: 900;
+    box-shadow: 0 .65rem 1.35rem rgba(22,163,74,.24);
+}
