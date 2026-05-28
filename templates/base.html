@@ -54,13 +54,25 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link position-relative" href="{{ url_for('ai_import_upload') }}">
-                AI Import
-                {% if pending_import_count %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">
-                        {{ pending_import_count }}
+            <a class="nav-link position-relative {% if ai_import_action_count %}text-info fw-bold{% endif %}" href="{{ url_for('ai_import_review') }}">
+                AI Review
+                {% if ai_import_action_count %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ai-nav-badge">
+                        {{ ai_import_action_count }}
                     </span>
                 {% endif %}
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('ai_import_upload') }}">
+                AI Upload
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('mobile_capture') }}">
+                Mobile Capture
             </a>
         </li>
 
@@ -81,10 +93,6 @@
 
     </ul>
 </div>
-
-
-            </ul>
-        </div>
     </div>
 </nav>
 

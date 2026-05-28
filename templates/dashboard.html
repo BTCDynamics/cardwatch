@@ -50,10 +50,13 @@
         <p class="text-muted mb-0">Current operational snapshot: active/available inventory, today's sales, fulfillment, personal collection, and grading queue.</p>
     </div>
     <div class="d-flex flex-wrap gap-2 align-items-center">
-        <a class="btn btn-outline-info position-relative" href="{{ url_for('ai_import_upload') }}">
-            AI Import
-            {% if pending_import_count %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info">{{ pending_import_count }}</span>{% endif %}
+        <a class="btn {% if ai_action_needed_cards %}btn-warning{% else %}btn-outline-info{% endif %} position-relative fw-bold" href="{{ url_for('ai_import_review') }}">
+            Review AI Queue
+            {% if ai_action_needed_cards %}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ai-nav-badge">{{ ai_action_needed_cards }}</span>
+            {% endif %}
         </a>
+        <a class="btn btn-outline-info" href="{{ url_for('mobile_capture') }}">Mobile Capture</a>
         <a class="btn btn-outline-light" href="{{ url_for('rapid_entry') }}">Rapid Entry</a>
         <a class="btn btn-primary position-relative" href="{{ url_for('add_card') }}">Add Card</a>
         <a class="btn btn-outline-secondary" href="{{ url_for('cards') }}">View Inventory</a>
@@ -130,6 +133,58 @@
     </div>
 
 </div>
+
+{% if ai_action_needed_cards and ai_action_needed_cards > 0 %}
+<div class="card page-card ai-dashboard-panel mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+            <div>
+                <div class="ai-dashboard-eyebrow">Action Needed</div>
+                <h2 class="h4 mb-1">AI Import Queue</h2>
+                <p class="text-muted mb-0">Captured or uploaded card images are waiting for review before they become inventory.</p>
+            </div>
+            <a class="btn btn-warning fw-bold" href="{{ url_for('ai_import_review') }}">
+                Open Review Queue
+                <span class="badge text-bg-dark ms-1">{{ ai_action_needed_cards }}</span>
+            </a>
+        </div>
+
+        <div class="ai-pipeline-grid">
+            <a class="ai-pipeline-step ai-step-capture" href="{{ url_for('mobile_capture') }}">
+                <div class="ai-step-icon">📸</div>
+                <div>
+                    <div class="ai-step-title">Capture</div>
+                    <div class="ai-step-subtitle">Use the phone camera station.</div>
+                </div>
+            </a>
+
+            <a class="ai-pipeline-step {% if ai_pending_review_cards %}ai-step-hot{% else %}ai-step-review{% endif %}" href="{{ url_for('ai_import_review', status='Pending Review') }}">
+                <div class="ai-step-count">{{ ai_pending_review_cards or 0 }}</div>
+                <div>
+                    <div class="ai-step-title">Pending Review</div>
+                    <div class="ai-step-subtitle">AI-filled cards ready to verify.</div>
+                </div>
+            </a>
+
+            <a class="ai-pipeline-step {% if ai_manual_review_cards %}ai-step-alert{% else %}ai-step-review{% endif %}" href="{{ url_for('ai_import_review', status='Needs Manual Review') }}">
+                <div class="ai-step-count">{{ ai_manual_review_cards or 0 }}</div>
+                <div>
+                    <div class="ai-step-title">Manual Review</div>
+                    <div class="ai-step-subtitle">Captured images needing correction.</div>
+                </div>
+            </a>
+
+            <a class="ai-pipeline-step ai-step-imported" href="{{ url_for('ai_import_review', status='Imported') }}">
+                <div class="ai-step-count">{{ ai_imported_cards or 0 }}</div>
+                <div>
+                    <div class="ai-step-title">Imported</div>
+                    <div class="ai-step-subtitle">Already moved to inventory.</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 
 {% set active_dashboard_tab = request.args.get('dashboard_tab', 'sales') %}
@@ -360,7 +415,7 @@
     </div>
 
     <div class="col-lg-4">
-        {% set action_needed_total = (open_workflow_tasks or 0) + (missing_storage_cards or 0) %}
+        {% set action_needed_total = (open_workflow_tasks or 0) + (missing_storage_cards or 0) + (ai_action_needed_cards or 0) %}
         <div class="card page-card h-100">
             <div class="card-header fw-bold d-flex justify-content-between align-items-center">
                 <span>Action Needed</span>
@@ -404,6 +459,14 @@
                             <div class="workflow-action-subtitle">Cards waiting on grading workflow.</div>
                         </div>
                         <span class="workflow-action-count {% if grading_queue_cards and grading_queue_cards > 0 %}workflow-count-alert{% endif %}">{{ grading_queue_cards or 0 }}</span>
+                    </a>
+
+                    <a class="workflow-action-row workflow-ai" href="{{ url_for('ai_import_review') }}">
+                        <div>
+                            <div class="workflow-action-title">AI Cards Waiting Review</div>
+                            <div class="workflow-action-subtitle">Captured/uploaded images that need review before inventory import.</div>
+                        </div>
+                        <span class="workflow-action-count {% if ai_action_needed_cards and ai_action_needed_cards > 0 %}workflow-count-alert{% endif %}">{{ ai_action_needed_cards or 0 }}</span>
                     </a>
 
                     <a class="workflow-action-row workflow-yellow" href="{{ url_for('cards', storage='__missing__') }}">
