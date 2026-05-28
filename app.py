@@ -503,20 +503,32 @@ def get_deal_cart_cards():
 @app.context_processor
 def inject_global_counts():
     pending_import_count = 0
+    manual_review_count = 0
+    ai_import_action_count = 0
 
     try:
         pending_import_count = CardImportStaging.query.filter(
             CardImportStaging.ai_status == "Pending Review"
         ).count()
+
+        manual_review_count = CardImportStaging.query.filter(
+            CardImportStaging.ai_status == "Needs Manual Review"
+        ).count()
+
+        ai_import_action_count = pending_import_count + manual_review_count
     except Exception:
         pending_import_count = 0
+        manual_review_count = 0
+        ai_import_action_count = 0
 
     return {
         "deal_cart_count": sum(
             (card.quantity or 1)
             for card in get_deal_cart_cards()
         ),
-        "pending_import_count": pending_import_count
+        "pending_import_count": pending_import_count,
+        "manual_review_count": manual_review_count,
+        "ai_import_action_count": ai_import_action_count
     }
 
 
@@ -827,6 +839,24 @@ def dashboard():
         if card.card_type == "Graded"
     )
 
+    ai_pending_review_cards = CardImportStaging.query.filter(
+        CardImportStaging.ai_status == "Pending Review"
+    ).count()
+
+    ai_manual_review_cards = CardImportStaging.query.filter(
+        CardImportStaging.ai_status == "Needs Manual Review"
+    ).count()
+
+    ai_imported_cards = CardImportStaging.query.filter(
+        CardImportStaging.ai_status == "Imported"
+    ).count()
+
+    ai_rejected_cards = CardImportStaging.query.filter(
+        CardImportStaging.ai_status == "Rejected"
+    ).count()
+
+    ai_action_needed_cards = ai_pending_review_cards + ai_manual_review_cards
+
     return render_template(
         "dashboard.html",
         today=today,
@@ -876,7 +906,12 @@ def dashboard():
         sales_summary_label=recent_sales_label,
         sales_summary_range=recent_sales_range,
         sales_summary_start_date=recent_sales_start_date,
-        deal_cart_count=get_deal_cart_quantity()
+        deal_cart_count=get_deal_cart_quantity(),
+        ai_pending_review_cards=ai_pending_review_cards,
+        ai_manual_review_cards=ai_manual_review_cards,
+        ai_imported_cards=ai_imported_cards,
+        ai_rejected_cards=ai_rejected_cards,
+        ai_action_needed_cards=ai_action_needed_cards
     )
 
 @app.route("/storage")
