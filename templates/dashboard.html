@@ -50,13 +50,7 @@
         <p class="text-muted mb-0">Current operational snapshot: active/available inventory, today's sales, fulfillment, personal collection, and grading queue.</p>
     </div>
     <div class="d-flex flex-wrap gap-2 align-items-center">
-        <a class="btn {% if ai_action_needed_cards %}btn-warning{% else %}btn-outline-info{% endif %} position-relative fw-bold" href="{{ url_for('ai_import_review') }}">
-            Review AI Queue
-            {% if ai_action_needed_cards %}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ai-nav-badge">{{ ai_action_needed_cards }}</span>
-            {% endif %}
-        </a>
-        <a class="btn btn-outline-info" href="{{ url_for('mobile_capture') }}">Mobile Capture</a>
+        
         <div class="mobile-capture-mini">
             <div class="mobile-capture-mini-text">
                 <div class="mobile-capture-mini-title">Mobile Card Capture</div>
