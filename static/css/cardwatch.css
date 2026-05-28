@@ -1905,7 +1905,7 @@ textarea.form-control {
 }
 
 .mobile-capture-mini-qr:hover {
-    transform: scale(3);
+    transform: scale(4);
     z-index: 999;
     box-shadow: 0 1.25rem 2.5rem rgba(0,0,0,.45);
 }
