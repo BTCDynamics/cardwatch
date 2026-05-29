@@ -31,6 +31,34 @@
     background-color: #111827 !important;
     border-color: rgba(96, 165, 250, .65) !important;
 }
+
+.rapid-acquisition-note {
+    margin-top: .5rem;
+    padding: .65rem .8rem;
+    border-radius: .75rem;
+    font-size: .84rem;
+    font-weight: 650;
+}
+
+.rapid-acquisition-note.existing {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+
+.rapid-acquisition-note.new {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.cw-form-compact .form-control:disabled,
+.cw-form-compact .form-select:disabled {
+    background-color: #d1d5db !important;
+    color: #374151 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+}
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4 cw-page-title">
@@ -47,7 +75,7 @@
 <form method="POST" action="{{ url_for('rapid_entry') }}" class="card page-card cw-form-compact rapid-entry-form">
     <div class="card-body">
         <div class="alert alert-info mb-3">
-            <strong>Rapid Entry Tip:</strong> Use <em>Save & Add Another</em> to keep Sport, Year, Brand, Set, Type, Storage, Status, and Purchase Date filled in for the next card.
+            <strong>Rapid Entry Tip:</strong> Use <em>Save & Add Another</em> to keep Sport, Year, Brand, Set, Type, Storage, Status, and acquisition details filled in for the next card.
         </div>
 
         <p class="text-muted"><strong>Card Code:</strong> Auto-generated when saved</p>
@@ -164,7 +192,7 @@
             </div>
 
             <div class="col-7 col-md-auto cw-field-sm">
-                <label class="form-label">Purchase Price</label>
+                <label class="form-label">Cost Basis</label>
                 <input class="form-control cw-input-sm" type="number" step="0.01" name="purchase_price">
             </div>
 
@@ -178,14 +206,9 @@
                 <input class="form-control cw-input-sm" type="number" step="0.01" name="asking_price">
             </div>
 
-            <div class="col-6 col-md-auto cw-field-date">
-                <label class="form-label">Purchase Date</label>
-                <input class="form-control" type="date" name="purchase_date" value="{{ request.args.get('purchase_date', '') }}">
-            </div>
-
             <div class="col-6 col-md-auto cw-field-select-md">
                 <label class="form-label">Acquisition Source</label>
-                <select class="form-select" name="acquisition_source">
+                <select class="form-select" name="acquisition_source" id="rapidAcquisitionSource">
                     {% for source in ["Existing Inventory", "Cash Purchase", "Trade-In", "Bulk Collection", "Pack Pull", "Personal Collection", "Other"] %}
                         <option value="{{ source }}" {% if request.args.get('acquisition_source', 'Existing Inventory') == source %}selected{% endif %}>{{ source }}</option>
                     {% endfor %}
@@ -194,17 +217,27 @@
 
             <div class="col-6 col-md-auto cw-field-date">
                 <label class="form-label">Acquisition Date</label>
-                <input class="form-control" type="date" name="acquisition_date" value="{{ request.args.get('acquisition_date', request.args.get('purchase_date', '')) }}">
+                <input class="form-control" type="date" name="acquisition_date" id="rapidAcquisitionDate" value="{{ request.args.get('acquisition_date', '') }}">
+                <input type="hidden" name="purchase_date" id="rapidPurchaseDate" value="{{ request.args.get('purchase_date', '') }}">
             </div>
 
             <div class="col-12 col-md-auto cw-field-md">
-                <label class="form-label">Acquisition Event</label>
-                <input class="form-control" type="text" name="acquisition_event" placeholder="Macon Card Show, Facebook, eBay..." value="{{ request.args.get('acquisition_event', '') }}">
+                <label class="form-label">Acquisition Event / Location</label>
+                <input class="form-control" type="text" name="acquisition_event" id="rapidAcquisitionEvent" placeholder="Macon Card Show, Facebook, eBay..." value="{{ request.args.get('acquisition_event', '') }}">
+            </div>
+
+            <div class="col-12">
+                <div class="rapid-acquisition-note existing" id="rapidExistingInventoryNote">
+                    Existing Inventory means the card was already owned before being entered into CardDesk. It will not count as a new dashboard acquisition.
+                </div>
+                <div class="rapid-acquisition-note new" id="rapidNewAcquisitionNote" style="display: none;">
+                    This card will count as a new acquisition when Acquisition Date falls inside the dashboard range.
+                </div>
             </div>
 
             <div class="col-12">
                 <div class="alert alert-info mb-0 small">
-                    Rapid Entry can save new cards as <strong>Active</strong>, <strong>Holding</strong>, or <strong>Sold</strong>. Use <strong>Force new record</strong> when you want this acquisition tracked as its own record instead of increasing an older card quantity.
+                    Rapid Entry can save cards as <strong>Active</strong>, <strong>Holding</strong>, or <strong>Sold</strong>. Use <strong>Force new record</strong> when you want a new acquisition tracked as its own record instead of increasing an older card quantity.
                 </div>
             </div>
         </div>
@@ -287,5 +320,64 @@ function toggleRapidCardTypeFields() {
 
 document.querySelector('[name="card_type"]').addEventListener("change", toggleRapidCardTypeFields);
 toggleRapidCardTypeFields();
+
+function toggleRapidAcquisitionFields() {
+    const sourceField = document.getElementById("rapidAcquisitionSource");
+    const dateField = document.getElementById("rapidAcquisitionDate");
+    const eventField = document.getElementById("rapidAcquisitionEvent");
+    const purchaseDateField = document.getElementById("rapidPurchaseDate");
+    const existingNote = document.getElementById("rapidExistingInventoryNote");
+    const newNote = document.getElementById("rapidNewAcquisitionNote");
+
+    if (!sourceField || !dateField) {
+        return;
+    }
+
+    const isExisting = sourceField.value === "Existing Inventory";
+
+    dateField.disabled = isExisting;
+    if (eventField) {
+        eventField.disabled = isExisting;
+    }
+
+    if (isExisting) {
+        dateField.value = "";
+        if (eventField) {
+            eventField.value = "";
+        }
+        if (purchaseDateField) {
+            purchaseDateField.value = "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "block";
+        }
+        if (newNote) {
+            newNote.style.display = "none";
+        }
+    } else {
+        if (purchaseDateField) {
+            purchaseDateField.value = dateField.value || "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "none";
+        }
+        if (newNote) {
+            newNote.style.display = "block";
+        }
+    }
+}
+
+const rapidAcquisitionSource = document.getElementById("rapidAcquisitionSource");
+const rapidAcquisitionDate = document.getElementById("rapidAcquisitionDate");
+
+if (rapidAcquisitionSource) {
+    rapidAcquisitionSource.addEventListener("change", toggleRapidAcquisitionFields);
+}
+if (rapidAcquisitionDate) {
+    rapidAcquisitionDate.addEventListener("change", toggleRapidAcquisitionFields);
+}
+
+toggleRapidAcquisitionFields();
+
 </script>
 {% endblock %}

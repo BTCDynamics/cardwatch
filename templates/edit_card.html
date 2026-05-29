@@ -16,6 +16,34 @@
     background: linear-gradient(145deg, #253246, #2c3a50) !important;
     border-color: rgba(96, 165, 250, .45) !important;
 }
+
+.acquisition-note {
+    margin-top: .5rem;
+    padding: .65rem .8rem;
+    border-radius: .75rem;
+    font-size: .84rem;
+    font-weight: 650;
+}
+
+.acquisition-note.existing {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+
+.acquisition-note.new {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.cw-form-compact .form-control:disabled,
+.cw-form-compact .form-select:disabled {
+    background-color: #d1d5db !important;
+    color: #374151 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+}
 </style>
 <div class="d-flex justify-content-between align-items-center mb-4 cw-page-title">
     <div>
@@ -169,7 +197,7 @@
                 <input class="form-control cw-input-xs" type="number" name="quantity" min="1" value="{{ card.quantity or 1 }}">
             </div>
             <div class="col-7 col-md-auto cw-field-sm">
-                <label class="form-label">Purchase Price</label>
+                <label class="form-label">Cost Basis</label>
                 <input class="form-control cw-input-sm" type="number" step="0.01" name="purchase_price" value="{{ card.purchase_price or '' }}">
             </div>
             <div class="col-7 col-md-auto cw-field-sm">
@@ -180,25 +208,32 @@
                 <label class="form-label">Asking Price</label>
                 <input class="form-control cw-input-sm" type="number" step="0.01" name="asking_price" value="{{ card.asking_price or '' }}">
             </div>
-            <div class="col-6 col-md-auto cw-field-date">
-                <label class="form-label">Purchase Date</label>
-                <input class="form-control" type="date" name="purchase_date" value="{{ card.purchase_date or '' }}">
-            </div>
             <div class="col-6 col-md-auto cw-field-select-md">
                 <label class="form-label">Acquisition Source</label>
-                <select class="form-select" name="acquisition_source">
+                <select class="form-select" name="acquisition_source" id="acquisition_source">
                     {% for source in ["Existing Inventory", "Cash Purchase", "Trade-In", "Bulk Collection", "Pack Pull", "Personal Collection", "Other"] %}
                         <option value="{{ source }}" {% if (card.acquisition_source or "Existing Inventory") == source %}selected{% endif %}>{{ source }}</option>
                     {% endfor %}
                 </select>
+                <div class="small text-muted mt-1">Existing Inventory will not count as a new dashboard acquisition.</div>
             </div>
             <div class="col-6 col-md-auto cw-field-date">
                 <label class="form-label">Acquisition Date</label>
-                <input class="form-control" type="date" name="acquisition_date" value="{{ card.acquisition_date or card.purchase_date or '' }}">
+                <input class="form-control" type="date" name="acquisition_date" id="acquisition_date" value="{{ card.acquisition_date or '' }}">
+                <div class="small text-muted mt-1">Used for Acquired Today / 3D / 7D / 30D.</div>
             </div>
             <div class="col-12 col-md-auto cw-field-md">
                 <label class="form-label">Acquisition Event</label>
-                <input class="form-control" type="text" name="acquisition_event" value="{{ card.acquisition_event or '' }}" placeholder="Macon Card Show, Facebook, eBay...">
+                <input class="form-control" type="text" name="acquisition_event" id="acquisition_event" value="{{ card.acquisition_event or '' }}" placeholder="Macon Card Show, Facebook, eBay...">
+            </div>
+            <input type="hidden" name="purchase_date" id="purchase_date" value="{{ card.purchase_date or '' }}">
+            <div class="col-12">
+                <div class="acquisition-note existing" id="existing_inventory_note">
+                    This card is marked as Existing Inventory, so it will not appear in dashboard acquisition counts.
+                </div>
+                <div class="acquisition-note new" id="new_acquisition_note" style="display: none;">
+                    This card will count as a new acquisition when Acquisition Date is inside the selected dashboard range.
+                </div>
             </div>
             <div class="col-7 col-md-auto cw-field-sm">
                 <label class="form-label">Sold Price</label>
@@ -278,5 +313,60 @@ const collectionTypeField = document.querySelector('[name="collection_type"]');
 if (collectionTypeField) {
     collectionTypeField.addEventListener("change", syncStatusWithCollectionType);
 }
+
+function toggleAcquisitionFields() {
+    const sourceField = document.getElementById("acquisition_source");
+    const dateField = document.getElementById("acquisition_date");
+    const eventField = document.getElementById("acquisition_event");
+    const hiddenPurchaseDate = document.getElementById("purchase_date");
+    const existingNote = document.getElementById("existing_inventory_note");
+    const newNote = document.getElementById("new_acquisition_note");
+
+    if (!sourceField || !dateField) {
+        return;
+    }
+
+    const isExisting = sourceField.value === "Existing Inventory";
+
+    dateField.disabled = isExisting;
+    if (eventField) {
+        eventField.disabled = isExisting;
+    }
+
+    if (isExisting) {
+        dateField.value = "";
+        if (hiddenPurchaseDate) {
+            hiddenPurchaseDate.value = "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "block";
+        }
+        if (newNote) {
+            newNote.style.display = "none";
+        }
+    } else {
+        if (hiddenPurchaseDate) {
+            hiddenPurchaseDate.value = dateField.value || "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "none";
+        }
+        if (newNote) {
+            newNote.style.display = "block";
+        }
+    }
+}
+
+const acquisitionSourceField = document.getElementById("acquisition_source");
+const acquisitionDateField = document.getElementById("acquisition_date");
+
+if (acquisitionSourceField) {
+    acquisitionSourceField.addEventListener("change", toggleAcquisitionFields);
+}
+if (acquisitionDateField) {
+    acquisitionDateField.addEventListener("change", toggleAcquisitionFields);
+}
+
+toggleAcquisitionFields();
 </script>
 {% endblock %}

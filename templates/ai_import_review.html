@@ -10,9 +10,107 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+
+<script>
+function toggleAiReviewAcquisitionFieldsForId(stagingId) {
+    const sourceField = document.querySelector(`.ai-review-acquisition-source[data-staging-id="${stagingId}"]`);
+    const dateField = document.querySelector(`.ai-review-acquisition-date[data-staging-id="${stagingId}"]`);
+    const eventField = document.querySelector(`.ai-review-acquisition-event[data-staging-id="${stagingId}"]`);
+    const purchaseDateField = document.querySelector(`.ai-review-purchase-date[data-staging-id="${stagingId}"]`);
+    const existingNote = document.querySelector(`.ai-review-existing-note[data-staging-id="${stagingId}"]`);
+    const newNote = document.querySelector(`.ai-review-new-note[data-staging-id="${stagingId}"]`);
+
+    if (!sourceField || !dateField) {
+        return;
+    }
+
+    const isExisting = sourceField.value === "Existing Inventory";
+
+    dateField.disabled = isExisting;
+    if (eventField) {
+        eventField.disabled = isExisting;
+    }
+
+    if (isExisting) {
+        dateField.value = "";
+        if (eventField) {
+            eventField.value = "";
+        }
+        if (purchaseDateField) {
+            purchaseDateField.value = "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "block";
+        }
+        if (newNote) {
+            newNote.style.display = "none";
+        }
+    } else {
+        if (purchaseDateField) {
+            purchaseDateField.value = dateField.value || "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "none";
+        }
+        if (newNote) {
+            newNote.style.display = "block";
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".ai-review-acquisition-source").forEach(function (sourceField) {
+        const stagingId = sourceField.dataset.stagingId;
+
+        sourceField.addEventListener("change", function () {
+            toggleAiReviewAcquisitionFieldsForId(stagingId);
+        });
+
+        toggleAiReviewAcquisitionFieldsForId(stagingId);
+    });
+
+    document.querySelectorAll(".ai-review-acquisition-date").forEach(function (dateField) {
+        const stagingId = dateField.dataset.stagingId;
+
+        dateField.addEventListener("change", function () {
+            toggleAiReviewAcquisitionFieldsForId(stagingId);
+        });
+    });
+});
+</script>
+
 {% endblock %}
 
 {% block content %}
+<style>
+.ai-acquisition-note {
+    margin-top: .45rem;
+    padding: .6rem .75rem;
+    border-radius: .75rem;
+    font-size: .82rem;
+    font-weight: 650;
+}
+
+.ai-acquisition-note.existing {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+
+.ai-acquisition-note.new {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.ai-review-form-panel .form-control:disabled,
+.ai-review-form-panel .form-select:disabled {
+    background-color: #d1d5db !important;
+    color: #374151 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+}
+</style>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
     <div>
         <h1 class="h2 mb-1">AI Import Review</h1>
@@ -178,8 +276,29 @@ document.addEventListener("DOMContentLoaded", function () {
                                         <input class="form-control" type="number" step="0.01" name="asking_price" value="{{ staged.asking_price or '' }}">
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label">Purchase Date</label>
-                                        <input class="form-control" type="date" name="purchase_date" value="{{ staged.purchase_date or '' }}">
+                                        <label class="form-label">Acquisition Source</label>
+                                        <select class="form-select ai-review-acquisition-source" name="acquisition_source" data-staging-id="{{ staged.id }}">
+                                            {% for source in ["Existing Inventory", "Cash Purchase", "Trade-In", "Bulk Collection", "Pack Pull", "Personal Collection", "Other"] %}
+                                                <option value="{{ source }}" {% if (staged.acquisition_source or "Existing Inventory") == source %}selected{% endif %}>{{ source }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Acquisition Date</label>
+                                        <input class="form-control ai-review-acquisition-date" type="date" name="acquisition_date" data-staging-id="{{ staged.id }}" value="{{ staged.acquisition_date or '' }}">
+                                        <input type="hidden" name="purchase_date" class="ai-review-purchase-date" data-staging-id="{{ staged.id }}" value="{{ staged.purchase_date or '' }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Acquisition Event / Location</label>
+                                        <input class="form-control ai-review-acquisition-event" type="text" name="acquisition_event" data-staging-id="{{ staged.id }}" value="{{ staged.acquisition_event or '' }}" placeholder="Macon Card Show, Facebook, eBay...">
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="ai-acquisition-note existing ai-review-existing-note" data-staging-id="{{ staged.id }}">
+                                            Existing Inventory will not count as a new dashboard acquisition.
+                                        </div>
+                                        <div class="ai-acquisition-note new ai-review-new-note" data-staging-id="{{ staged.id }}" style="display: none;">
+                                            This staged card will count as a new acquisition when Acquisition Date is inside the dashboard range.
+                                        </div>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label required-field-label">Collection</label>

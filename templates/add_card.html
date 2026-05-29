@@ -428,6 +428,37 @@
     word-break: break-word;
 }
 
+.cd-acquisition-note {
+    margin-top: .6rem;
+    padding: .75rem .85rem;
+    border-radius: 10px;
+    background: #eef2ff;
+    border: 1px solid rgba(37, 99, 235, .18);
+    color: #1e3a8a;
+    font-size: .86rem;
+    font-weight: 650;
+}
+
+.cd-acquisition-note.existing {
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, .12);
+    color: #334155;
+}
+
+.cd-acquisition-note.new {
+    background: #ecfdf5;
+    border-color: rgba(22, 163, 74, .22);
+    color: #166534;
+}
+
+.add-card-page .form-control:disabled,
+.add-card-page .form-select:disabled {
+    background-color: #d1d5db !important;
+    color: #374151 !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
+}
+
 </style>
 
 <div class="add-card-page">
@@ -563,8 +594,9 @@
                             <input class="form-control" type="number" name="quantity" min="1" value="1">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Purchase Price</label>
+                            <label class="form-label">Cost Basis</label>
                             <input class="form-control" type="number" step="0.01" name="purchase_price" placeholder="0.00" value="{{ clone_source.purchase_price if clone_source and clone_source.purchase_price else '' }}">
+                            <div class="cd-small-help mt-1">What you paid or have into the card.</div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Comp Value</label>
@@ -583,27 +615,39 @@
                                 <option value="Grading Queue" {% if clone_source and clone_source.collection_type == "Grading Queue" %}selected{% endif %}>Grading Queue</option>
                             </select>
                         </div>
-                        <div class="col-lg-4 col-md-6">
-                            <label class="form-label">Purchase Date</label>
-                            <input class="form-control" type="date" name="purchase_date" value="{{ clone_source.purchase_date if clone_source else '' }}">
-                        </div>
+                    </div>
+                </section>
+
+                <section class="cd-section">
+                    <div class="cd-section-title">Acquisition Tracking</div>
+                    <div class="row g-3">
                         <div class="col-lg-4 col-md-6">
                             <label class="form-label">Acquisition Source</label>
-                            <select class="form-select" name="acquisition_source">
+                            <select class="form-select" name="acquisition_source" id="acquisition_source">
                                 {% for source in ["Existing Inventory", "Cash Purchase", "Trade-In", "Bulk Collection", "Pack Pull", "Personal Collection", "Other"] %}
                                     <option value="{{ source }}" {% if (clone_source and (clone_source.acquisition_source or "Existing Inventory") == source) or (not clone_source and source == "Existing Inventory") %}selected{% endif %}>{{ source }}</option>
                                 {% endfor %}
                             </select>
                             <div class="cd-small-help mt-1">Use Existing Inventory for cards you already owned before entering them.</div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-4 col-md-6" id="acquisition_date_wrap">
                             <label class="form-label">Acquisition Date</label>
-                            <input class="form-control" type="date" name="acquisition_date" value="{{ clone_source.acquisition_date if clone_source and clone_source.acquisition_date else (clone_source.purchase_date if clone_source else '') }}">
+                            <input class="form-control" type="date" name="acquisition_date" id="acquisition_date" value="{{ clone_source.acquisition_date if clone_source and clone_source.acquisition_date else '' }}">
+                            <div class="cd-small-help mt-1">Used for dashboard Acquired Today / 3D / 7D / 30D totals.</div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-4 col-md-6" id="acquisition_event_wrap">
                             <label class="form-label">Acquisition Event / Location</label>
-                            <input class="form-control" type="text" name="acquisition_event" placeholder="Macon Card Show, Facebook, eBay..." value="{{ clone_source.acquisition_event if clone_source else '' }}">
+                            <input class="form-control" type="text" name="acquisition_event" id="acquisition_event" placeholder="Macon Card Show, Facebook, eBay..." value="{{ clone_source.acquisition_event if clone_source else '' }}">
                         </div>
+                    </div>
+
+                    <input type="hidden" name="purchase_date" id="purchase_date" value="{{ clone_source.purchase_date if clone_source else '' }}">
+
+                    <div class="cd-acquisition-note existing" id="existing_inventory_note">
+                        Existing Inventory means this card was already owned before being entered into CardDesk. It will not count as a new dashboard acquisition.
+                    </div>
+                    <div class="cd-acquisition-note new" id="new_acquisition_note" style="display: none;">
+                        This source counts as a new acquisition when Acquisition Date falls inside the dashboard range.
                     </div>
                 </section>
 
@@ -675,7 +719,8 @@
                         <li>Use exact set names for better tracking.</li>
                         <li>Mark Hall of Famer and Rookie Card when applicable.</li>
                         <li>Select Raw or Graded to show relevant fields.</li>
-                        <li>New cards are saved as Active by default.</li>
+                        <li>Existing Inventory will not count as a new dashboard acquisition.</li>
+                        <li>Use Acquisition Date only for new purchases, trades, pack pulls, or bulk collections.</li>
                     </ul>
                 </div>
             </div>
@@ -749,6 +794,61 @@ document.querySelectorAll('[name="card_type_choice"]').forEach(input => {
 });
 
 toggleCardTypeFields();
+
+function toggleAcquisitionFields() {
+    const sourceField = document.getElementById("acquisition_source");
+    const dateField = document.getElementById("acquisition_date");
+    const eventField = document.getElementById("acquisition_event");
+    const hiddenPurchaseDate = document.getElementById("purchase_date");
+    const existingNote = document.getElementById("existing_inventory_note");
+    const newNote = document.getElementById("new_acquisition_note");
+
+    if (!sourceField || !dateField) {
+        return;
+    }
+
+    const isExisting = sourceField.value === "Existing Inventory";
+
+    dateField.disabled = isExisting;
+    if (eventField) {
+        eventField.disabled = isExisting;
+    }
+
+    if (isExisting) {
+        dateField.value = "";
+        if (hiddenPurchaseDate) {
+            hiddenPurchaseDate.value = "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "block";
+        }
+        if (newNote) {
+            newNote.style.display = "none";
+        }
+    } else {
+        if (hiddenPurchaseDate) {
+            hiddenPurchaseDate.value = dateField.value || "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "none";
+        }
+        if (newNote) {
+            newNote.style.display = "block";
+        }
+    }
+}
+
+const acquisitionSourceField = document.getElementById("acquisition_source");
+const acquisitionDateField = document.getElementById("acquisition_date");
+
+if (acquisitionSourceField) {
+    acquisitionSourceField.addEventListener("change", toggleAcquisitionFields);
+}
+if (acquisitionDateField) {
+    acquisitionDateField.addEventListener("change", toggleAcquisitionFields);
+}
+
+toggleAcquisitionFields();
 
 const cardImageInput = document.getElementById("card_image_input");
 const previewEmpty = document.getElementById("card-preview-empty");
