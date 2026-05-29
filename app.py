@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import base64
 import urllib.error
@@ -62,7 +63,8 @@ def ensure_upload_folder():
             destination_path = os.path.join(persistent_upload_folder, filename)
 
             if os.path.isfile(source_path) and not os.path.exists(destination_path):
-                os.replace(source_path, destination_path)
+                shutil.copy2(source_path, destination_path)
+                os.remove(source_path)
 
         try:
             os.rmdir(static_upload_folder)
