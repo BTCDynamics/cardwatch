@@ -216,7 +216,27 @@ def acquisition_value(value):
 
 
 def acquisition_date_value(form_data):
-    return form_data.get("acquisition_date") or form_data.get("purchase_date") or None
+    """Return an acquisition date only for true acquisition sources.
+
+    Existing Inventory means the card was already owned before it was entered
+    into CardDesk, so it should not appear in dashboard acquisition counts.
+    """
+    source = acquisition_value(form_data.get("acquisition_source"))
+
+    if source == "Existing Inventory":
+        return None
+
+    return form_data.get("acquisition_date") or None
+
+
+def purchase_date_value(form_data):
+    """Keep purchase_date for compatibility without treating entry date as acquisition date."""
+    source = acquisition_value(form_data.get("acquisition_source"))
+
+    if source == "Existing Inventory":
+        return form_data.get("purchase_date") or None
+
+    return form_data.get("purchase_date") or form_data.get("acquisition_date") or None
 
 
 def is_dashboard_acquisition(card):
@@ -888,8 +908,8 @@ def dashboard():
         if card.collection_type == "Inventory"
         and card.status == "Active"
         and is_dashboard_acquisition(card)
-        and parse_card_date(getattr(card, "acquisition_date", None) or card.purchase_date)
-        and parse_card_date(getattr(card, "acquisition_date", None) or card.purchase_date) >= purchase_summary_start_date_value
+        and parse_card_date(getattr(card, "acquisition_date", None))
+        and parse_card_date(getattr(card, "acquisition_date", None)) >= purchase_summary_start_date_value
     ]
 
     cards_bought_in_range = sum(
@@ -1589,7 +1609,7 @@ def edit_card(card_id):
         card.sold_price = request.form.get("sold_price") or None
         card.sold_date = request.form.get("sold_date")
         card.sales_platform = clean_value(request.form.get("sales_platform"))
-        card.purchase_date = request.form.get("purchase_date")
+        card.purchase_date = purchase_date_value(request.form)
         card.acquisition_source = acquisition_value(request.form.get("acquisition_source"))
         card.acquisition_date = acquisition_date_value(request.form)
         card.acquisition_event = clean_value(request.form.get("acquisition_event"))
@@ -1758,7 +1778,7 @@ def rapid_entry():
                 sold_price=request.form.get("sold_price") or None,
                 sold_date=request.form.get("sold_date"),
                 sales_platform=clean_value(request.form.get("sales_platform")),
-                purchase_date=request.form.get("purchase_date"),
+                purchase_date=purchase_date_value(request.form),
                 acquisition_source=acquisition_value(request.form.get("acquisition_source")),
                 acquisition_date=acquisition_date_value(request.form),
                 acquisition_event=clean_value(request.form.get("acquisition_event")),
@@ -1787,9 +1807,9 @@ def rapid_entry():
             "storage_location": request.form.get("storage_location") or "",
             "collection_type": collection_type or "Inventory",
             "status": request.form.get("status") or "Active",
-            "purchase_date": request.form.get("purchase_date") or "",
+            "purchase_date": purchase_date_value(request.form) or "",
             "acquisition_source": request.form.get("acquisition_source") or "Existing Inventory",
-            "acquisition_date": request.form.get("acquisition_date") or request.form.get("purchase_date") or "",
+            "acquisition_date": acquisition_date_value(request.form) or "",
             "acquisition_event": request.form.get("acquisition_event") or ""
         }
 
@@ -1908,7 +1928,7 @@ def add_card():
             sold_price=request.form.get("sold_price") or None,
             sold_date=request.form.get("sold_date"),
             sales_platform=clean_value(request.form.get("sales_platform")),
-            purchase_date=request.form.get("purchase_date"),
+            purchase_date=purchase_date_value(request.form),
             acquisition_source=acquisition_value(request.form.get("acquisition_source")),
             acquisition_date=acquisition_date_value(request.form),
             acquisition_event=clean_value(request.form.get("acquisition_event")),
@@ -1962,7 +1982,7 @@ def ai_import_upload():
                 sport=request.form.get("default_sport") or "Baseball",
                 collection_type=request.form.get("collection_type") or "Inventory",
                 status=request.form.get("status") or "Active",
-                purchase_date=request.form.get("purchase_date"),
+                purchase_date=purchase_date_value(request.form),
                 acquisition_source=acquisition_value(request.form.get("acquisition_source")),
                 acquisition_date=acquisition_date_value(request.form),
                 acquisition_event=clean_value(request.form.get("acquisition_event")),
@@ -2093,7 +2113,7 @@ def update_staged_import(staging_id):
     staged_card.purchase_price = request.form.get("purchase_price") or None
     staged_card.estimated_value = request.form.get("estimated_value") or None
     staged_card.asking_price = request.form.get("asking_price") or None
-    staged_card.purchase_date = request.form.get("purchase_date")
+    staged_card.purchase_date = purchase_date_value(request.form)
     staged_card.acquisition_source = acquisition_value(request.form.get("acquisition_source"))
     staged_card.acquisition_date = acquisition_date_value(request.form)
     staged_card.acquisition_event = clean_value(request.form.get("acquisition_event"))
@@ -2132,7 +2152,7 @@ def apply_staged_import_form(staged_card, form_data):
     staged_card.purchase_price = form_data.get("purchase_price") or None
     staged_card.estimated_value = form_data.get("estimated_value") or None
     staged_card.asking_price = form_data.get("asking_price") or None
-    staged_card.purchase_date = form_data.get("purchase_date")
+    staged_card.purchase_date = purchase_date_value(form_data)
     staged_card.acquisition_source = acquisition_value(form_data.get("acquisition_source"))
     staged_card.acquisition_date = acquisition_date_value(form_data)
     staged_card.acquisition_event = clean_value(form_data.get("acquisition_event"))
@@ -2277,7 +2297,7 @@ def import_staged_card(staging_id):
         asking_price=staged_card.asking_price,
         purchase_date=staged_card.purchase_date,
         acquisition_source=staged_card.acquisition_source or "Existing Inventory",
-        acquisition_date=staged_card.acquisition_date or staged_card.purchase_date,
+        acquisition_date=staged_card.acquisition_date,
         acquisition_event=staged_card.acquisition_event,
         storage_location=staged_card.storage_location,
         collection_type=staged_card.collection_type or "Inventory",
@@ -2356,7 +2376,7 @@ def mobile_capture_upload():
         sport=request.form.get("default_sport") or "Baseball",
         collection_type=request.form.get("collection_type") or "Inventory",
         status=request.form.get("status") or "Active",
-        purchase_date=request.form.get("purchase_date"),
+        purchase_date=purchase_date_value(request.form),
         storage_location=clean_value(request.form.get("storage_location")),
         quantity=1,
         ai_status="Pending Review",
