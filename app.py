@@ -751,6 +751,8 @@ def call_cardsight_for_image(image_filename):
         headers={
             "X-API-Key": CARDSIGHT_API_KEY,
             "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "User-Agent": "CardDesk/1.0 (+https://carddesk.app)",
+            "Accept": "application/json",
         },
         method="POST",
     )
