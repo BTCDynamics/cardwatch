@@ -1,6 +1,85 @@
 {% extends "base.html" %}
 
-{% block title %}AI Import Review | CardDesk{% endblock %}
+{% block title %}AI Import Review | CardDesk<script id="ai-review-auto-scroll">
+document.addEventListener("DOMContentLoaded", function () {
+    const focusedCard = document.querySelector(".ai-review-card-focus");
+
+    if (focusedCard) {
+        focusedCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+});
+</script>
+
+
+<script>
+function toggleAiReviewAcquisitionFieldsForId(stagingId) {
+    const sourceField = document.querySelector(`.ai-review-acquisition-source[data-staging-id="${stagingId}"]`);
+    const dateField = document.querySelector(`.ai-review-acquisition-date[data-staging-id="${stagingId}"]`);
+    const eventField = document.querySelector(`.ai-review-acquisition-event[data-staging-id="${stagingId}"]`);
+    const purchaseDateField = document.querySelector(`.ai-review-purchase-date[data-staging-id="${stagingId}"]`);
+    const existingNote = document.querySelector(`.ai-review-existing-note[data-staging-id="${stagingId}"]`);
+    const newNote = document.querySelector(`.ai-review-new-note[data-staging-id="${stagingId}"]`);
+
+    if (!sourceField || !dateField) {
+        return;
+    }
+
+    const isExisting = sourceField.value === "Existing Inventory";
+
+    dateField.disabled = isExisting;
+    if (eventField) {
+        eventField.disabled = isExisting;
+    }
+
+    if (isExisting) {
+        dateField.value = "";
+        if (eventField) {
+            eventField.value = "";
+        }
+        if (purchaseDateField) {
+            purchaseDateField.value = "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "block";
+        }
+        if (newNote) {
+            newNote.style.display = "none";
+        }
+    } else {
+        if (purchaseDateField) {
+            purchaseDateField.value = dateField.value || "";
+        }
+        if (existingNote) {
+            existingNote.style.display = "none";
+        }
+        if (newNote) {
+            newNote.style.display = "block";
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".ai-review-acquisition-source").forEach(function (sourceField) {
+        const stagingId = sourceField.dataset.stagingId;
+
+        sourceField.addEventListener("change", function () {
+            toggleAiReviewAcquisitionFieldsForId(stagingId);
+        });
+
+        toggleAiReviewAcquisitionFieldsForId(stagingId);
+    });
+
+    document.querySelectorAll(".ai-review-acquisition-date").forEach(function (dateField) {
+        const stagingId = dateField.dataset.stagingId;
+
+        dateField.addEventListener("change", function () {
+            toggleAiReviewAcquisitionFieldsForId(stagingId);
+        });
+    });
+});
+</script>
+
+{% endblock %}
 
 {% block content %}
 <style>
@@ -87,7 +166,7 @@
                     <div class="ai-review-grid">
                         <div class="ai-review-image-panel">
                             {% if staged.image_filename %}
-                                <img class="ai-review-image" src="/uploads/{{ staged.image_filename }}" alt="AI import image">
+                                <img class="ai-review-image" src="{{ url_for('static', filename='uploads/' ~ staged.image_filename) }}" alt="AI import image">
                             {% else %}
                                 <div class="gallery-placeholder">Image moved to inventory</div>
                             {% endif %}
@@ -303,85 +382,4 @@
         </div>
     </div>
 {% endif %}
-{% endblock %}
-
-{% block scripts %}
-<script id="ai-review-auto-scroll">
-document.addEventListener("DOMContentLoaded", function () {
-    const focusedCard = document.querySelector(".ai-review-card-focus");
-
-    if (focusedCard) {
-        focusedCard.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-});
-</script>
-
-
-<script>
-function toggleAiReviewAcquisitionFieldsForId(stagingId) {
-    const sourceField = document.querySelector(`.ai-review-acquisition-source[data-staging-id="${stagingId}"]`);
-    const dateField = document.querySelector(`.ai-review-acquisition-date[data-staging-id="${stagingId}"]`);
-    const eventField = document.querySelector(`.ai-review-acquisition-event[data-staging-id="${stagingId}"]`);
-    const purchaseDateField = document.querySelector(`.ai-review-purchase-date[data-staging-id="${stagingId}"]`);
-    const existingNote = document.querySelector(`.ai-review-existing-note[data-staging-id="${stagingId}"]`);
-    const newNote = document.querySelector(`.ai-review-new-note[data-staging-id="${stagingId}"]`);
-
-    if (!sourceField || !dateField) {
-        return;
-    }
-
-    const isExisting = sourceField.value === "Existing Inventory";
-
-    dateField.disabled = isExisting;
-    if (eventField) {
-        eventField.disabled = isExisting;
-    }
-
-    if (isExisting) {
-        dateField.value = "";
-        if (eventField) {
-            eventField.value = "";
-        }
-        if (purchaseDateField) {
-            purchaseDateField.value = "";
-        }
-        if (existingNote) {
-            existingNote.style.display = "block";
-        }
-        if (newNote) {
-            newNote.style.display = "none";
-        }
-    } else {
-        if (purchaseDateField) {
-            purchaseDateField.value = dateField.value || "";
-        }
-        if (existingNote) {
-            existingNote.style.display = "none";
-        }
-        if (newNote) {
-            newNote.style.display = "block";
-        }
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".ai-review-acquisition-source").forEach(function (sourceField) {
-        const stagingId = sourceField.dataset.stagingId;
-
-        sourceField.addEventListener("change", function () {
-            toggleAiReviewAcquisitionFieldsForId(stagingId);
-        });
-
-        toggleAiReviewAcquisitionFieldsForId(stagingId);
-    });
-
-    document.querySelectorAll(".ai-review-acquisition-date").forEach(function (dateField) {
-        const stagingId = dateField.dataset.stagingId;
-
-        dateField.addEventListener("change", function () {
-            toggleAiReviewAcquisitionFieldsForId(stagingId);
-        });
-    });
-});
-</script>
 {% endblock %}
