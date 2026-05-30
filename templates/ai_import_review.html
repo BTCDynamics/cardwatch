@@ -110,11 +110,39 @@ document.addEventListener("DOMContentLoaded", function () {
     opacity: 1 !important;
     cursor: not-allowed;
 }
+
+.ai-reference-check {
+    margin-top: 1rem;
+    padding: .9rem;
+    border-radius: .95rem;
+    border: 1px solid rgba(148, 163, 184, .35);
+    background: rgba(15, 23, 42, .04);
+}
+
+.ai-reference-check-title {
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #334155;
+}
+
+.ai-reference-check-query {
+    margin-top: .25rem;
+    margin-bottom: .65rem;
+    font-size: .84rem;
+    color: #64748b;
+    word-break: break-word;
+}
+
+.ai-reference-check .btn {
+    font-weight: 700;
+}
 </style>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
     <div>
         <h1 class="h2 mb-1">AI Import Review</h1>
-        <p class="text-muted mb-0">Confirm Ximilar results before adding cards to your real inventory.</p>
+        <p class="text-muted mb-0">Confirm AI recognition results before adding cards to your real inventory.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-primary" href="{{ url_for('ai_import_upload') }}">Upload More Images</a>
@@ -161,6 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
     <div class="ai-review-list">
         {% for staged in staged_cards %}
             {% set duplicate = duplicate_map.get(staged.id) %}
+            {% set reference_links = reference_links_map.get(staged.id) if reference_links_map is defined else None %}
             <div class="card page-card ai-review-card mb-4 {% if focus_id == staged.id %}ai-review-card-focus{% endif %}" id="staged-{{ staged.id }}">
                 <div class="card-body">
                     <div class="ai-review-grid">
@@ -187,6 +216,19 @@ document.addEventListener("DOMContentLoaded", function () {
                                     Possible duplicate: <strong>{{ duplicate.card_code }}</strong> · {{ duplicate.player_name }}{% if duplicate.year %} · {{ duplicate.year }}{% endif %}
                                 </div>
                             {% endif %}
+                            {% if reference_links and reference_links.query %}
+                                <div class="ai-reference-check">
+                                    <div class="ai-reference-check-title">Reference Check</div>
+                                    <div class="ai-reference-check-query">{{ reference_links.query }}</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a class="btn btn-sm btn-outline-info" href="{{ reference_links.google_images }}" target="_blank" rel="noopener noreferrer">Google Images</a>
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ reference_links.ebay }}" target="_blank" rel="noopener noreferrer">eBay</a>
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ reference_links.comc }}" target="_blank" rel="noopener noreferrer">COMC</a>
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ reference_links.sports_cards_pro }}" target="_blank" rel="noopener noreferrer">SportsCardsPro</a>
+                                    </div>
+                                </div>
+                            {% endif %}
+
                         </div>
 
                         <div class="ai-review-form-panel">
@@ -364,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             {% if staged.raw_response_json %}
                                 <details class="mt-3">
-                                    <summary class="small text-muted">View raw Ximilar response</summary>
+                                    <summary class="small text-muted">View raw AI response</summary>
                                     <pre class="ai-json-box mt-2">{{ staged.raw_response_json }}</pre>
                                 </details>
                             {% endif %}
