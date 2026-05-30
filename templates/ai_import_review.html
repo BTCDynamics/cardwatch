@@ -87,7 +87,7 @@
                     <div class="ai-review-grid">
                         <div class="ai-review-image-panel">
                             {% if staged.image_filename %}
-                                <img class="ai-review-image" src="{{ url_for('uploaded_file', filename=staged.image_filename) }}" alt="AI import image">
+                                <img class="ai-review-image" src="/uploads/{{ staged.image_filename }}" alt="AI import image">
                             {% else %}
                                 <div class="gallery-placeholder">Image moved to inventory</div>
                             {% endif %}
