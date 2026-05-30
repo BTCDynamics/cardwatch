@@ -186,7 +186,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 cw-page-title">
         <div>
             <h1 class="h2 mb-1">Mobile Capture</h1>
-            <p class="text-muted mb-0">Use your phone as a capture station. Save to AI Review for recognition, or save to Image Inbox for manual card entry later.</p>
+            <p class="text-muted mb-0">Use your phone as a capture-only station. Review and import saved cards from your main CardDesk dashboard.</p>
         </div>
     </div>
 
@@ -206,21 +206,6 @@
                 </div>
 
                 <div class="capture-controls">
-                    <div class="mb-3 p-3 rounded" style="background: rgba(15, 23, 42, .55); border: 1px solid rgba(148, 163, 184, .25);">
-                        <div class="text-light fw-bold mb-2">Save Mode</div>
-                        <div class="d-flex flex-wrap gap-3 text-light">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="capture_mode" id="modeAiReview" value="ai_review" checked>
-                                <label class="form-check-label" for="modeAiReview">AI Review Queue</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="capture_mode" id="modeImageInbox" value="image_inbox">
-                                <label class="form-check-label" for="modeImageInbox">Image Inbox Only</label>
-                            </div>
-                        </div>
-                        <div class="text-muted small mt-2" id="modeHelp">AI Review Queue will run recognition and stage the card for import.</div>
-                    </div>
-
                     <div class="row g-2 align-items-center">
                         <div class="col-md-4">
                             <button class="btn btn-primary w-100" id="startCameraBtn" type="button">Start Camera</button>
@@ -229,11 +214,11 @@
                             <button class="btn btn-warning w-100" id="captureBtn" type="button" disabled>Capture Card</button>
                         </div>
                         <div class="col-md-4">
-                            <button class="btn btn-success w-100" id="saveBtn" type="button" disabled>Save to AI Review</button>
+                            <button class="btn btn-success w-100" id="saveBtn" type="button" disabled>Save to Review Queue</button>
                         </div>
                     </div>
                     <div class="capture-status mt-3" id="captureStatus">
-                        Start the camera, center the card, capture, then save it to AI Review or Image Inbox.
+                        Start the camera, center the card, capture, then save it to the Review Queue.
                     </div>
                 </div>
             </div>
@@ -253,7 +238,7 @@
             <div class="capture-tip-card mb-4">
                 <div class="cw-section-label mb-3">Capture Workflow</div>
                 <p class="text-muted small mb-0">
-                    AI Review Queue runs recognition and prepares inventory drafts. Image Inbox saves only the photo so you can manually attach it on the Add Card page later.
+                    Saved cards are added to the AI Review Queue. Use the main CardDesk dashboard on your desktop or tablet to review, edit, and import them into inventory.
                 </p>
             </div>
 
@@ -281,8 +266,6 @@ const saveBtn = document.getElementById("saveBtn");
 const statusBox = document.getElementById("captureStatus");
 const preview = document.getElementById("capturePreview");
 const previewEmpty = document.getElementById("previewEmpty");
-const modeHelp = document.getElementById("modeHelp");
-const captureModeInputs = document.querySelectorAll('[name="capture_mode"]');
 
 let stream = null;
 let lastCapturedBlob = null;
@@ -290,26 +273,6 @@ let lastCapturedBlob = null;
 function setStatus(message) {
     statusBox.textContent = message;
 }
-
-function selectedCaptureMode() {
-    const selected = document.querySelector('[name="capture_mode"]:checked');
-    return selected ? selected.value : "ai_review";
-}
-
-function updateModeHelp() {
-    const mode = selectedCaptureMode();
-
-    if (mode === "image_inbox") {
-        saveBtn.textContent = "Save to Image Inbox";
-        modeHelp.textContent = "Image Inbox saves the photo only. You can attach it later from Add Card.";
-    } else {
-        saveBtn.textContent = "Save to AI Review";
-        modeHelp.textContent = "AI Review Queue will run recognition and stage the card for import.";
-    }
-}
-
-captureModeInputs.forEach(input => input.addEventListener("change", updateModeHelp));
-updateModeHelp();
 
 function playCaptureBeep() {
     try {
@@ -475,7 +438,6 @@ async function saveCapture() {
     const formData = new FormData();
     const filename = `mobile-capture-${Date.now()}.jpg`;
     formData.append("card_image", lastCapturedBlob, filename);
-    formData.append("capture_mode", selectedCaptureMode());
 
     saveBtn.disabled = true;
     setStatus("Saving image to CardDesk...");
@@ -492,11 +454,7 @@ async function saveCapture() {
             throw new Error(result.error || "Upload failed.");
         }
 
-        if (result.mode === "image_inbox") {
-            setStatus("Saved to Image Inbox. You can attach it later from Add Card.");
-        } else {
-            setStatus(`Saved to AI Review Queue: ${result.ai_status || "Pending Review"}. Capture another card when ready.`);
-        }
+        setStatus(`Saved to AI Review Queue: ${result.ai_status || "Pending Review"}. Capture another card when ready.`);
         lastCapturedBlob = null;
     } catch (error) {
         saveBtn.disabled = false;
