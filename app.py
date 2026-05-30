@@ -392,7 +392,7 @@ def rename_image_for_inventory(image_filename, card_like):
 
     year_part = slugify_image_part(getattr(card_like, "year", None))
     player_part = slugify_image_part(getattr(card_like, "player_name", None))
-    product_part = slugify_image_part(getattr(card_like, "set_name", None) or getattr(card_like, "brand", None))
+    product_part = slugify_image_part(getattr(card_like, "brand", None))
     number_part = slugify_image_part(getattr(card_like, "card_number", None))
 
     filename_parts = [part for part in [year_part, player_part, product_part, number_part] if part]
