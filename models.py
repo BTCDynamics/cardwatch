@@ -148,3 +148,18 @@ class CardImportStaging(db.Model):
     imported_card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     imported_at = db.Column(db.DateTime)
+
+
+
+class ImageInbox(db.Model):
+    """Images captured or uploaded into CardDesk before being attached to a card."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    image_filename = db.Column(db.String(200), nullable=False)
+    source_filename = db.Column(db.String(255))
+    source = db.Column(db.String(50), default="Mobile Capture")
+    status = db.Column(db.String(50), default="Available")
+    used_card_id = db.Column(db.Integer, db.ForeignKey("card.id"))
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    used_at = db.Column(db.DateTime)
