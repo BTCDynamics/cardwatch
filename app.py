@@ -206,6 +206,23 @@ with app.app_context():
     ensure_upload_folder()
 
 
+@app.route("/health")
+def health():
+    """Render health check endpoint."""
+    try:
+        upload_folder = app.config["UPLOAD_FOLDER"]
+
+        if not os.path.exists(upload_folder):
+            return {"status": "error", "message": "Upload folder unavailable"}, 500
+
+        db.session.execute(text("SELECT 1"))
+
+        return {"status": "ok"}, 200
+
+    except Exception as error:
+        return {"status": "error", "message": str(error)}, 500
+
+
 def clean_value(value):
     if value:
         return value.strip()
