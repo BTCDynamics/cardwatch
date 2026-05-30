@@ -4,9 +4,9 @@
 
 {% block content %}
 <style>
-/* CardDesk Add Card redesign */
+/* CardDesk Add Card - refined dark theme, consistent with Card Detail */
 .add-card-page {
-    color: #0f172a;
+    color: #e5e7eb;
 }
 
 .add-card-hero {
@@ -15,6 +15,11 @@
     align-items: flex-start;
     gap: 1rem;
     margin-bottom: 1.25rem;
+    padding: 1.15rem 1.25rem;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border: 1px solid rgba(148, 163, 184, .18);
+    box-shadow: 0 .65rem 1.6rem rgba(0, 0, 0, .22);
 }
 
 .add-card-title-wrap {
@@ -26,19 +31,24 @@
 .add-card-icon {
     width: 44px;
     height: 44px;
-    border: 1px solid rgba(15, 23, 42, .14);
+    border: 1px solid rgba(251, 191, 36, .38);
     border-radius: 12px;
     display: grid;
     place-items: center;
-    background: #ffffff;
+    background: linear-gradient(135deg, #fbbf24, #38bdf8);
     color: #0f172a;
     font-size: 1.35rem;
-    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .06);
+    font-weight: 900;
+    box-shadow: 0 0 24px rgba(56, 189, 248, .24);
 }
 
 .add-card-page h1 {
-    color: #0f172a;
-    font-weight: 800;
+    color: #ffffff;
+    font-weight: 900;
+}
+
+.add-card-page .text-muted {
+    color: #94a3b8 !important;
 }
 
 .add-card-shell {
@@ -48,74 +58,156 @@
     align-items: start;
 }
 
+/* Dark panel system */
 .cd-panel {
-    background: #ffffff;
-    border: 1px solid rgba(15, 23, 42, .10);
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border: 1px solid rgba(148, 163, 184, .18);
     border-radius: 14px;
-    box-shadow: 0 .45rem 1.4rem rgba(15, 23, 42, .06);
+    box-shadow: 0 .65rem 1.6rem rgba(0, 0, 0, .22);
+    color: #e5e7eb;
+    overflow: hidden;
+}
+
+.cd-main-panel {
+    position: relative;
 }
 
 .cd-panel-body {
     padding: 1.25rem;
 }
 
+.cd-form-intro {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .55rem;
+    padding: .55rem .75rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, .72);
+    border: 1px solid rgba(148, 163, 184, .16);
+}
+
+.cd-form-intro-label {
+    color: #93c5fd;
+    font-size: .72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.cd-form-intro-value {
+    color: #e5e7eb;
+    font-size: .84rem;
+    font-weight: 800;
+}
+
+/* Section cards: dark only, no white/gray panels */
 .cd-section {
-    border-bottom: 1px solid rgba(15, 23, 42, .10);
-    padding-bottom: 1.05rem;
-    margin-bottom: 1.05rem;
+    position: relative;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, .13);
+    border-radius: 1rem;
+    background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, .12), transparent 34%),
+        rgba(15, 23, 42, .38);
+    margin-bottom: 1rem;
 }
 
 .cd-section:last-of-type {
-    border-bottom: 0;
     margin-bottom: 0;
 }
 
-.cd-section-title {
-    color: #0d47a1;
-    font-weight: 800;
-    font-size: .78rem;
-    letter-spacing: .04em;
+.cd-section-title,
+.cd-sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+
+    font-size: 1.35rem;
+    font-weight: 900;
+    letter-spacing: .08em;
     text-transform: uppercase;
-    margin-bottom: .85rem;
+
+    color: #dbeafe;
+
+    margin-bottom: 1.35rem;
+    padding-bottom: .75rem;
+
+    border-bottom: 2px solid rgba(96,165,250,.22);
 }
 
+.cd-section-title::before,
+.cd-sidebar-title::before {
+    content: "";
+    width: .85rem;
+    height: .85rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #fbbf24, #38bdf8);
+    box-shadow: 0 0 14px rgba(56, 189, 248, .35);
+    flex: 0 0 auto;
+}
+
+/* Forms */
 .add-card-page .form-label {
-    color: #0f172a;
-    font-weight: 700;
+    color: #dbeafe !important;
+    font-weight: 800;
     font-size: .82rem;
     margin-bottom: .35rem;
 }
 
 .add-card-page .form-control,
-.add-card-page .form-select {
-    background-color: #eef2f7;
-    border: 1px solid rgba(15, 23, 42, .16);
-    color: #111827;
+.add-card-page .form-select,
+.add-card-page input.form-control,
+.add-card-page select.form-select,
+.add-card-page textarea.form-control {
+    background-color: rgba(15, 23, 42, .72) !important;
+    border: 1px solid rgba(148, 163, 184, .22) !important;
+    color: #f9fafb !important;
     min-height: 42px;
     border-radius: 9px;
-    font-weight: 500;
+    font-weight: 650;
+    box-shadow: none !important;
 }
 
 .add-card-page .form-control:focus,
-.add-card-page .form-select:focus {
-    background-color: #f8fafc;
-    border-color: #2563eb;
-    color: #0f172a;
-    box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .14);
+.add-card-page .form-select:focus,
+.add-card-page input.form-control:focus,
+.add-card-page select.form-select:focus,
+.add-card-page textarea.form-control:focus {
+    background-color: #0f172a !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 .2rem rgba(96, 165, 250, .18) !important;
 }
 
-.add-card-page .form-control::placeholder {
-    color: #6b7280;
+.add-card-page .form-control::placeholder,
+.add-card-page textarea.form-control::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
 }
 
-.add-card-page textarea.form-control {
-    color: #111827;
+.add-card-page select.form-select option {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
 }
 
-.add-card-page .form-select {
-    color: #111827;
+.add-card-page .form-control:disabled,
+.add-card-page .form-select:disabled {
+    background-color: rgba(55, 65, 81, .82) !important;
+    color: #cbd5e1 !important;
+    border-color: rgba(148, 163, 184, .18) !important;
+    opacity: 1 !important;
+    cursor: not-allowed;
 }
 
+.cd-small-help,
+.cd-preview-file-name,
+.cd-recent-meta {
+    color: #94a3b8 !important;
+    font-size: .82rem;
+}
+
+/* Checkboxes */
 .cd-check-row {
     display: flex;
     flex-wrap: wrap;
@@ -125,14 +217,27 @@
 
 .cd-check-row .form-check-label,
 .cd-inline-check .form-check-label {
-    color: #0f172a;
-    font-weight: 600;
+    color: #e5e7eb !important;
+    font-weight: 750;
 }
 
+.add-card-page .form-check-input {
+    background-color: #0f172a;
+    border-color: rgba(148, 163, 184, .5);
+}
+
+.add-card-page .form-check-input:checked {
+    background-color: #2563eb;
+    border-color: #60a5fa;
+}
+
+/* Raw / Graded selector */
 .cd-type-toggle {
-    display: grid;
-    grid-template-columns: repeat(2, 180px);
-    gap: .65rem;
+    display: inline-grid !important;
+    grid-template-columns: repeat(2, minmax(150px, 1fr)) !important;
+    width: auto !important;
+    max-width: 420px !important;
+    gap: .75rem !important;
     justify-content: start;
 }
 
@@ -148,77 +253,193 @@
 
 .cd-type-option label {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     justify-content: center;
-    gap: .35rem;
-    min-height: 40px;
-    padding: .25rem .75rem;
-    font-size: .9rem;
-    border-radius: 10px;
-    border: 1px solid rgba(15, 23, 42, .18);
-    background: #fbfaf8;
-    color: #0f172a;
-    font-weight: 800;
+    min-height: 64px !important;
+    padding: .72rem .85rem !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(148, 163, 184, .22);
+    background:
+        radial-gradient(circle at top right, rgba(148, 163, 184, .12), transparent 34%),
+        rgba(15, 23, 42, .78);
     cursor: pointer;
     user-select: none;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.cd-type-option label:hover {
+    transform: translateY(-1px);
+    border-color: rgba(96, 165, 250, .48);
 }
 
 .cd-type-option input:checked + label {
-    border-color: #2563eb;
-    background: rgba(37, 99, 235, .08);
-    color: #0d47a1;
-    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, .35);
+    background:
+        radial-gradient(circle at top right, rgba(96, 165, 250, .28), transparent 38%),
+        linear-gradient(145deg, rgba(37, 99, 235, .38), rgba(15, 23, 42, .88));
+    border-color: rgba(96, 165, 250, .75);
+    box-shadow: 0 .45rem 1.25rem rgba(37, 99, 235, .18), inset 0 0 0 1px rgba(191, 219, 254, .15);
 }
 
-.cd-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: .75rem;
-    padding: 1rem 1.25rem;
-    border-top: 1px solid rgba(15, 23, 42, .10);
-    background: rgba(248, 250, 252, .75);
-    border-radius: 0 0 14px 14px;
+.cd-type-main {
+    color: #ffffff;
+    font-size: .9rem;
+    font-weight: 950;
+    letter-spacing: .05em;
 }
 
-.cd-actions-right {
-    display: flex;
-    gap: .75rem;
+.cd-type-sub {
+    color: #94a3b8;
+    font-size: .72rem;
+    font-weight: 800;
 }
 
+.cd-type-option input:checked + label .cd-type-sub {
+    color: #bfdbfe;
+}
+
+#raw-fields,
+#graded-fields,
+.cd-upload-zone,
+.cd-acquisition-note {
+    background: rgba(15, 23, 42, .72);
+    border: 1px solid rgba(148, 163, 184, .16);
+    border-radius: 10px;
+}
+
+#raw-fields,
+#graded-fields {
+    padding: .95rem;
+}
+
+.cd-upload-zone {
+    border-style: dashed;
+    border-color: rgba(96, 165, 250, .35);
+    padding: 1rem;
+}
+
+/* Acquisition notes */
+.cd-acquisition-note {
+    margin-top: .6rem;
+    padding: .75rem .85rem;
+    font-size: .86rem;
+    font-weight: 750;
+}
+
+.cd-acquisition-note.existing {
+    background: rgba(148, 163, 184, .14);
+    border-color: rgba(148, 163, 184, .20);
+    color: #cbd5e1;
+}
+
+.cd-acquisition-note.new {
+    background: rgba(34, 197, 94, .16);
+    border-color: rgba(34, 197, 94, .26);
+    color: #bbf7d0;
+}
+
+/* Sidebar */
 .cd-sidebar {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.cd-sidebar-title {
-    color: #0d47a1;
-    font-weight: 800;
-    font-size: .82rem;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    margin-bottom: .75rem;
+.cd-preview-box {
+    color: #94a3b8;
 }
 
-.cd-preview-box {
-    border: 1px dashed rgba(15, 23, 42, .24);
+.cd-preview-card-shell {
+    display: block;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, .18);
     border-radius: 13px;
-    min-height: 260px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, .86), rgba(31, 41, 55, .92));
+}
+
+.cd-preview-stage {
+    min-height: 300px;
     display: grid;
     place-items: center;
-    text-align: center;
-    background: #fffdf9;
-    color: #64748b;
     padding: 1rem;
+    background:
+        radial-gradient(circle at top, rgba(59, 130, 246, .13), transparent 42%),
+        #0f172a;
+    border-bottom: 1px solid rgba(148, 163, 184, .16);
+    text-align: center;
+}
+
+.cd-preview-empty-state {
+    text-align: center;
 }
 
 .cd-preview-icon {
     font-size: 3rem;
-    opacity: .25;
+    opacity: .45;
     line-height: 1;
     margin-bottom: .7rem;
+    color: #93c5fd;
 }
 
+.add-card-page .text-dark,
+#card-preview-empty .fw-bold {
+    color: #f9fafb !important;
+}
+
+.cd-preview-image {
+    max-width: 100%;
+    max-height: 320px;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 .55rem 1.35rem rgba(0, 0, 0, .35);
+    background: #0f172a;
+}
+
+.cd-preview-summary {
+    padding: .95rem;
+}
+
+.cd-preview-player {
+    color: #ffffff;
+    font-weight: 950;
+    font-size: 1.02rem;
+    line-height: 1.15;
+}
+
+.cd-preview-meta {
+    color: #94a3b8;
+    font-size: .82rem;
+    font-weight: 750;
+    margin-top: .25rem;
+}
+
+.cd-preview-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    margin-top: .7rem;
+}
+
+.cd-preview-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: .28rem .62rem;
+    color: #bfdbfe;
+    background: rgba(37, 99, 235, .22);
+    border: 1px solid rgba(96, 165, 250, .28);
+    font-size: .74rem;
+    font-weight: 900;
+}
+
+.cd-preview-chip-muted {
+    color: #cbd5e1;
+    background: rgba(148, 163, 184, .14);
+    border-color: rgba(148, 163, 184, .18);
+}
+
+/* Tips */
 .cd-tips {
     list-style: none;
     padding: 0;
@@ -226,64 +447,152 @@
 }
 
 .cd-tips li {
-    color: #334155;
+    color: #e5e7eb;
     font-size: .88rem;
     margin-bottom: .6rem;
     display: flex;
     gap: .5rem;
+    padding: .6rem .7rem;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, .72);
+    border: 1px solid rgba(148, 163, 184, .16);
 }
 
 .cd-tips li::before {
     content: "✓";
-    color: #0d47a1;
+    color: #93c5fd;
     font-weight: 900;
 }
 
+/* Recent additions */
 .cd-recent-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     gap: .75rem;
-    padding: .75rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, .08);
+    padding: .75rem;
+    margin-bottom: .55rem;
+    border-radius: .95rem;
+    text-decoration: none;
+    background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, .10), transparent 38%),
+        rgba(15, 23, 42, .72);
+    border: 1px solid rgba(148, 163, 184, .16);
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
 }
 
-.cd-recent-row:last-child {
-    border-bottom: 0;
+.cd-recent-row:hover {
+    transform: translateY(-2px);
+    border-color: rgba(96, 165, 250, .45);
+    background: rgba(37, 99, 235, .18);
 }
 
 .cd-recent-name {
-    color: #0f172a;
-    font-weight: 800;
+    color: #f9fafb;
+    font-weight: 900;
 }
 
-.cd-recent-meta {
-    color: #64748b;
-    font-size: .82rem;
+.cd-recent-thumb,
+.cd-recent-thumb-placeholder {
+    width: 48px;
+    height: 66px;
+    border-radius: 10px;
+    flex: 0 0 auto;
+}
+
+.cd-recent-thumb {
+    object-fit: cover;
+    border: 1px solid rgba(148, 163, 184, .22);
+    background: #0f172a;
+}
+
+.cd-recent-thumb-placeholder {
+    border: 1px dashed rgba(148, 163, 184, .28);
+    background: rgba(15, 23, 42, .72);
+    color: #94a3b8;
+    display: grid;
+    place-items: center;
+    font-size: .65rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.05;
+}
+
+.cd-recent-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.cd-recent-grade-wrap {
+    margin-left: auto;
 }
 
 .cd-grade-pill {
-    background: rgba(34, 197, 94, .12);
-    color: #15803d;
+    background: rgba(34, 197, 94, .18);
+    color: #bbf7d0;
+    border: 1px solid rgba(34, 197, 94, .22);
     border-radius: 8px;
     padding: .25rem .5rem;
     font-size: .8rem;
-    font-weight: 800;
+    font-weight: 900;
     white-space: nowrap;
 }
 
-.cd-upload-zone {
-    border: 1px dashed rgba(37, 99, 235, .35);
-    border-radius: 12px;
-    background: rgba(37, 99, 235, .03);
-    padding: 1rem;
+/* Actions */
+.cd-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    position: sticky;
+    bottom: .75rem;
+    z-index: 25;
+    margin: 0 .75rem .75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(96, 165, 250, .24);
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, .86);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 .85rem 2rem rgba(0, 0, 0, .35);
 }
 
-.cd-small-help {
-    color: #64748b;
-    font-size: .82rem;
+.cd-actions-right {
+    display: flex;
+    gap: .75rem;
 }
 
+.cd-actions .btn-primary {
+    font-weight: 900;
+}
+
+.add-card-page .btn-outline-secondary {
+    color: #dbeafe !important;
+    border-color: rgba(148, 163, 184, .45) !important;
+    background-color: rgba(37, 50, 70, .55) !important;
+    font-weight: 750;
+}
+
+.add-card-page .btn-outline-secondary:hover,
+.add-card-page .btn-outline-secondary:focus {
+    color: #ffffff !important;
+    background-color: #111827 !important;
+    border-color: rgba(96, 165, 250, .65) !important;
+}
+
+.add-card-page .alert-info {
+    background: rgba(14, 165, 233, .16);
+    border-color: rgba(125, 211, 252, .35);
+    color: #dbeafe;
+}
+
+.add-card-page .row.g-3 {
+    align-items: flex-start;
+}
+
+.add-card-page .cd-section .row {
+    max-width: 1100px;
+}
+
+/* Responsive */
 @media (max-width: 1199.98px) {
     .add-card-shell {
         grid-template-columns: 1fr;
@@ -291,6 +600,10 @@
 
     .cd-sidebar {
         display: none;
+    }
+
+    .cd-actions {
+        bottom: .5rem;
     }
 }
 
@@ -305,6 +618,7 @@
 
     .cd-actions-right {
         width: 100%;
+        flex-direction: column;
     }
 
     .cd-actions-right .btn,
@@ -313,202 +627,13 @@
     }
 }
 
-/* Strong light input override: wins against global dark form styling */
-.add-card-page input.form-control,
-.add-card-page select.form-select,
-.add-card-page textarea.form-control {
-    background-color: #eef2f7 !important;
-    color: #111827 !important;
-    border-color: rgba(15, 23, 42, .22) !important;
-    box-shadow: none;
+@media (max-width: 575.98px) {
+    .cd-type-toggle {
+        grid-template-columns: 1fr !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
 }
-
-.add-card-page input.form-control:focus,
-.add-card-page select.form-select:focus,
-.add-card-page textarea.form-control:focus {
-    background-color: #f8fafc !important;
-    color: #0f172a !important;
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .14) !important;
-}
-
-.add-card-page input.form-control::placeholder,
-.add-card-page textarea.form-control::placeholder {
-    color: #6b7280 !important;
-    opacity: 1 !important;
-}
-
-.add-card-page select.form-select option {
-    background-color: #ffffff !important;
-    color: #111827 !important;
-}
-
-
-/* Keep Add Card fields from stretching excessively wide */
-.add-card-page .row.g-3 {
-    align-items: flex-start;
-}
-
-.add-card-page .cd-section .row {
-    max-width: 1100px;
-}
-
-
-/* Force Raw / Graded selector to stay compact */
-.add-card-page .cd-type-toggle {
-    display: inline-grid !important;
-    grid-template-columns: 140px 140px !important;
-    width: auto !important;
-    max-width: 300px !important;
-    gap: .5rem !important;
-}
-
-.add-card-page .cd-type-option label {
-    min-height: 34px !important;
-    padding: .2rem .55rem !important;
-    font-size: .84rem !important;
-    border-radius: 8px !important;
-    white-space: nowrap !important;
-}
-
-
-.cd-recent-row {
-    justify-content: flex-start;
-}
-
-.cd-recent-thumb {
-    width: 42px;
-    height: 58px;
-    border-radius: 7px;
-    object-fit: cover;
-    border: 1px solid rgba(15, 23, 42, .14);
-    background: #e5e7eb;
-    flex: 0 0 auto;
-}
-
-.cd-recent-thumb-placeholder {
-    width: 42px;
-    height: 58px;
-    border-radius: 7px;
-    border: 1px dashed rgba(15, 23, 42, .22);
-    background: #eef2f7;
-    color: #64748b;
-    display: grid;
-    place-items: center;
-    font-size: .65rem;
-    font-weight: 800;
-    text-align: center;
-    line-height: 1.05;
-    flex: 0 0 auto;
-}
-
-.cd-recent-info {
-    min-width: 0;
-    flex: 1;
-}
-
-.cd-recent-grade-wrap {
-    margin-left: auto;
-}
-
-
-.cd-preview-image {
-    max-width: 100%;
-    max-height: 320px;
-    border-radius: 12px;
-    object-fit: contain;
-    box-shadow: 0 .45rem 1.2rem rgba(15, 23, 42, .14);
-    background: #eef2f7;
-}
-
-.cd-preview-file-name {
-    color: #334155;
-    font-size: .82rem;
-    margin-top: .75rem;
-    word-break: break-word;
-}
-
-.cd-acquisition-note {
-    margin-top: .6rem;
-    padding: .75rem .85rem;
-    border-radius: 10px;
-    background: #eef2ff;
-    border: 1px solid rgba(37, 99, 235, .18);
-    color: #1e3a8a;
-    font-size: .86rem;
-    font-weight: 650;
-}
-
-.cd-acquisition-note.existing {
-    background: #f8fafc;
-    border-color: rgba(15, 23, 42, .12);
-    color: #334155;
-}
-
-.cd-acquisition-note.new {
-    background: #ecfdf5;
-    border-color: rgba(22, 163, 74, .22);
-    color: #166534;
-}
-
-.add-card-page .form-control:disabled,
-.add-card-page .form-select:disabled {
-    background-color: #d1d5db !important;
-    color: #374151 !important;
-    opacity: 1 !important;
-    cursor: not-allowed;
-}
-
-.cd-inbox-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: .75rem;
-    margin-top: .85rem;
-}
-
-.cd-inbox-option {
-    position: relative;
-}
-
-.cd-inbox-option input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.cd-inbox-option label {
-    display: block;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    background: #f8fafc;
-    padding: .4rem;
-    cursor: pointer;
-    transition: border-color .15s ease, box-shadow .15s ease;
-}
-
-.cd-inbox-option input:checked + label {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 .2rem rgba(37, 99, 235, .15);
-}
-
-.cd-inbox-thumb {
-    width: 100%;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 8px;
-    background: #e5e7eb;
-}
-
-.cd-inbox-caption {
-    color: #334155;
-    font-size: .75rem;
-    font-weight: 700;
-    margin-top: .35rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 </style>
 
 <div class="add-card-page">
@@ -540,9 +665,9 @@
         <input type="hidden" name="force_new" value="1">
         {% endif %}
 
-        <div class="cd-panel">
+        <div class="cd-panel cd-main-panel">
             <div class="cd-panel-body">
-                <p class="text-muted mb-3"><strong>Card Code:</strong> Auto-generated when saved</p>
+                <div class="cd-form-intro mb-3"><span class="cd-form-intro-label">Card Code</span><span class="cd-form-intro-value">Auto-generated when saved</span></div>
 
                 <section class="cd-section">
                     <div class="cd-section-title">Player</div>
@@ -601,11 +726,11 @@
                     <div class="cd-type-toggle mb-3">
                         <div class="cd-type-option">
                             <input type="radio" id="card_type_raw" name="card_type_choice" value="Raw" {% if not clone_source or clone_source.card_type != "Graded" %}checked{% endif %}>
-                            <label for="card_type_raw">● Raw / Ungraded</label>
+                            <label for="card_type_raw"><span class="cd-type-main">RAW</span><span class="cd-type-sub">Ungraded card</span></label>
                         </div>
                         <div class="cd-type-option">
                             <input type="radio" id="card_type_graded" name="card_type_choice" value="Graded" {% if clone_source and clone_source.card_type == "Graded" %}checked{% endif %}>
-                            <label for="card_type_graded">○ Graded</label>
+                            <label for="card_type_graded"><span class="cd-type-main">GRADED</span><span class="cd-type-sub">Slabbed card</span></label>
                         </div>
                     </div>
 
@@ -717,41 +842,19 @@
 
                 <section class="cd-section">
                     <div class="cd-section-title">Images</div>
-                    <div class="row g-3 align-items-start">
+                    <div class="row g-3 align-items-center">
                         <div class="col-lg-4 col-md-6">
                             <div class="cd-upload-zone">
-                                <label class="form-label">Upload From This Device</label>
+                                <label class="form-label">Card Image</label>
                                 <input class="form-control" type="file" name="card_image" id="card_image_input" accept="image/*">
-                                <div class="cd-small-help mt-2">Use this for a file on your computer.</div>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-md-6">
+                        <div class="col-lg-4 col-md-6">
                             <div class="cd-small-help">
-                                Or select a photo already captured into CardDesk from Mobile Capture → Image Inbox.
-                                <a href="{{ url_for('image_inbox') }}">Open Image Inbox</a>
+                                You can upload a front image now. Additional image support can be added later.
                             </div>
                         </div>
                     </div>
-
-                    {% if image_inbox_items %}
-                        <div class="mt-3">
-                            <label class="form-label">Select From Image Inbox</label>
-                            <div class="cd-inbox-grid">
-                                {% for inbox_image in image_inbox_items %}
-                                    <div class="cd-inbox-option">
-                                        <input type="radio" name="inbox_image_id" id="inbox_image_{{ inbox_image.id }}" value="{{ inbox_image.id }}" data-image-url="{{ url_for('uploaded_file', filename=inbox_image.image_filename) }}" data-image-name="{{ inbox_image.source_filename or inbox_image.image_filename }}" {% if selected_inbox_image_id == inbox_image.id %}checked{% endif %}>
-                                        <label for="inbox_image_{{ inbox_image.id }}">
-                                            <img class="cd-inbox-thumb" src="{{ url_for('uploaded_file', filename=inbox_image.image_filename) }}" alt="Image Inbox photo">
-                                            <div class="cd-inbox-caption">{{ inbox_image.source_filename or inbox_image.image_filename }}</div>
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <button class="btn btn-sm btn-outline-secondary mt-2" type="button" id="clearInboxImageBtn">Clear Inbox Selection</button>
-                        </div>
-                    {% else %}
-                        <div class="cd-small-help mt-3">No available Image Inbox photos yet. Use Mobile Capture and choose Image Inbox Only to add some.</div>
-                    {% endif %}
                 </section>
             </div>
 
@@ -768,16 +871,27 @@
             <div class="cd-panel">
                 <div class="cd-panel-body">
                     <div class="cd-sidebar-title">Card Preview</div>
-                    <div class="cd-preview-box" id="card-preview-box">
-                        <div id="card-preview-empty">
-                            <div class="cd-preview-icon">▧</div>
-                            <div class="fw-bold text-dark">No image selected</div>
-                            <div class="cd-small-help mt-2">Upload an image to attach it to this inventory record.</div>
+                    <div class="cd-preview-box cd-preview-card-shell" id="card-preview-box">
+                        <div class="cd-preview-stage">
+                            <div id="card-preview-empty" class="cd-preview-empty-state">
+                                <div class="cd-preview-icon">▧</div>
+                                <div class="fw-bold text-dark">No image selected</div>
+                                <div class="cd-small-help mt-2">Upload an image to attach it to this inventory record.</div>
+                            </div>
+
+                            <div id="card-preview-live" style="display: none;">
+                                <img id="card-preview-image" class="cd-preview-image" src="" alt="Selected card preview">
+                                <div id="card-preview-file-name" class="cd-preview-file-name"></div>
+                            </div>
                         </div>
 
-                        <div id="card-preview-live" style="display: none;">
-                            <img id="card-preview-image" class="cd-preview-image" src="" alt="Selected card preview">
-                            <div id="card-preview-file-name" class="cd-preview-file-name"></div>
+                        <div class="cd-preview-summary">
+                            <div class="cd-preview-player" id="preview-player-name">Player / Subject</div>
+                            <div class="cd-preview-meta" id="preview-card-meta">Year · Brand · Card #</div>
+                            <div class="cd-preview-chip-row">
+                                <span class="cd-preview-chip" id="preview-card-type">Raw</span>
+                                <span class="cd-preview-chip cd-preview-chip-muted" id="preview-card-storage">No storage yet</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -805,7 +919,7 @@
                         {% for card in recent_added_cards %}
                             <a class="cd-recent-row text-decoration-none" href="{{ url_for('card_detail', card_id=card.id) }}">
                                 {% if card.image_filename %}
-                                    <img class="cd-recent-thumb" src="{{ url_for('uploaded_file', filename=card.image_filename) }}" alt="{{ card.player_name or 'Card' }} thumbnail">
+                                    <img class="cd-recent-thumb" src="{{ url_for('static', filename='uploads/' ~ card.image_filename) }}" alt="{{ card.player_name or 'Card' }} thumbnail">
                                 {% else %}
                                     <div class="cd-recent-thumb-placeholder">No<br>Image</div>
                                 {% endif %}
@@ -927,58 +1041,75 @@ const previewEmpty = document.getElementById("card-preview-empty");
 const previewLive = document.getElementById("card-preview-live");
 const previewImage = document.getElementById("card-preview-image");
 const previewFileName = document.getElementById("card-preview-file-name");
-const inboxImageInputs = document.querySelectorAll('[name="inbox_image_id"]');
-const clearInboxImageBtn = document.getElementById("clearInboxImageBtn");
-
-function showPreview(imageUrl, imageName) {
-    previewImage.src = imageUrl || "";
-    previewFileName.textContent = imageName || "";
-    previewEmpty.style.display = imageUrl ? "none" : "block";
-    previewLive.style.display = imageUrl ? "block" : "none";
-}
-
-inboxImageInputs.forEach(input => {
-    input.addEventListener("change", function () {
-        if (this.checked) {
-            if (cardImageInput) {
-                cardImageInput.value = "";
-            }
-            showPreview(this.dataset.imageUrl, this.dataset.imageName || "Image Inbox photo");
-        }
-    });
-});
-
-if (clearInboxImageBtn) {
-    clearInboxImageBtn.addEventListener("click", function () {
-        inboxImageInputs.forEach(input => input.checked = false);
-        showPreview("", "");
-    });
-}
-
-const initiallySelectedInboxImage = document.querySelector('[name="inbox_image_id"]:checked');
-if (initiallySelectedInboxImage) {
-    showPreview(initiallySelectedInboxImage.dataset.imageUrl, initiallySelectedInboxImage.dataset.imageName || "Image Inbox photo");
-}
 
 if (cardImageInput) {
     cardImageInput.addEventListener("change", function () {
         const file = this.files && this.files[0];
 
         if (!file) {
-            showPreview("", "");
+            previewImage.src = "";
+            previewFileName.textContent = "";
+            previewLive.style.display = "none";
+            previewEmpty.style.display = "block";
             return;
         }
-
-        inboxImageInputs.forEach(input => input.checked = false);
 
         const reader = new FileReader();
 
         reader.onload = function (event) {
-            showPreview(event.target.result, file.name);
+            previewImage.src = event.target.result;
+            previewFileName.textContent = file.name;
+            previewEmpty.style.display = "none";
+            previewLive.style.display = "block";
         };
 
         reader.readAsDataURL(file);
     });
 }
+
+function updateCardPreviewSummary() {
+    const playerInput = document.querySelector('[name="player_name"]');
+    const yearInput = document.querySelector('[name="year"]');
+    const brandInput = document.querySelector('[name="brand"]');
+    const numberInput = document.querySelector('[name="card_number"]');
+    const storageInput = document.querySelector('[name="storage_location"]');
+    const selectedType = document.querySelector('[name="card_type_choice"]:checked');
+
+    const playerTarget = document.getElementById("preview-player-name");
+    const metaTarget = document.getElementById("preview-card-meta");
+    const typeTarget = document.getElementById("preview-card-type");
+    const storageTarget = document.getElementById("preview-card-storage");
+
+    if (!playerTarget || !metaTarget || !typeTarget || !storageTarget) {
+        return;
+    }
+
+    const player = playerInput && playerInput.value.trim() ? playerInput.value.trim() : "Player / Subject";
+    const year = yearInput && yearInput.value.trim() ? yearInput.value.trim() : "Year";
+    const brand = brandInput && brandInput.value.trim() ? brandInput.value.trim() : "Brand";
+    const number = numberInput && numberInput.value.trim() ? `#${numberInput.value.trim()}` : "Card #";
+    const storage = storageInput && storageInput.value.trim() ? storageInput.value.trim() : "No storage yet";
+    const cardType = selectedType ? selectedType.value : "Raw";
+
+    playerTarget.textContent = player;
+    metaTarget.textContent = `${year} · ${brand} · ${number}`;
+    typeTarget.textContent = cardType;
+    storageTarget.textContent = storage;
+}
+
+["player_name", "year", "brand", "card_number", "storage_location"].forEach(function(fieldName) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (field) {
+        field.addEventListener("input", updateCardPreviewSummary);
+        field.addEventListener("change", updateCardPreviewSummary);
+    }
+});
+
+document.querySelectorAll('[name="card_type_choice"]').forEach(function(input) {
+    input.addEventListener("change", updateCardPreviewSummary);
+});
+
+updateCardPreviewSummary();
+
 </script>
 {% endblock %}
