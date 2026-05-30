@@ -392,7 +392,7 @@ def rename_image_for_inventory(image_filename, card_like):
 
     year_part = slugify_image_part(getattr(card_like, "year", None))
     player_part = slugify_image_part(getattr(card_like, "player_name", None))
-    product_part = slugify_image_part(getattr(card_like, "brand", None))
+    product_part = slugify_image_part(getattr(card_like, "set_name", None) or getattr(card_like, "brand", None))
     number_part = slugify_image_part(getattr(card_like, "card_number", None))
 
     filename_parts = [part for part in [year_part, player_part, product_part, number_part] if part]
@@ -696,6 +696,71 @@ def get_deal_cart_cards():
 
     return active_cards
 
+
+def get_inventory_health_summary():
+    """Return quick counts for records that need cleanup or business follow-up."""
+    try:
+        active_inventory_query = Card.query.filter(Card.status != "Sold").filter(Card.collection_type == "Inventory")
+        all_cards_query = Card.query
+
+        missing_cost_count = all_cards_query.filter(Card.purchase_price.is_(None)).count()
+        missing_storage_count = active_inventory_query.filter(
+            db.or_(Card.storage_location.is_(None), Card.storage_location == "")
+        ).count()
+        missing_asking_price_count = active_inventory_query.filter(
+            db.or_(Card.asking_price.is_(None), Card.asking_price == 0)
+        ).count()
+        missing_estimated_value_count = active_inventory_query.filter(
+            db.or_(Card.estimated_value.is_(None), Card.estimated_value == 0)
+        ).count()
+        ai_review_count = CardImportStaging.query.filter(
+            CardImportStaging.ai_status.in_(["Pending Review", "Needs Manual Review"])
+        ).count()
+
+        health_issue_count = (
+            missing_cost_count
+            + missing_storage_count
+            + missing_asking_price_count
+            + missing_estimated_value_count
+            + ai_review_count
+        )
+
+        return {
+            "missing_cost_count": missing_cost_count,
+            "missing_storage_count": missing_storage_count,
+            "missing_asking_price_count": missing_asking_price_count,
+            "missing_estimated_value_count": missing_estimated_value_count,
+            "ai_review_count": ai_review_count,
+            "health_issue_count": health_issue_count,
+        }
+    except Exception:
+        return {
+            "missing_cost_count": 0,
+            "missing_storage_count": 0,
+            "missing_asking_price_count": 0,
+            "missing_estimated_value_count": 0,
+            "ai_review_count": 0,
+            "health_issue_count": 0,
+        }
+
+
+def describe_inventory_health_issues(card):
+    """Return readable cleanup labels for one card."""
+    issues = []
+
+    if card.purchase_price is None:
+        issues.append("Missing Cost")
+
+    if card.status != "Sold" and card.collection_type == "Inventory":
+        if not card.storage_location:
+            issues.append("Missing Storage")
+        if card.asking_price in (None, 0):
+            issues.append("Missing Asking Price")
+        if card.estimated_value in (None, 0):
+            issues.append("Missing Comp Value")
+
+    return issues
+
 @app.context_processor
 def inject_global_counts():
     pending_import_count = 0
@@ -717,6 +782,8 @@ def inject_global_counts():
         manual_review_count = 0
         ai_import_action_count = 0
 
+    inventory_health = get_inventory_health_summary()
+
     return {
         "deal_cart_count": sum(
             (card.quantity or 1)
@@ -724,7 +791,12 @@ def inject_global_counts():
         ),
         "pending_import_count": pending_import_count,
         "manual_review_count": manual_review_count,
-        "ai_import_action_count": ai_import_action_count
+        "ai_import_action_count": ai_import_action_count,
+        "health_issue_count": inventory_health["health_issue_count"],
+        "missing_cost_count": inventory_health["missing_cost_count"],
+        "missing_storage_health_count": inventory_health["missing_storage_count"],
+        "missing_asking_price_count": inventory_health["missing_asking_price_count"],
+        "missing_estimated_value_count": inventory_health["missing_estimated_value_count"],
     }
 
 
@@ -1140,6 +1212,93 @@ def dashboard():
         ai_action_needed_cards=ai_action_needed_cards,
         mobile_capture_url=mobile_capture_url,
         mobile_capture_qr_url=mobile_capture_qr_url
+    )
+
+
+@app.route("/inventory-health")
+def inventory_health():
+    """Dedicated cleanup page for inventory records that need finishing."""
+    issue_filter = request.args.get("issue", "all")
+
+    base_query = Card.query
+    active_inventory_query = Card.query.filter(Card.status != "Sold").filter(Card.collection_type == "Inventory")
+
+    issue_definitions = [
+        {
+            "key": "cost",
+            "label": "Missing Cost",
+            "description": "Cost protects profit, ROI, and sales analytics.",
+            "count": base_query.filter(Card.purchase_price.is_(None)).count(),
+        },
+        {
+            "key": "storage",
+            "label": "Missing Storage Location",
+            "description": "Storage location helps you find cards when they sell.",
+            "count": active_inventory_query.filter(db.or_(Card.storage_location.is_(None), Card.storage_location == "")).count(),
+        },
+        {
+            "key": "asking",
+            "label": "Missing Asking Price",
+            "description": "Asking price helps estimate potential revenue.",
+            "count": active_inventory_query.filter(db.or_(Card.asking_price.is_(None), Card.asking_price == 0)).count(),
+        },
+        {
+            "key": "value",
+            "label": "Missing Comp Value",
+            "description": "Comp value helps estimate inventory value.",
+            "count": active_inventory_query.filter(db.or_(Card.estimated_value.is_(None), Card.estimated_value == 0)).count(),
+        },
+    ]
+
+    if issue_filter == "cost":
+        cards_query = base_query.filter(Card.purchase_price.is_(None))
+        current_label = "Missing Cost"
+    elif issue_filter == "storage":
+        cards_query = active_inventory_query.filter(db.or_(Card.storage_location.is_(None), Card.storage_location == ""))
+        current_label = "Missing Storage Location"
+    elif issue_filter == "asking":
+        cards_query = active_inventory_query.filter(db.or_(Card.asking_price.is_(None), Card.asking_price == 0))
+        current_label = "Missing Asking Price"
+    elif issue_filter == "value":
+        cards_query = active_inventory_query.filter(db.or_(Card.estimated_value.is_(None), Card.estimated_value == 0))
+        current_label = "Missing Comp Value"
+    else:
+        issue_filter = "all"
+        cards_query = base_query.filter(
+            db.or_(
+                Card.purchase_price.is_(None),
+                db.and_(
+                    Card.status != "Sold",
+                    Card.collection_type == "Inventory",
+                    db.or_(
+                        Card.storage_location.is_(None),
+                        Card.storage_location == "",
+                        Card.asking_price.is_(None),
+                        Card.asking_price == 0,
+                        Card.estimated_value.is_(None),
+                        Card.estimated_value == 0,
+                    )
+                )
+            )
+        )
+        current_label = "All Inventory Health Issues"
+
+    cards_needing_attention = cards_query.order_by(Card.id.desc()).limit(100).all()
+    card_issue_map = {
+        card.id: describe_inventory_health_issues(card)
+        for card in cards_needing_attention
+    }
+
+    summary = get_inventory_health_summary()
+
+    return render_template(
+        "inventory_health.html",
+        issue_definitions=issue_definitions,
+        cards_needing_attention=cards_needing_attention,
+        card_issue_map=card_issue_map,
+        issue_filter=issue_filter,
+        current_label=current_label,
+        summary=summary,
     )
 
 @app.route("/storage")
@@ -2256,41 +2415,17 @@ def apply_staged_import_form(staged_card, form_data):
 
 
 def validate_staged_card_for_import(staged_card):
-    """Return missing required inventory-intake fields for a staged card."""
-    required_fields = [
-        ("player_name", "Player / Subject"),
-        ("sport", "Sport"),
-        ("card_type", "Card Type"),
-        ("collection_type", "Collection Type"),
-        ("status", "Status"),
-        ("quantity", "Quantity"),
-        ("year", "Year"),
-        ("brand", "Brand"),
-        ("set_name", "Set"),
-        ("card_number", "Card Number"),
-        ("storage_location", "Storage Location"),
-        ("purchase_price", "Cost"),
-    ]
+    """Return missing required fields for AI import.
 
+    AI recognition is trusted for card identity fields during fast intake.
+    Cost stays required because it protects profit, ROI, and sales analytics.
+    """
     missing_fields = []
 
-    for field_name, label in required_fields:
-        value = getattr(staged_card, field_name, None)
-
-        if value is None:
-            missing_fields.append(label)
-            continue
-
-        if isinstance(value, str) and not value.strip():
-            missing_fields.append(label)
-            continue
-
-        if field_name == "quantity":
-            try:
-                if int(value) < 1:
-                    missing_fields.append(label)
-            except (TypeError, ValueError):
-                missing_fields.append(label)
+    if staged_card.purchase_price is None:
+        missing_fields.append("Cost")
+    elif isinstance(staged_card.purchase_price, str) and not staged_card.purchase_price.strip():
+        missing_fields.append("Cost")
 
     return missing_fields
 
