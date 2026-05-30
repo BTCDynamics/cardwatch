@@ -1013,6 +1013,39 @@ def get_deal_cart_quantity():
     return sum((card.quantity or 1) for card in get_deal_cart_cards())
 
 
+
+
+def build_reference_search_query(staged_card):
+    parts = [
+        staged_card.year,
+        staged_card.brand,
+        staged_card.set_name,
+        staged_card.player_name,
+        f"#{staged_card.card_number}" if staged_card.card_number else None,
+        staged_card.variation,
+    ]
+
+    return " ".join(str(part).strip() for part in parts if part).strip()
+
+
+def build_reference_links(staged_card):
+    query = build_reference_search_query(staged_card)
+    encoded = quote(query, safe="")
+
+    return {
+        "query": query,
+        "google_images": f"https://www.google.com/search?tbm=isch&q={encoded}",
+        "ebay": f"https://www.ebay.com/sch/i.html?_nkw={encoded}",
+        "comc": f"https://www.comc.com/Cards,sr,{encoded}",
+        "sports_cards_pro": f"https://www.sportscardspro.com/search-products?q={encoded}",
+    }
+
+
+
+
+
+
+
 @app.route("/")
 def dashboard():
     today_value = date.today()
@@ -2542,6 +2575,7 @@ def ai_import_review():
         )
 
     duplicate_map = {card.id: find_probable_duplicate_from_staging(card) for card in staged_cards}
+    reference_links_map = {card.id: build_reference_links(card) for card in staged_cards}
 
     counts = {
         "pending": CardImportStaging.query.filter(CardImportStaging.ai_status == "Pending Review").count(),
@@ -2554,6 +2588,7 @@ def ai_import_review():
         "ai_import_review.html",
         staged_cards=staged_cards,
         duplicate_map=duplicate_map,
+        reference_links_map=reference_links_map,
         status_filter=status_filter,
         counts=counts,
         focus_id=focus_id,
