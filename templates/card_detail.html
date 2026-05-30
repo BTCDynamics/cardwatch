@@ -4,9 +4,9 @@
 
 {% block content %}
 <style>
-/* CardDesk Card Detail - Add Card style */
+/* CardDesk Card Detail - darker, consistent app theme */
 .card-detail-page {
-    color: #0f172a;
+    color: #e5e7eb;
 }
 
 .card-detail-hero {
@@ -15,6 +15,11 @@
     align-items: flex-start;
     gap: 1rem;
     margin-bottom: 1.25rem;
+    padding: 1.15rem 1.25rem;
+    border-radius: 1rem;
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border: 1px solid rgba(148, 163, 184, .18);
+    box-shadow: 0 .65rem 1.6rem rgba(0, 0, 0, .22);
 }
 
 .card-detail-title-wrap {
@@ -24,8 +29,8 @@
 }
 
 .card-detail-page h1 {
-    color: #0f172a;
-    font-weight: 800;
+    color: #ffffff;
+    font-weight: 900;
 }
 
 .card-detail-shell {
@@ -36,10 +41,11 @@
 }
 
 .cd-panel {
-    background: #ffffff;
-    border: 1px solid rgba(15, 23, 42, .10);
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border: 1px solid rgba(148, 163, 184, .18);
     border-radius: 14px;
-    box-shadow: 0 .45rem 1.4rem rgba(15, 23, 42, .06);
+    box-shadow: 0 .65rem 1.6rem rgba(0, 0, 0, .22);
+    color: #e5e7eb;
 }
 
 .cd-panel-body {
@@ -47,7 +53,7 @@
 }
 
 .cd-section {
-    border-bottom: 1px solid rgba(15, 23, 42, .10);
+    border-bottom: 1px solid rgba(148, 163, 184, .16);
     padding-bottom: 1.05rem;
     margin-bottom: 1.05rem;
 }
@@ -58,11 +64,13 @@
     padding-bottom: 0;
 }
 
-.cd-section-title {
-    color: #0d47a1;
-    font-weight: 800;
+.cd-section-title,
+.cd-sidebar-title,
+.cd-fulfillment-summary-title {
+    color: #93c5fd;
+    font-weight: 900;
     font-size: .78rem;
-    letter-spacing: .04em;
+    letter-spacing: .06em;
     text-transform: uppercase;
     margin-bottom: .85rem;
 }
@@ -74,10 +82,17 @@
     max-width: 1100px;
 }
 
-.cd-detail-item {
-    background: #f1f5f9;
-    border: 1px solid rgba(15, 23, 42, .08);
+.cd-detail-item,
+.cd-money-card,
+.cd-notes-box,
+.cd-fulfillment-note {
+    background: rgba(15, 23, 42, .72);
+    border: 1px solid rgba(148, 163, 184, .16);
     border-radius: 10px;
+    color: #e5e7eb;
+}
+
+.cd-detail-item {
     padding: .8rem;
     min-height: 76px;
 }
@@ -86,17 +101,23 @@
     grid-column: span 2;
 }
 
-.cd-detail-label {
-    color: #475569;
-    font-size: .72rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: .35rem;
+.cd-detail-label,
+.cd-money-label,
+.cd-sidebar-label,
+.cd-fulfillment-mini-label,
+.card-detail-player-label {
+    color: #9ca3af !important;
+    font-size: .72rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .055em !important;
+    margin-bottom: .35rem !important;
 }
 
-.cd-detail-value {
-    color: #111827;
+.cd-detail-value,
+.cd-sidebar-value,
+.cd-fulfillment-mini-value {
+    color: #f9fafb;
     font-weight: 800;
     word-break: break-word;
 }
@@ -109,30 +130,23 @@
 }
 
 .cd-money-card {
-    background: #f1f5f9;
-    border: 1px solid rgba(15, 23, 42, .08);
-    border-radius: 10px;
     padding: .9rem;
 }
 
-.cd-money-label {
-    color: #475569;
-    font-size: .72rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: .35rem;
-}
-
 .cd-money-value {
-    color: #111827;
+    color: #ffffff;
     font-size: 1.25rem;
     font-weight: 900;
     line-height: 1.1;
 }
 
+.cd-money-note,
+.health-description,
+.cd-sidebar-row .text-muted {
+    color: #94a3b8;
+}
+
 .cd-money-note {
-    color: #64748b;
     font-size: .78rem;
     margin-top: .3rem;
 }
@@ -143,24 +157,15 @@
     gap: 1rem;
 }
 
-.cd-sidebar-title {
-    color: #0d47a1;
-    font-weight: 800;
-    font-size: .82rem;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    margin-bottom: .75rem;
-}
-
 .cd-preview-box {
-    border: 1px dashed rgba(15, 23, 42, .20);
+    border: 1px dashed rgba(148, 163, 184, .28);
     border-radius: 13px;
     min-height: 300px;
     display: grid;
     place-items: center;
     text-align: center;
-    background: #f1f5f9;
-    color: #64748b;
+    background: rgba(15, 23, 42, .72);
+    color: #94a3b8;
     padding: 1rem;
 }
 
@@ -169,12 +174,12 @@
     max-height: 360px;
     border-radius: 12px;
     object-fit: contain;
-    box-shadow: 0 .45rem 1.2rem rgba(15, 23, 42, .14);
-    background: #e2e8f0;
+    box-shadow: 0 .55rem 1.35rem rgba(0, 0, 0, .35);
+    background: #0f172a;
 }
 
 .cd-empty-image {
-    color: #64748b;
+    color: #94a3b8;
     font-weight: 800;
 }
 
@@ -184,29 +189,19 @@
     align-items: center;
     gap: .75rem;
     padding: .7rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, .08);
+    border-bottom: 1px solid rgba(148, 163, 184, .14);
 }
 
 .cd-sidebar-row:last-child {
     border-bottom: 0;
 }
 
-.cd-sidebar-label {
-    color: #475569;
-    font-size: .75rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-}
-
 .cd-sidebar-value {
-    color: #111827;
-    font-weight: 900;
     text-align: right;
 }
 
 .cd-sidebar-blue {
-    color: #2563eb !important;
+    color: #93c5fd !important;
 }
 
 .cd-chip-row {
@@ -220,31 +215,31 @@
     align-items: center;
     border-radius: 999px;
     padding: .3rem .65rem;
-    background: #e2e8f0;
-    color: #111827;
+    background: rgba(148, 163, 184, .18);
+    color: #e5e7eb;
     font-size: .78rem;
     font-weight: 900;
-    border: 1px solid rgba(15, 23, 42, .08);
+    border: 1px solid rgba(148, 163, 184, .16);
 }
 
 .cd-chip-blue {
-    background: rgba(37, 99, 235, .12);
-    color: #1d4ed8;
+    background: rgba(37, 99, 235, .22);
+    color: #bfdbfe;
 }
 
 .cd-chip-green {
-    background: rgba(34, 197, 94, .12);
-    color: #15803d;
+    background: rgba(34, 197, 94, .18);
+    color: #bbf7d0;
 }
 
 .cd-chip-yellow {
-    background: rgba(245, 158, 11, .18);
-    color: #92400e;
+    background: rgba(245, 158, 11, .20);
+    color: #fde68a;
 }
 
 .cd-chip-red {
-    background: rgba(239, 68, 68, .12);
-    color: #b91c1c;
+    background: rgba(239, 68, 68, .18);
+    color: #fecaca;
 }
 
 .storage-pill {
@@ -252,23 +247,20 @@
     align-items: center;
     border-radius: 999px;
     padding: .3rem .7rem;
-    background: rgba(37, 99, 235, .10);
-    color: #2563eb;
-    font-weight: 900;
-    text-decoration: none;
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: 1px solid #1d4ed8 !important;
+    font-weight: 900 !important;
+    text-decoration: none !important;
 }
 
 .storage-pill:hover {
-    background: rgba(37, 99, 235, .16);
-    color: #1d4ed8;
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
 }
 
 .cd-notes-box {
-    background: #f1f5f9;
-    border: 1px solid rgba(15, 23, 42, .08);
-    border-radius: 10px;
     padding: .9rem;
-    color: #111827;
     white-space: pre-wrap;
     max-width: 1100px;
 }
@@ -278,8 +270,8 @@
     justify-content: space-between;
     gap: .75rem;
     padding: 1rem 1.25rem;
-    border-top: 1px solid rgba(15, 23, 42, .10);
-    background: rgba(248, 250, 252, .75);
+    border-top: 1px solid rgba(148, 163, 184, .16);
+    background: rgba(15, 23, 42, .72);
     border-radius: 0 0 14px 14px;
 }
 
@@ -293,6 +285,94 @@
 .cd-actions form {
     margin: 0;
 }
+
+.card-detail-thumb {
+    width: 58px;
+    height: 78px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(148, 163, 184, .22);
+    background: #0f172a;
+    box-shadow: 0 .35rem 1rem rgba(0, 0, 0, .35);
+    flex: 0 0 auto;
+}
+
+.card-detail-thumb-placeholder {
+    width: 58px;
+    height: 78px;
+    border-radius: 10px;
+    border: 1px dashed rgba(148, 163, 184, .28);
+    background: rgba(15, 23, 42, .72);
+    color: #94a3b8;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: .62rem;
+    font-weight: 800;
+    line-height: 1.05;
+    flex: 0 0 auto;
+}
+
+.card-detail-player-title {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+.card-detail-page .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Sidebar fulfillment/shipping summary */
+.cd-fulfillment-summary {
+    margin-top: .75rem;
+    padding: .85rem;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, .72);
+    border: 1px solid rgba(37, 99, 235, .22);
+}
+
+.cd-fulfillment-mini-row {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .42rem 0;
+    border-bottom: 1px solid rgba(148, 163, 184, .14);
+}
+
+.cd-fulfillment-mini-row:last-child {
+    border-bottom: 0;
+}
+
+.cd-fulfillment-mini-value {
+    font-size: .82rem;
+    text-align: right;
+}
+
+.cd-fulfillment-note {
+    margin-top: .6rem;
+    padding: .6rem;
+    font-size: .8rem;
+    font-weight: 700;
+    white-space: pre-wrap;
+}
+
+.cd-fulfillment-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: .28rem .62rem;
+    font-size: .78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.cd-fulfillment-needs { background: #fef3c7; color: #92400e; }
+.cd-fulfillment-pulled { background: #e5e7eb; color: #111827; }
+.cd-fulfillment-ready { background: #cffafe; color: #155e75; }
+.cd-fulfillment-shipped { background: #dbeafe; color: #1d4ed8; }
+.cd-fulfillment-delivered,
+.cd-fulfillment-completed { background: #dcfce7; color: #166534; }
 
 @media (max-width: 1199.98px) {
     .card-detail-shell {
@@ -334,141 +414,6 @@
         width: 100%;
     }
 }
-
-.storage-pill {
-    background: #2563eb !important;
-    color: #ffffff !important;
-    border: 1px solid #1d4ed8 !important;
-    font-weight: 900 !important;
-    text-decoration: none !important;
-}
-
-.storage-pill:hover {
-    background: #1d4ed8 !important;
-    color: #ffffff !important;
-}
-
-
-.card-detail-thumb {
-    width: 58px;
-    height: 78px;
-    border-radius: 10px;
-    object-fit: cover;
-    border: 1px solid rgba(15, 23, 42, .12);
-    background: #e2e8f0;
-    box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .10);
-    flex: 0 0 auto;
-}
-
-.card-detail-thumb-placeholder {
-    width: 58px;
-    height: 78px;
-    border-radius: 10px;
-    border: 1px dashed rgba(15, 23, 42, .18);
-    background: #f1f5f9;
-    color: #64748b;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    font-size: .62rem;
-    font-weight: 800;
-    line-height: 1.05;
-    flex: 0 0 auto;
-}
-
-
-.card-detail-player-label {
-    color: #475569 !important;
-    font-size: .78rem !important;
-    font-weight: 800 !important;
-    letter-spacing: .04em !important;
-    text-transform: uppercase !important;
-    margin-bottom: .35rem !important;
-}
-
-.card-detail-player-title {
-    color: #ffffff !important;
-    font-weight: 900 !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,.45);
-}
-
-
-/* Sidebar fulfillment/shipping summary */
-.cd-fulfillment-summary {
-    margin-top: .75rem;
-    padding: .85rem;
-    border-radius: 12px;
-    background: linear-gradient(145deg, #f8fafc, #eef2ff);
-    border: 1px solid rgba(37, 99, 235, .18);
-}
-
-.cd-fulfillment-summary-title {
-    color: #0d47a1;
-    font-size: .75rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: .55rem;
-}
-
-.cd-fulfillment-mini-row {
-    display: flex;
-    justify-content: space-between;
-    gap: .75rem;
-    padding: .42rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, .08);
-}
-
-.cd-fulfillment-mini-row:last-child {
-    border-bottom: 0;
-}
-
-.cd-fulfillment-mini-label {
-    color: #475569;
-    font-size: .72rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-}
-
-.cd-fulfillment-mini-value {
-    color: #111827;
-    font-size: .82rem;
-    font-weight: 900;
-    text-align: right;
-    word-break: break-word;
-}
-
-.cd-fulfillment-note {
-    margin-top: .6rem;
-    padding: .6rem;
-    border-radius: 9px;
-    background: #ffffff;
-    border: 1px solid rgba(15, 23, 42, .08);
-    color: #334155;
-    font-size: .8rem;
-    font-weight: 700;
-    white-space: pre-wrap;
-}
-
-.cd-fulfillment-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    padding: .28rem .62rem;
-    font-size: .78rem;
-    font-weight: 900;
-    white-space: nowrap;
-}
-
-.cd-fulfillment-needs { background: #fef3c7; color: #92400e; }
-.cd-fulfillment-pulled { background: #e5e7eb; color: #111827; }
-.cd-fulfillment-ready { background: #cffafe; color: #155e75; }
-.cd-fulfillment-shipped { background: #dbeafe; color: #1d4ed8; }
-.cd-fulfillment-delivered,
-.cd-fulfillment-completed { background: #dcfce7; color: #166534; }
-
 </style>
 
 {% set quantity = card.quantity or 1 %}
@@ -561,6 +506,27 @@
                             <div class="cd-money-note">
                                 {% if card.sold_price %}Sold at ${{ "%.2f"|format(sold_price) }} each{% else %}Based on asking price{% endif %}
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <section class="cd-section">
+                    <div class="cd-section-title">Acquisition Information</div>
+                    <div class="cd-detail-grid">
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Acquisition Source</div>
+                            <div class="cd-detail-value">{{ card.acquisition_source or 'Existing Inventory' }}</div>
+                        </div>
+
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Acquisition Date</div>
+                            <div class="cd-detail-value">{{ card.acquisition_date or card.purchase_date or '—' }}</div>
+                        </div>
+
+                        <div class="cd-detail-item">
+                            <div class="cd-detail-label">Acquisition Event</div>
+                            <div class="cd-detail-value">{{ card.acquisition_event or '—' }}</div>
                         </div>
                     </div>
                 </section>
@@ -743,6 +709,11 @@
                     <div class="cd-sidebar-row">
                         <div class="cd-sidebar-label">Quantity</div>
                         <div class="cd-sidebar-value cd-sidebar-blue">{{ quantity }}</div>
+                    </div>
+
+                    <div class="cd-sidebar-row">
+                        <div class="cd-sidebar-label">Acquired</div>
+                        <div class="cd-sidebar-value">{{ card.acquisition_source or 'Existing Inventory' }}</div>
                     </div>
 
                     <div class="cd-sidebar-row">
